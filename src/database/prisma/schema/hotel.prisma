@@ -1,0 +1,100 @@
+// ─── Hotel Domain ──────────────────────────────────────────────────────────────
+// Owns: Hotel entity. Future child schemas (room, booking, inventory, payment)
+// will add their own *.prisma files and reference Hotel by ID.
+//
+// onDelete: Cascade from Organization — if an org is hard-deleted all its hotels
+// are removed. Soft-delete (deletedAt) is the operational path; hard-delete is
+// only for legal/compliance erasure flows.
+
+model Hotel {
+  id                String                 @id @default(uuid())
+  name              String                 @db.VarChar(200)
+  slug              String                 @db.VarChar(64)
+  hotelCode         String?                @db.VarChar(20) // short mnemonic code e.g. "GRAND-NYC"
+  organizationId    String
+  organization      Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  status            HotelStatus            @default(ACTIVE)
+  operationalStatus HotelOperationalStatus @default(PRE_OPENING)
+  category          HotelCategory
+  starRating        Int                    @default(3)
+  email             String                 @db.VarChar(255)
+  phone             String                 @db.VarChar(20)
+  website           String?                @db.VarChar(255)
+  description       String?                @db.Text
+  timezone          String                 @default("UTC") @db.VarChar(50)
+  currency          String                 @default("USD") @db.VarChar(3) // ISO 4217
+
+  // Address
+  addressLine1 String   @db.VarChar(255)
+  addressLine2 String?  @db.VarChar(255)
+  city         String   @db.VarChar(100)
+  state        String?  @db.VarChar(100)
+  country      String   @db.VarChar(2)
+  postalCode   String?  @db.VarChar(20)
+  latitude     Decimal? @db.Decimal(9, 6)
+  longitude    Decimal? @db.Decimal(9, 6)
+
+  // Operations
+  checkInTime  String @default("14:00") @db.VarChar(5) // HH:MM 24h
+  checkOutTime String @default("11:00") @db.VarChar(5) // HH:MM 24h
+  totalRooms   Int    @default(0)
+
+  // Stored as string array — values validated at application layer against HotelAmenity enum
+  amenities String[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Room module back-relations
+  roomTypes RoomType[]  @relation("HotelRoomTypes")
+  rooms     Room[]      @relation("HotelRooms")
+  inventory Inventory[] @relation("HotelInventory")
+
+  // Booking module back-relation
+  bookings  Booking[]   @relation("HotelBookings")
+
+  // Payment module back-relations
+  payments  Payment[]   @relation("HotelPayments")
+  invoices  Invoice[]   @relation("HotelInvoices")
+
+  // OTA/Channel manager back-relations
+  otaMappings     OTAMapping[]     @relation("HotelOTAMappings")
+  syncJobs        SyncJob[]        @relation("HotelSyncJobs")
+  otaReservations OTAReservation[] @relation("HotelOTAReservations")
+
+  // Operations back-relations
+  housekeepingTasks  HousekeepingTask[]  @relation("HotelHousekeepingTasks")
+  maintenanceTickets MaintenanceTicket[] @relation("HotelMaintenanceTickets")
+  operationalTasks   OperationalTask[]   @relation("HotelOperationalTasks")
+
+  // Revenue/Pricing/Analytics back-relations
+  pricingRules       PricingRule[]       @relation("HotelPricingRules")
+  dynamicRates       DynamicRate[]       @relation("HotelDynamicRates")
+  revenueMetrics     RevenueMetric[]     @relation("HotelRevenueMetrics")
+  analyticsSnapshots AnalyticsSnapshot[] @relation("HotelAnalyticsSnapshots")
+
+  // Pricing Engine / Revenue Management back-relations
+  pricingCampaigns   PricingCampaign[]   @relation("HotelPricingCampaigns")
+  revenueTargets     RevenueTarget[]     @relation("HotelRevenueTargets")
+  forecastDataPoints ForecastDataPoint[] @relation("HotelForecastData")
+
+  // AI/Automation/Intelligence back-relations
+  automationRules    AutomationRule[]    @relation("HotelAutomationRules")
+  recommendations    Recommendation[]    @relation("HotelRecommendations")
+  operationalInsights OperationalInsight[] @relation("HotelOperationalInsights")
+  anomalyDetections  AnomalyDetection[]  @relation("HotelAnomalyDetections")
+
+  // slug is unique per organization (same slug allowed in different orgs)
+  @@unique([organizationId, slug])
+  // hotelCode unique per organization when provided
+  @@unique([organizationId, hotelCode])
+  @@index([organizationId])
+  @@index([status])
+  @@index([operationalStatus])
+  @@index([city, country])
+  @@index([starRating])
+  @@index([category])
+  @@index([deletedAt])
+  @@map("hotels")
+}

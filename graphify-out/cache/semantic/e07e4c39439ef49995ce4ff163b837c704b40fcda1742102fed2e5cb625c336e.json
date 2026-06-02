@@ -1,0 +1,1 @@
+{"nodes": [{"id": "deployment_ota_service", "label": "OTA Service Deployment", "file_type": "code", "source_file": "infrastructure/kubernetes/services/ota-service/deployment.yaml", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

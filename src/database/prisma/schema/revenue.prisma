@@ -1,0 +1,508 @@
+// ─── Revenue Management, Pricing Engine, and Analytics Domain ────────────────
+//
+// PricingRule:   Hotel/room-type scoped rule that adjusts rates. Rules are
+//                applied in descending priority order; the first matching rule
+//                wins (or all are stacked, depending on strategy).
+//                applicableDays: ["MON","TUE","WED","THU","FRI","SAT","SUN"] subset
+//                applicableSeasons: free-form month/season tags e.g. ["PEAK","DEC","JAN"]
+//
+// DynamicRate:   Computed nightly rate for a room type on a specific date.
+//                @@unique([roomTypeId, inventoryDate]) — one rate per room type per day.
+//                Recalculated by the pricing engine when rules or inventory change.
+//
+// RevenueMetric: Daily aggregated hotel KPIs (ADR, RevPAR, occupancy rate).
+//                @@unique([hotelId, metricDate]) — one record per hotel per day.
+//                Populated by the revenue calculation service.
+//
+// AnalyticsSnapshot: Point-in-time JSON snapshot for a hotel and snapshot type.
+//                    @@unique([hotelId, snapshotType, snapshotDate]) — idempotent.
+
+enum PricingStrategy {
+  FLAT_RATE
+  PERCENTAGE_ADJUSTMENT
+  OCCUPANCY_BASED
+  SEASONAL
+  WEEKEND
+  SPECIAL_EVENT
+  DEMAND_BASED
+}
+
+enum AdjustmentType {
+  INCREASE
+  DECREASE
+  FIXED
+}
+
+enum PricingRuleStatus {
+  ACTIVE
+  INACTIVE
+  DRAFT
+  ARCHIVED
+}
+
+enum SnapshotType {
+  DAILY_BOOKING
+  WEEKLY_BOOKING
+  MONTHLY_BOOKING
+  PAYMENT_SUMMARY
+  OTA_PERFORMANCE
+  HOUSEKEEPING_PERFORMANCE
+  OPERATIONAL_SUMMARY
+}
+
+// ─── PricingRule ──────────────────────────────────────────────────────────────
+
+model PricingRule {
+  id                String            @id @default(uuid())
+  organizationId    String
+  hotelId           String
+  hotel             Hotel             @relation("HotelPricingRules", fields: [hotelId], references: [id], onDelete: Restrict)
+  roomTypeId        String?
+  roomType          RoomType?         @relation("RoomTypePricingRules", fields: [roomTypeId], references: [id], onDelete: Restrict)
+  ruleName          String            @db.VarChar(200)
+  pricingStrategy   PricingStrategy
+  adjustmentType    AdjustmentType
+  adjustmentValue   Decimal           @db.Decimal(10, 4)
+  minimumPrice      Decimal?          @db.Decimal(10, 2)
+  maximumPrice      Decimal?          @db.Decimal(10, 2)
+  applicableDays    String[]          // subset of MON|TUE|WED|THU|FRI|SAT|SUN
+  applicableSeasons String[]          // free-form tags e.g. PEAK, JAN, SUMMER
+  activeFrom        DateTime          @db.Date
+  activeTo          DateTime?         @db.Date
+  priority          Int               @default(0)
+  status            PricingRuleStatus @default(DRAFT)
+  createdById       String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  dynamicRates DynamicRate[]
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([roomTypeId])
+  @@index([status])
+  @@index([pricingStrategy])
+  @@index([priority])
+  @@index([activeFrom, activeTo])
+  @@map("pricing_rules")
+}
+
+// ─── DynamicRate ──────────────────────────────────────────────────────────────
+
+model DynamicRate {
+  id              String       @id @default(uuid())
+  organizationId  String
+  hotelId         String
+  hotel           Hotel        @relation("HotelDynamicRates", fields: [hotelId], references: [id], onDelete: Restrict)
+  roomTypeId      String
+  roomType        RoomType     @relation("RoomTypeDynamicRates", fields: [roomTypeId], references: [id], onDelete: Restrict)
+  inventoryDate   DateTime     @db.Date
+  calculatedRate  Decimal      @db.Decimal(10, 2)
+  baseRate        Decimal      @db.Decimal(10, 2)
+  appliedRuleId   String?
+  appliedRule     PricingRule? @relation(fields: [appliedRuleId], references: [id], onDelete: SetNull)
+  occupancyFactor Decimal      @default(1.0) @db.Decimal(6, 4)
+  demandFactor    Decimal      @default(1.0) @db.Decimal(6, 4)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@unique([roomTypeId, inventoryDate])
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([roomTypeId])
+  @@index([inventoryDate])
+  @@index([appliedRuleId])
+  @@map("dynamic_rates")
+}
+
+// ─── RevenueMetric ────────────────────────────────────────────────────────────
+// Daily aggregation: one row per hotel per date.
+// occupancyRate: 0–100 (percentage)
+// adr: average daily rate across confirmed/checked-in bookings
+// revpar: revenue per available room = adr * (occupancyRate / 100)
+// cancellationRate: 0–100 (percentage of bookings cancelled on this date)
+
+model RevenueMetric {
+  id               String   @id @default(uuid())
+  organizationId   String
+  hotelId          String
+  hotel            Hotel    @relation("HotelRevenueMetrics", fields: [hotelId], references: [id], onDelete: Restrict)
+  metricDate       DateTime @db.Date
+  occupancyRate    Decimal  @db.Decimal(6, 4)
+  adr              Decimal  @db.Decimal(10, 2)
+  revpar           Decimal  @db.Decimal(10, 2)
+  totalRevenue     Decimal  @db.Decimal(14, 2)
+  bookingCount     Int      @default(0)
+  cancellationRate Decimal  @db.Decimal(6, 4)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([hotelId, metricDate])
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([metricDate])
+  @@map("revenue_metrics")
+}
+
+// ─── AnalyticsSnapshot ────────────────────────────────────────────────────────
+// Immutable-by-convention JSON snapshot for a hotel/snapshotType/date triple.
+// Re-generating replaces the row via upsert on the @@unique index.
+
+model AnalyticsSnapshot {
+  id              String       @id @default(uuid())
+  organizationId  String
+  hotelId         String
+  hotel           Hotel        @relation("HotelAnalyticsSnapshots", fields: [hotelId], references: [id], onDelete: Restrict)
+  snapshotType    SnapshotType
+  snapshotDate    DateTime     @db.Date
+  metricsPayload  Json
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@unique([hotelId, snapshotType, snapshotDate])
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([snapshotType])
+  @@index([snapshotDate])
+  @@map("analytics_snapshots")
+}
+
+// ─── Analytics Extensions ─────────────────────────────────────────────────────
+
+enum AnalyticsEventType {
+  BOOKING_CREATED
+  BOOKING_CANCELLED
+  BOOKING_CHECKED_IN
+  BOOKING_CHECKED_OUT
+  PAYMENT_COMPLETED
+  PAYMENT_REFUNDED
+  INVENTORY_RESERVED
+  INVENTORY_RELEASED
+  OTA_SYNC_COMPLETED
+  AGGREGATION_COMPLETED
+}
+
+enum AnalyticsReportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+enum AnalyticsReportType {
+  FINANCIAL
+  OCCUPANCY
+  OTA
+  BOOKINGS
+  OPERATIONS
+  DASHBOARD
+  CUSTOM
+}
+
+enum AggregationJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+// ─── AnalyticsEvent ───────────────────────────────────────────────────────────
+// Immutable event log for all analytics-relevant domain events.
+// externalEventId enforces idempotency — duplicate events are ignored.
+
+model AnalyticsEvent {
+  id              String             @id @default(uuid())
+  organizationId  String
+  hotelId         String?            @db.VarChar(255)
+  eventType       AnalyticsEventType
+  externalEventId String             @unique @db.VarChar(255)
+  eventData       Json
+  processedAt     DateTime?
+  processingError String?            @db.VarChar(500)
+  createdAt       DateTime           @default(now())
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([eventType])
+  @@index([processedAt])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+
+// ─── AnalyticsReport ─────────────────────────────────────────────────────────
+// Persistent report tracking — generated on demand, expires after 24 hours.
+
+model AnalyticsReport {
+  id             String                @id @default(uuid())
+  organizationId String
+  hotelId        String
+  reportType     AnalyticsReportType
+  reportStatus   AnalyticsReportStatus @default(PENDING)
+  dateFrom       DateTime              @db.Date
+  dateTo         DateTime              @db.Date
+  format         String                @default("json") @db.VarChar(10)
+  reportData     Json?
+  errorMessage   String?               @db.VarChar(500)
+  requestedById  String
+  completedAt    DateTime?
+  expiresAt      DateTime
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([reportType])
+  @@index([reportStatus])
+  @@index([expiresAt])
+  @@index([createdAt])
+  @@map("analytics_reports")
+}
+
+// ─── AnalyticsAggregationJob ─────────────────────────────────────────────────
+// Tracks scheduled aggregation jobs — one per hotel per day.
+// @@unique prevents duplicate jobs for the same hotel/type/date.
+
+model AnalyticsAggregationJob {
+  id             String               @id @default(uuid())
+  organizationId String
+  hotelId        String
+  jobType        String               @default("daily") @db.VarChar(50)
+  jobStatus      AggregationJobStatus @default(PENDING)
+  targetDate     DateTime             @db.Date
+  startedAt      DateTime?
+  completedAt    DateTime?
+  errorMessage   String?              @db.VarChar(500)
+  retryCount     Int                  @default(0)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@unique([hotelId, jobType, targetDate])
+  @@index([organizationId])
+  @@index([jobStatus])
+  @@index([targetDate])
+  @@map("analytics_aggregation_jobs")
+}
+
+// ─── Pricing Engine Extensions ───────────────────────────────────────────────
+
+enum ForecastConfidence {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum PricingTrigger {
+  MANUAL
+  OCCUPANCY_RULE
+  SEASONAL_RULE
+  DEMAND_FORECAST
+  SURGE
+  SCHEDULED
+  OTA_SYNC
+}
+
+enum RevenueSyncStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  PARTIAL
+}
+
+// ─── PricingCampaign ─────────────────────────────────────────────────────────
+// Time-bounded pricing campaign: applies a multiplier to all affected room types.
+// Multiple campaigns can coexist; highest-priority active campaign wins.
+
+model PricingCampaign {
+  id              String   @id @default(uuid())
+  organizationId  String
+  hotelId         String
+  hotel           Hotel    @relation("HotelPricingCampaigns", fields: [hotelId], references: [id], onDelete: Restrict)
+  campaignName    String   @db.VarChar(200)
+  description     String?  @db.VarChar(500)
+  multiplier      Decimal  @db.Decimal(5, 3)    // e.g., 1.250 (25% increase)
+  minimumPrice    Decimal? @db.Decimal(10, 2)
+  maximumPrice    Decimal? @db.Decimal(10, 2)
+  startDate       DateTime @db.Date
+  endDate         DateTime @db.Date
+  applicableRoomTypeIds String[]  // empty = all room types
+  priority        Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdById     String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([startDate, endDate])
+  @@index([isActive])
+  @@index([priority])
+  @@map("pricing_campaigns")
+}
+
+// ─── RevenueTarget ───────────────────────────────────────────────────────────
+// Monthly revenue goals per hotel. Populated by revenue managers.
+// @@unique([hotelId, targetPeriod]) — one target per hotel per month.
+
+model RevenueTarget {
+  id              String   @id @default(uuid())
+  organizationId  String
+  hotelId         String
+  hotel           Hotel    @relation("HotelRevenueTargets", fields: [hotelId], references: [id], onDelete: Restrict)
+  targetPeriod    String   @db.VarChar(7)      // YYYY-MM
+  targetRevenue   Decimal  @db.Decimal(14, 2)
+  targetRevPar    Decimal  @db.Decimal(10, 2)
+  targetAdr       Decimal  @db.Decimal(10, 2)
+  targetOccupancy Decimal  @db.Decimal(5, 4)   // 0.0000–1.0000
+  actualRevenue   Decimal? @db.Decimal(14, 2)  // filled by analytics aggregation
+  actualRevPar    Decimal? @db.Decimal(10, 2)
+  actualAdr       Decimal? @db.Decimal(10, 2)
+  actualOccupancy Decimal? @db.Decimal(5, 4)
+  createdById     String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([hotelId, targetPeriod])
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([targetPeriod])
+  @@map("revenue_targets")
+}
+
+// ─── RateRecommendation ──────────────────────────────────────────────────────
+// Algorithm-generated rate for a room type on a specific date.
+// @@unique([hotelId, roomTypeId, targetDate]) — one recommendation per slot.
+// expiresAt: recommendations older than 24h should be regenerated.
+
+model RateRecommendation {
+  id                  String   @id @default(uuid())
+  organizationId      String
+  hotelId             String
+  roomTypeId          String
+  targetDate          String   @db.VarChar(10)   // YYYY-MM-DD
+  basePrice           Decimal  @db.Decimal(10, 2)
+  recommendedPrice    Decimal  @db.Decimal(10, 2)
+  minPrice            Decimal  @db.Decimal(10, 2)
+  maxPrice            Decimal  @db.Decimal(10, 2)
+  confidenceScore     Decimal  @db.Decimal(4, 3)  // 0.000–1.000
+  occupancyFactor     Decimal  @db.Decimal(5, 3)
+  seasonalFactor      Decimal  @db.Decimal(5, 3)
+  demandFactor        Decimal  @db.Decimal(5, 3)
+  rationale           String?  @db.VarChar(1000)
+  appliedAt           DateTime?
+  expiresAt           DateTime
+  createdAt           DateTime @default(now())
+
+  @@unique([hotelId, roomTypeId, targetDate])
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([targetDate])
+  @@index([expiresAt])
+  @@map("rate_recommendations")
+}
+
+// ─── ForecastDataPoint ───────────────────────────────────────────────────────
+// Demand forecast for a hotel on a specific date.
+// @@unique([hotelId, forecastDate]) — one forecast per hotel per day.
+
+model ForecastDataPoint {
+  id                   String             @id @default(uuid())
+  organizationId       String
+  hotelId              String
+  hotel                Hotel              @relation("HotelForecastData", fields: [hotelId], references: [id], onDelete: Restrict)
+  forecastDate         String             @db.VarChar(10)  // YYYY-MM-DD
+  projectedOccupancy   Decimal            @db.Decimal(5, 4)
+  projectedAdr         Decimal            @db.Decimal(10, 2)
+  projectedRevPar      Decimal            @db.Decimal(10, 2)
+  confidence           ForecastConfidence @default(MEDIUM)
+  bookingVelocity      Decimal?           @db.Decimal(6, 2)  // bookings/day leading up to date
+  competitorRateIndex  Decimal?           @db.Decimal(5, 3)  // relative to market avg
+  eventImpact          Json?              // local events affecting demand
+  forecastedBy         String             @default("ALGORITHM") @db.VarChar(50)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@unique([hotelId, forecastDate])
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([forecastDate])
+  @@index([confidence])
+  @@map("forecast_data_points")
+}
+
+// ─── PricingAuditLog ─────────────────────────────────────────────────────────
+// Immutable audit trail for every pricing change — never updated or deleted.
+
+model PricingAuditLog {
+  id             String        @id @default(uuid())
+  organizationId String
+  hotelId        String
+  roomTypeId     String?
+  targetDate     String?       @db.VarChar(10)
+  actionType     String        @db.VarChar(100)  // RULE_CREATED, RATE_COMPUTED, SURGE_APPLIED, OTA_SYNCED
+  triggeredBy    PricingTrigger
+  previousPrice  Decimal?      @db.Decimal(10, 2)
+  newPrice       Decimal?      @db.Decimal(10, 2)
+  effectiveMultiplier Decimal? @db.Decimal(5, 3)
+  performedBy    String?       @db.VarChar(255)
+  ruleId         String?
+  campaignId     String?
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([roomTypeId])
+  @@index([triggeredBy])
+  @@index([actionType])
+  @@index([createdAt])
+  @@map("pricing_audit_logs")
+}
+
+// ─── OtaRateSync ─────────────────────────────────────────────────────────────
+// Tracks rate synchronization state per hotel/roomType/OTA/date combination.
+// Used to detect dirty rates that need re-pushing to OTA channels.
+
+model OtaRateSync {
+  id              String     @id @default(uuid())
+  organizationId  String
+  hotelId         String
+  roomTypeId      String
+  otaProviderId   String
+  targetDate      String     @db.VarChar(10)  // YYYY-MM-DD
+  syncedRate      Decimal    @db.Decimal(10, 2)
+  syncStatus      RevenueSyncStatus @default(PENDING)
+  syncedAt        DateTime?
+  errorMessage    String?    @db.VarChar(500)
+  retryCount      Int        @default(0)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@unique([hotelId, roomTypeId, otaProviderId, targetDate])
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([syncStatus])
+  @@index([targetDate])
+  @@map("ota_rate_syncs")
+}
+
+// ─── AnalyticsAuditLog ────────────────────────────────────────────────────────
+// Append-only audit trail for analytics access and report generation.
+
+model AnalyticsAuditLog {
+  id             String   @id @default(uuid())
+  organizationId String
+  userId         String
+  action         String   @db.VarChar(100)
+  resourceType   String   @db.VarChar(100)
+  resourceId     String?  @db.VarChar(255)
+  details        Json?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([resourceType])
+  @@index([createdAt])
+  @@map("analytics_audit_logs")
+}

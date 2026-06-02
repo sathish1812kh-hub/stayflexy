@@ -1,0 +1,21 @@
+{
+  "*.{ts,tsx}": [
+    "eslint --fix --max-warnings 0",
+    "prettier --write"
+  ],
+  "*.{js,mjs,cjs}": [
+    "prettier --write"
+  ],
+  "*.{json,yaml,yml,md}": [
+    "prettier --write"
+  ],
+  "services/*/src/**/*.ts": [
+    "prettier --write"
+  ],
+  "packages/*/src/**/*.ts": [
+    "prettier --write"
+  ],
+  "platform-validation/src/**/*.ts": [
+    "prettier --write"
+  ]
+}

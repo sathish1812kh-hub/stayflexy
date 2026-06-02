@@ -1,0 +1,67 @@
+name: Lint & Format
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  prettier:
+    name: Prettier Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '${{ env.NODE_VERSION }}'
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --check .
+
+  commitlint:
+    name: Commit Message Lint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '${{ env.NODE_VERSION }}'
+          cache: npm
+      - run: npm ci
+      - name: Lint commit messages
+        run: |
+          npx commitlint \
+            --from "${{ github.event.pull_request.base.sha }}" \
+            --to "${{ github.event.pull_request.head.sha }}" \
+            --verbose
+
+  typecheck-packages:
+    name: Type-Check Shared Packages
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - shared-types
+          - shared-errors
+          - shared-logger
+          - shared-config
+          - shared-auth
+          - shared-events
+          - shared-validation
+          - shared-database
+          - shared-observability
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '${{ env.NODE_VERSION }}'
+      - run: npm install
+        working-directory: packages/${{ matrix.package }}
+      - run: npx tsc --noEmit
+        working-directory: packages/${{ matrix.package }}

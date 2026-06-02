@@ -1,0 +1,18 @@
+---
+source_file: "src/infrastructure/distributed-locking/types/index.ts"
+type: "code"
+community: "Community 79"
+location: "L16"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_79
+---
+
+# LockEntry
+
+## Connections
+- [[InMemoryLockProvider.ts]] - `imports` [EXTRACTED]
+- [[index.ts_65]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_79

@@ -1,0 +1,53 @@
+name: Shared Packages CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'packages/**'
+      - 'infrastructure/observability/**'
+      - '.github/workflows/shared-packages.yml'
+  pull_request:
+    paths:
+      - 'packages/**'
+      - 'infrastructure/observability/**'
+
+jobs:
+  typecheck-packages:
+    name: TypeCheck All Packages
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - shared-types
+          - shared-errors
+          - shared-logger
+          - shared-config
+          - shared-auth
+          - shared-events
+          - shared-validation
+          - shared-database
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+        working-directory: packages/${{ matrix.package }}
+      - run: npx tsc --noEmit
+        working-directory: packages/${{ matrix.package }}
+
+  typecheck-infra:
+    name: TypeCheck Observability
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+        working-directory: infrastructure/observability
+      - run: npm run type-check
+        working-directory: infrastructure/observability
+      - run: npm test -- --passWithNoTests
+        working-directory: infrastructure/observability

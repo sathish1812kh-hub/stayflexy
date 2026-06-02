@@ -1,0 +1,220 @@
+{
+  "main": {
+    "id": "67d471c23b8e8fef",
+    "type": "split",
+    "children": [
+      {
+        "id": "d7f177f8425a758e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d4342c2931df4502",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "615f5e3462607d42",
+    "type": "split",
+    "children": [
+      {
+        "id": "37f8c2be90039cfe",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "60bbb0a727b79e04",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "624e05f21239479e",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "5bd449b3f04f3fe7",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "right": {
+    "id": "a4dd2bec6fea1064",
+    "type": "split",
+    "children": [
+      {
+        "id": "e3001c3e0de6af45",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "815ebf3404b5f280",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "49c147b6ef146823",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "d983fdf2443b38bd",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "40fc3a3b591cbb7c",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "f7650dfcb2ac3630",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "d4342c2931df4502",
+  "lastOpenFiles": [
+    "node_modules/prettier/plugins/yaml.mjs",
+    "node_modules/prettier/plugins/yaml.js",
+    "node_modules/prettier/plugins/typescript.mjs",
+    "node_modules/prettier/plugins/yaml.d.ts",
+    "node_modules/prettier/plugins/typescript.d.ts",
+    "node_modules/prettier/plugins/typescript.js",
+    "node_modules/prettier/plugins/postcss.js",
+    "node_modules/prettier/plugins/postcss.d.ts",
+    "node_modules/prettier/plugins/postcss.mjs",
+    "node_modules/prettier/plugins/meriyah.js",
+    "node_modules/prettier/plugins/meriyah.mjs",
+    "node_modules/cosmiconfig/README.md",
+    "node_modules/cosmiconfig-typescript-loader/node_modules/jiti/README.md",
+    "node_modules/cosmiconfig-typescript-loader/README.md",
+    "node_modules/npm-run-path/node_modules/path-key/readme.md",
+    "node_modules/npm-run-path/readme.md",
+    "node_modules/wrap-ansi/node_modules/ansi-styles/readme.md",
+    "node_modules/wrap-ansi/readme.md",
+    "node_modules/slice-ansi/node_modules/ansi-styles/readme.md",
+    "node_modules/slice-ansi/readme.md",
+    "node_modules/restore-cursor/node_modules/onetime/readme.md",
+    "node_modules/restore-cursor/readme.md",
+    "node_modules/string-width/node_modules/emoji-regex/README.md",
+    "node_modules/string-width/readme.md",
+    "node_modules/lint-staged/node_modules/chalk/readme.md",
+    "node_modules/lint-staged/README.md",
+    "node_modules/cliui/node_modules/is-fullwidth-code-point/readme.md",
+    "node_modules/cliui/node_modules/wrap-ansi/readme.md",
+    "node_modules/cliui/node_modules/string-width/readme.md",
+    "node_modules/cliui/node_modules/strip-ansi/readme.md",
+    "node_modules/cliui/node_modules/ansi-regex/readme.md",
+    "node_modules/cliui/node_modules/emoji-regex/README.md",
+    "node_modules/cliui/README.md",
+    "node_modules/cliui/CHANGELOG.md",
+    "node_modules/@turbo/windows-64/README.md",
+    "node_modules/log-update/node_modules/ansi-styles/readme.md"
+  ]
+}

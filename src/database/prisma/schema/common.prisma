@@ -1,0 +1,116 @@
+// ─── Shared Enums ──────────────────────────────────────────────────────────────
+// Enums defined here are referenced across multiple schema files.
+// Add new enums here only when they are genuinely shared across domain boundaries.
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum UserRoleType {
+  SUPER_ADMIN
+  ORG_ADMIN
+  HOTEL_MANAGER
+  FRONT_DESK
+  HOUSEKEEPING
+  ACCOUNTANT
+}
+
+enum OrgStatus {
+  ACTIVE
+  SUSPENDED
+  CANCELLED
+  PENDING_SETUP
+}
+
+enum OrgPlan {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum HotelStatus {
+  ACTIVE
+  INACTIVE
+  UNDER_MAINTENANCE
+  CLOSED
+}
+
+enum HotelCategory {
+  BUDGET
+  ECONOMY
+  MIDSCALE
+  UPSCALE
+  LUXURY
+  BOUTIQUE
+  RESORT
+  HOSTEL
+}
+
+enum HotelOperationalStatus {
+  OPEN
+  CLOSED_TEMPORARILY
+  CLOSED_PERMANENTLY
+  UNDER_RENOVATION
+  PRE_OPENING
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  EXPORT
+  APPROVE
+  REJECT
+  ASSIGN
+  CANCEL
+}
+
+enum AuditResource {
+  USER
+  ORGANIZATION
+  HOTEL
+  ROOM
+  BOOKING
+  PAYMENT
+  INVENTORY
+  HOUSEKEEPING_TASK
+  RATE_PLAN
+  NOTIFICATION
+}
+
+// ─── AuditLog ──────────────────────────────────────────────────────────────────
+// Immutable append-only record of all state-changing operations.
+// onDelete: Restrict on userId and organizationId intentionally prevents
+// deletion of users/orgs that have audit history — require archival first.
+
+model AuditLog {
+  id             String        @id @default(uuid())
+  action         AuditAction
+  resource       AuditResource
+  resourceId     String        @db.VarChar(255)
+  userId         String
+  user           User          @relation("UserAuditLogs", fields: [userId], references: [id], onDelete: Restrict)
+  organizationId String
+  organization   Organization  @relation("OrganizationAuditLogs", fields: [organizationId], references: [id], onDelete: Restrict)
+  ipAddress      String?       @db.VarChar(45)
+  userAgent      String?       @db.VarChar(500)
+  before         Json?
+  after          Json?
+  duration       Int? // milliseconds
+  success        Boolean       @default(true)
+  errorMessage   String?       @db.VarChar(1000)
+  createdAt      DateTime      @default(now())
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([resource, resourceId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

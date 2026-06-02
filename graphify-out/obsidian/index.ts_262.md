@@ -1,0 +1,14 @@
+---
+source_file: "src/modules/ota/repositories/index.ts"
+type: "code"
+community: "Community 528"
+location: "L1"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_528
+---
+
+# index.ts
+
+#graphify/code #graphify/EXTRACTED #community/Community_528

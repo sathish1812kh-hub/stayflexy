@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Prevent direct pushes to main and develop
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$BRANCH" = "main" ]; then
+  echo "Direct push to 'main' is not allowed."
+  echo "Open a pull request from a feature branch."
+  exit 1
+fi

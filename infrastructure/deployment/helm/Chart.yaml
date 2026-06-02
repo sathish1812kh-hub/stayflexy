@@ -1,0 +1,14 @@
+apiVersion: v2
+name: stayflexi
+description: Enterprise hospitality SaaS platform - distributed services
+type: application
+version: 2.0.0
+appVersion: "2.0.0"
+keywords:
+  - hospitality
+  - hotel
+  - saas
+  - pms
+maintainers:
+  - name: Stayflexi Platform Team
+home: https://stayflexi.com

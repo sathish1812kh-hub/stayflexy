@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prisma-migrate
+  namespace: stayflexi
+  labels:
+    app: prisma-migrate
+    component: database
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 300
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: stayflexi-service-account
+      containers:
+        - name: migrate
+          image: stayflexi/auth-service:2.0.0
+          imagePullPolicy: IfNotPresent
+          command: ["npx", "prisma", "migrate", "deploy"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: stayflexi-db-secret
+                  key: DATABASE_URL
+            - name: NODE_ENV
+              value: production
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false

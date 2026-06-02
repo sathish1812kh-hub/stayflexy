@@ -1,0 +1,1 @@
+{"nodes": [{"id": "config_grafana_dashboards", "label": "Grafana Dashboards Configuration", "file_type": "code", "source_file": "infrastructure/monitoring/grafana/provisioning/dashboards/dashboards.yaml", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

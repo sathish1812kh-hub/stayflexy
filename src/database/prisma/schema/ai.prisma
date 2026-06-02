@@ -1,0 +1,331 @@
+// ─── AI, Automation, Workflow Engine, and Intelligence Domain ─────────────────
+//
+// AutomationRule:    Hotel-scoped rule evaluated on domain events. conditionPayload
+//                    is a JSON predicate; actionPayload describes the action to execute.
+//                    Rules are evaluated in priority order (higher = earlier).
+//
+// WorkflowExecution: Immutable execution record for every triggered workflow.
+//                    idempotencyKey prevents duplicate execution on event replay.
+//
+// Recommendation:    Scoring result produced by a recommendation engine.
+//                    confidenceScore is 0.0–1.0; logic is fully explainable.
+//                    Expires after TTL so stale suggestions are ignored.
+//
+// OperationalInsight: Aggregated trend analysis — e.g. occupancy spike, cancellation wave.
+//                     severity guides alert routing.
+//
+// AnomalyDetection:   Outlier event vs historical baseline.
+//                     riskScore is 0.0–1.0; above 0.7 triggers automated alert.
+
+enum AutomationTriggerType {
+  BOOKING_CREATED
+  BOOKING_CANCELLED
+  PAYMENT_COMPLETED
+  PAYMENT_FAILED
+  INVENTORY_LOW
+  OCCUPANCY_THRESHOLD
+  OTA_SYNC_FAILED
+  HOUSEKEEPING_COMPLETED
+  MAINTENANCE_OPENED
+  SCHEDULED
+  MANUAL
+}
+
+enum WorkflowExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  RETRYING
+  CANCELLED
+  AWAITING_APPROVAL
+}
+
+enum RecommendationType {
+  ROOM_UPGRADE
+  PRICING_ADJUSTMENT
+  OCCUPANCY_OPTIMIZATION
+  OTA_PERFORMANCE
+  STAFFING_ADJUSTMENT
+  MAINTENANCE_PRIORITY
+  UPSELL_OPPORTUNITY
+}
+
+enum RecommendationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  APPLIED
+}
+
+enum InsightType {
+  OCCUPANCY_TREND
+  BOOKING_PATTERN
+  CANCELLATION_SPIKE
+  REVENUE_ANOMALY
+  OPERATIONAL_BOTTLENECK
+  STAFF_WORKLOAD
+  PRICING_EFFECTIVENESS
+}
+
+enum InsightSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum AnomalyType {
+  SUSPICIOUS_BOOKING
+  PAYMENT_ANOMALY
+  UNUSUAL_CANCELLATION
+  INVENTORY_MISMATCH
+  PRICING_OUTLIER
+  OTA_SYNC_FAILURE
+  OPERATIONAL_DELAY
+}
+
+enum AutomationRuleStatus {
+  ACTIVE
+  INACTIVE
+  DRAFT
+}
+
+enum WorkflowStepType {
+  SEND_NOTIFICATION
+  UPDATE_STATUS
+  ESCALATE
+  LOG
+  HTTP_CALLBACK
+  CONDITIONAL
+  DELAY
+}
+
+enum WorkflowStepStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  SKIPPED
+}
+
+// ─── AutomationRule ───────────────────────────────────────────────────────────
+
+model AutomationRule {
+  id               String               @id @default(uuid())
+  organizationId   String
+  hotelId          String
+  hotel            Hotel                @relation("HotelAutomationRules", fields: [hotelId], references: [id], onDelete: Restrict)
+  ruleName         String               @db.VarChar(200)
+  triggerType      AutomationTriggerType
+  conditionPayload Json                 // predicate: { field, operator, value }[]
+  actionPayload    Json                 // action descriptor: { type, params }
+  ruleStatus       AutomationRuleStatus @default(DRAFT)
+  priority         Int                  @default(0)
+  createdById      String
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  executions WorkflowExecution[]
+  steps      WorkflowStep[]
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([triggerType])
+  @@index([ruleStatus])
+  @@index([priority])
+  @@map("automation_rules")
+}
+
+// ─── WorkflowExecution ────────────────────────────────────────────────────────
+
+model WorkflowExecution {
+  id                String                @id @default(uuid())
+  workflowName      String                @db.VarChar(200)
+  automationRuleId  String?
+  automationRule    AutomationRule?       @relation(fields: [automationRuleId], references: [id], onDelete: SetNull)
+  executionStatus   WorkflowExecutionStatus @default(PENDING)
+  triggerSource     String                @db.VarChar(100) // event type or "manual"
+  executionPayload  Json?
+  resultPayload     Json?
+  retryCount        Int                   @default(0)
+  idempotencyKey    String?               @unique @db.VarChar(255)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  failureReason     String?               @db.VarChar(2000)
+  organizationId    String
+  hotelId           String?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  executionLogs WorkflowExecutionLog[]
+  retryLogs     WorkflowRetryLog[]
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([executionStatus])
+  @@index([workflowName])
+  @@index([triggerSource])
+  @@index([createdAt])
+  @@map("workflow_executions")
+}
+
+// ─── WorkflowStep ─────────────────────────────────────────────────────────────
+// Ordered step definitions belonging to an AutomationRule.
+
+model WorkflowStep {
+  id               String           @id @default(uuid())
+  automationRuleId String
+  automationRule   AutomationRule   @relation(fields: [automationRuleId], references: [id], onDelete: Cascade)
+  organizationId   String
+  stepName         String           @db.VarChar(200)
+  stepType         WorkflowStepType
+  stepOrder        Int
+  config           Json
+  isOptional       Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  executionLogs WorkflowExecutionLog[]
+
+  @@index([automationRuleId])
+  @@index([organizationId])
+  @@index([stepOrder])
+  @@map("workflow_steps")
+}
+
+// ─── WorkflowExecutionLog ─────────────────────────────────────────────────────
+// Step-level execution record. One row per step attempt within an execution.
+
+model WorkflowExecutionLog {
+  id             String              @id @default(uuid())
+  executionId    String
+  execution      WorkflowExecution   @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  workflowStepId String?
+  workflowStep   WorkflowStep?       @relation(fields: [workflowStepId], references: [id], onDelete: SetNull)
+  organizationId String
+  stepName       String              @db.VarChar(200)
+  stepStatus     WorkflowStepStatus  @default(PENDING)
+  inputPayload   Json?
+  outputPayload  Json?
+  failureReason  String?             @db.VarChar(2000)
+  durationMs     Int?
+  createdAt      DateTime            @default(now())
+
+  @@index([executionId])
+  @@index([organizationId])
+  @@index([stepStatus])
+  @@index([createdAt])
+  @@map("workflow_execution_logs")
+}
+
+// ─── WorkflowRetryLog ─────────────────────────────────────────────────────────
+// Append-only record of every retry decision for an execution.
+
+model WorkflowRetryLog {
+  id             String            @id @default(uuid())
+  executionId    String
+  execution      WorkflowExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  organizationId String
+  retryNumber    Int
+  failureReason  String?           @db.VarChar(2000)
+  triggeredBy    String?           @db.VarChar(100)
+  createdAt      DateTime          @default(now())
+
+  @@index([executionId])
+  @@index([organizationId])
+  @@index([createdAt])
+  @@map("workflow_retry_logs")
+}
+
+// ─── WorkflowAuditLog ─────────────────────────────────────────────────────────
+// Immutable audit trail for all workflow-related state changes. Never updated.
+
+model WorkflowAuditLog {
+  id               String   @id @default(uuid())
+  executionId      String?
+  automationRuleId String?
+  organizationId   String
+  hotelId          String?
+  actionType       String   @db.VarChar(100)
+  actorId          String?  @db.VarChar(255)
+  entityType       String   @db.VarChar(100)
+  entityId         String   @db.VarChar(255)
+  metadata         Json?
+  createdAt        DateTime @default(now())
+
+  @@index([executionId])
+  @@index([automationRuleId])
+  @@index([organizationId])
+  @@index([actionType])
+  @@index([createdAt])
+  @@map("workflow_audit_logs")
+}
+
+// ─── Recommendation ───────────────────────────────────────────────────────────
+// confidenceScore: 0.0–1.0 derived from rule-based scoring logic.
+// expiresAt: recommendations older than this are auto-marked EXPIRED.
+
+model Recommendation {
+  id                    String               @id @default(uuid())
+  organizationId        String
+  hotelId               String
+  hotel                 Hotel                @relation("HotelRecommendations", fields: [hotelId], references: [id], onDelete: Restrict)
+  recommendationType    RecommendationType
+  recommendationPayload Json
+  confidenceScore       Decimal              @db.Decimal(4, 3) // 0.000–1.000
+  recommendationStatus  RecommendationStatus @default(PENDING)
+  explanation           String?              @db.VarChar(1000) // human-readable rationale
+  expiresAt             DateTime?
+  generatedAt           DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([recommendationType])
+  @@index([recommendationStatus])
+  @@index([generatedAt])
+  @@index([expiresAt])
+  @@map("recommendations")
+}
+
+// ─── OperationalInsight ───────────────────────────────────────────────────────
+
+model OperationalInsight {
+  id             String          @id @default(uuid())
+  organizationId String
+  hotelId        String
+  hotel          Hotel           @relation("HotelOperationalInsights", fields: [hotelId], references: [id], onDelete: Restrict)
+  insightType    InsightType
+  insightPayload Json
+  severity       InsightSeverity @default(INFO)
+  generatedAt    DateTime        @default(now())
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([insightType])
+  @@index([severity])
+  @@index([generatedAt])
+  @@map("operational_insights")
+}
+
+// ─── AnomalyDetection ─────────────────────────────────────────────────────────
+// riskScore: 0.0–1.0. Above 0.7 → CRITICAL, 0.4–0.7 → WARNING, below → INFO.
+
+model AnomalyDetection {
+  id             String      @id @default(uuid())
+  organizationId String
+  hotelId        String
+  hotel          Hotel       @relation("HotelAnomalyDetections", fields: [hotelId], references: [id], onDelete: Restrict)
+  anomalyType    AnomalyType
+  anomalyPayload Json
+  riskScore      Decimal     @db.Decimal(4, 3) // 0.000–1.000
+  detectedAt     DateTime    @default(now())
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([anomalyType])
+  @@index([riskScore])
+  @@index([detectedAt])
+  @@map("anomaly_detections")
+}

@@ -1,0 +1,78 @@
+// ─── Infrastructure Domain ────────────────────────────────────────────────────
+//
+// EventQueueItem: Persistent audit record for distributed domain events.
+//                 Operational state lives in the in-memory/Redis queue;
+//                 DB rows are written for durability and replay capability.
+//                 idempotencyKey prevents double-processing on restart.
+//
+// WorkerExecution: Immutable execution log per worker invocation.
+//                  Used for monitoring, alerting, and dead-letter analysis.
+//
+// DistributedLock and CacheEntry intentionally NOT in Prisma —
+// they are ephemeral, high-frequency operations that belong in Redis.
+
+enum EventQueueStatus {
+  PENDING
+  PROCESSING
+  PROCESSED
+  FAILED
+  DEAD_LETTER
+  RETRYING
+}
+
+enum WorkerExecutionStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+  TIMEOUT
+  CANCELLED
+}
+
+// ─── EventQueueItem ───────────────────────────────────────────────────────────
+
+model EventQueueItem {
+  id             String           @id @default(uuid())
+  eventType      String           @db.VarChar(150) // e.g. "booking.created"
+  eventPayload   Json
+  queueStatus    EventQueueStatus @default(PENDING)
+  retryCount     Int              @default(0)
+  maxRetries     Int              @default(3)
+  idempotencyKey String?          @unique @db.VarChar(255)
+  scheduledAt    DateTime?
+  processedAt    DateTime?
+  failedReason   String?          @db.VarChar(2000)
+  organizationId String?          // for tenant isolation
+  source         String?          @db.VarChar(100) // originating module
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([queueStatus])
+  @@index([eventType])
+  @@index([organizationId])
+  @@index([scheduledAt])
+  @@index([createdAt])
+  @@map("event_queue_items")
+}
+
+// ─── WorkerExecution ──────────────────────────────────────────────────────────
+// Immutable-by-convention — records are never updated after completion.
+// Used for monitoring worker health, detecting stalls, and post-mortem analysis.
+
+model WorkerExecution {
+  id              String                @id @default(uuid())
+  workerName      String                @db.VarChar(100)
+  executionStatus WorkerExecutionStatus @default(RUNNING)
+  startedAt       DateTime              @default(now())
+  completedAt     DateTime?
+  failedReason    String?               @db.VarChar(2000)
+  durationMs      Int?
+  itemsProcessed  Int?
+  metadata        Json?
+  createdAt       DateTime              @default(now())
+
+  @@index([workerName])
+  @@index([executionStatus])
+  @@index([startedAt])
+  @@index([createdAt])
+  @@map("worker_executions")
+}

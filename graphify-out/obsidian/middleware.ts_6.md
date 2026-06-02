@@ -1,0 +1,24 @@
+---
+source_file: "services/organization-service/src/middleware.ts"
+type: "code"
+community: "Community 118"
+location: "L1"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_118
+---
+
+# middleware.ts
+
+## Connections
+- [[AppError_1]] - `contains` [EXTRACTED]
+- [[Request_1]] - `contains` [EXTRACTED]
+- [[app.ts_11]] - `imports_from` [EXTRACTED]
+- [[correlationMiddleware()_2]] - `contains` [EXTRACTED]
+- [[createHttpError()]] - `contains` [EXTRACTED]
+- [[errorHandler()]] - `contains` [EXTRACTED]
+- [[organizations.ts]] - `imports_from` [EXTRACTED]
+- [[roles.ts]] - `imports_from` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_118

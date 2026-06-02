@@ -1,0 +1,1 @@
+{"nodes": [{"id": "circuit_breaker", "label": "Circuit Breaker", "file_type": "document", "source_file": "docs/architecture/RESILIENCE.md"}], "edges": [{"source": "circuit_breaker", "target": "qa_resilience_agent", "relation": "conceptually_related_to", "confidence": "INFERRED", "confidence_score": 0.9, "source_file": "docs/architecture/RESILIENCE.md"}], "hyperedges": []}

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: organization-service
+  namespace: stayflexi
+  labels:
+    app: organization-service
+spec:
+  type: ClusterIP
+  selector:
+    app: organization-service
+  ports:
+  - name: http
+    protocol: TCP
+    port: 3002
+    targetPort: http

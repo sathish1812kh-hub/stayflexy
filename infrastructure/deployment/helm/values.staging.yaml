@@ -1,0 +1,176 @@
+# Staging environment overrides
+# Apply with: helm upgrade --install stayflexi ./helm -f values.yaml -f values.staging.yaml -n stayflexi-staging
+
+global:
+  environment: staging
+
+ingress:
+  host: api-staging.stayflexi.com
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+
+services:
+  api-gateway:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        cpu: 125m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 3
+
+  auth-service:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        cpu: 125m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 3
+
+  organization-service:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        cpu: 125m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 3
+
+  hotel-service:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        cpu: 125m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 3
+
+  inventory-service:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        cpu: 125m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 3
+
+  booking-service:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 3
+
+  payment-service:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 3
+
+  ota-service:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        cpu: 125m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 3
+
+  analytics-service:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        cpu: 125m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 3
+
+  notification-service:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        cpu: 125m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 3
+
+  workflow-service:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        cpu: 125m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    autoscaling:
+      minReplicas: 1
+      maxReplicas: 3

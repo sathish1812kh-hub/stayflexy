@@ -1,0 +1,96 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-topic-setup
+  namespace: stayflexi
+  labels:
+    app: kafka-topic-setup
+    component: kafka
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 120
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: setup
+          image: confluentinc/cp-kafka:7.5.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              KAFKA="${KAFKA_BROKERS:-kafka:9092}"
+
+              create_topic() {
+                local name=$1 partitions=$2 retention=$3
+                echo "Creating topic: $name (partitions=$partitions, retention=${retention}ms)"
+                kafka-topics --bootstrap-server "$KAFKA" \
+                  --create --if-not-exists \
+                  --topic "$name" \
+                  --partitions "$partitions" \
+                  --replication-factor "${REPLICATION_FACTOR:-3}" \
+                  --config retention.ms="$retention" \
+                  --config min.insync.replicas="${MIN_INSYNC_REPLICAS:-2}" \
+                  --config cleanup.policy=delete \
+                  --config compression.type=gzip
+              }
+
+              create_dlq() {
+                local name=$1
+                echo "Creating DLQ topic: $name"
+                kafka-topics --bootstrap-server "$KAFKA" \
+                  --create --if-not-exists \
+                  --topic "$name" \
+                  --partitions 1 \
+                  --replication-factor "${REPLICATION_FACTOR:-3}" \
+                  --config retention.ms=2592000000 \
+                  --config min.insync.replicas="${MIN_INSYNC_REPLICAS:-2}"
+              }
+
+              # Wait for Kafka to be ready
+              echo "Waiting for Kafka to be available..."
+              for i in $(seq 1 30); do
+                kafka-topics --bootstrap-server "$KAFKA" --list > /dev/null 2>&1 && break
+                echo "Attempt $i/30 — retrying in 2s..."
+                sleep 2
+              done
+
+              # ── Domain event topics ────────────────────────────────────────
+              # 7 days retention (604800000ms)
+              create_topic "booking.events"      10  604800000
+              create_topic "payment.events"       6  604800000
+              create_topic "inventory.events"     6  604800000
+              create_topic "workflow.events"      3  604800000
+              create_topic "ota.events"           3  604800000
+
+              # 1 day retention (86400000ms) — notifications are time-sensitive
+              create_topic "notification.events"  6  86400000
+
+              # ── Dead-letter queues (30 days retention = 2592000000ms) ─────
+              create_dlq "booking.events.dlq"
+              create_dlq "payment.events.dlq"
+              create_dlq "inventory.events.dlq"
+              create_dlq "workflow.events.dlq"
+              create_dlq "notification.events.dlq"
+              create_dlq "ota.events.dlq"
+
+              echo "All topics created successfully"
+              kafka-topics --bootstrap-server "$KAFKA" --list
+          env:
+            - name: KAFKA_BROKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: stayflexi-config
+                  key: KAFKA_BROKERS
+            - name: REPLICATION_FACTOR
+              value: "3"
+            - name: MIN_INSYNC_REPLICAS
+              value: "2"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

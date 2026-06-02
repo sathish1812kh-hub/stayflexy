@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apollo-router-config
+  namespace: stayflexi
+data:
+  router.yaml: |
+    supergraph:
+      listen: 0.0.0.0:4000
+      introspection: false
+
+    health_check:
+      listen: 0.0.0.0:8088
+
+    cors:
+      allow_any_origin: false
+      origins:
+        - https://app.stayflexi.com
+        - https://admin.stayflexi.com
+      allow_credentials: true
+
+    headers:
+      all:
+        request:
+          - propagate:
+              named: "authorization"
+          - propagate:
+              named: "x-correlation-id"
+
+    # Query complexity limits for security
+    # Prevent unbounded deep nested queries
+    security:
+      safelisting:
+        enabled: false # Could enable persisted queries here
+      # Optional: require apollo enterprise for deep complexity calculation
+      
+    telemetry:
+      instrumentation:
+        events:
+          router:
+            attributes:
+              all: true

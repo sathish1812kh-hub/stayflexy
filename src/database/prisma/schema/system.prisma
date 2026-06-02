@@ -1,0 +1,259 @@
+// ─── Notification, Audit, Jobs, and Monitoring Domain ────────────────────────
+//
+// Notification:         Outbound message record. One row per send attempt.
+//                       retryCount incremented on each failed attempt.
+//                       deliveryStatus drives the retry queue decision.
+//
+// NotificationTemplate: Reusable template with variable interpolation.
+//                       templateName is globally unique.
+//                       variables lists required placeholders e.g. ["guestName"].
+//
+// AuditLog:             Immutable append-only record of every state change.
+//                       previousState / currentState store JSON snapshots.
+//                       Never deleted; rotated by archival service if needed.
+//
+// BackgroundJob:        Represents one unit of async work.
+//                       idempotencyKey prevents double-submission.
+//                       DEAD_LETTER status indicates retry exhaustion.
+//
+// SystemHealth:         Latest health check result per named service.
+//                       @@unique([serviceName]) — one row per service, upserted.
+
+enum NotificationType {
+  EMAIL
+  SMS
+  WHATSAPP
+  IN_APP
+  PUSH
+}
+
+enum DeliveryStatus {
+  PENDING
+  QUEUED
+  SENT
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+enum AuditActionType {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  EXPORT
+  IMPORT
+  APPROVE
+  REJECT
+}
+
+enum BackgroundJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+  DEAD_LETTER
+}
+
+enum SystemServiceStatus {
+  HEALTHY
+  DEGRADED
+  DOWN
+  UNKNOWN
+}
+
+enum NotificationDeliveryResult {
+  SUCCESS
+  FAILED
+  TIMEOUT
+  BOUNCED
+  REJECTED
+}
+
+// ─── Notification ─────────────────────────────────────────────────────────────
+
+model Notification {
+  id               String           @id @default(uuid())
+  organizationId   String
+  hotelId          String?
+  notificationType NotificationType
+  recipient        String           @db.VarChar(255)
+  subject          String?          @db.VarChar(500)
+  message          String           @db.Text
+  deliveryStatus   DeliveryStatus   @default(PENDING)
+  retryCount       Int              @default(0)
+  maxRetries       Int              @default(3)
+  scheduledAt      DateTime?
+  deliveredAt      DateTime?
+  failedReason     String?          @db.VarChar(1000)
+  metadata         Json?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  deliveries NotificationDelivery[]
+  retryLogs  NotificationRetryLog[]
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([deliveryStatus])
+  @@index([notificationType])
+  @@index([scheduledAt])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// ─── NotificationDelivery ─────────────────────────────────────────────────────
+// One row per delivery attempt. Allows per-attempt result tracking across retries.
+
+model NotificationDelivery {
+  id                String                     @id @default(uuid())
+  notificationId    String
+  notification      Notification               @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  organizationId    String
+  attemptNumber     Int
+  deliveryResult    NotificationDeliveryResult
+  providerName      String?                    @db.VarChar(100)
+  providerMessageId String?                    @db.VarChar(255)
+  responsePayload   Json?
+  latencyMs         Int?
+  attemptedAt       DateTime                   @default(now())
+
+  @@index([notificationId])
+  @@index([organizationId])
+  @@index([deliveryResult])
+  @@index([attemptedAt])
+  @@map("notification_deliveries")
+}
+
+// ─── NotificationRetryLog ─────────────────────────────────────────────────────
+// Append-only log of every retry decision: when, why, and when next retry fires.
+
+model NotificationRetryLog {
+  id             String       @id @default(uuid())
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  organizationId String
+  retryNumber    Int
+  failureReason  String?      @db.VarChar(1000)
+  nextRetryAt    DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([notificationId])
+  @@index([organizationId])
+  @@index([createdAt])
+  @@map("notification_retry_logs")
+}
+
+// ─── NotificationAuditLog ─────────────────────────────────────────────────────
+// Immutable record of every status transition. Never updated or deleted.
+
+model NotificationAuditLog {
+  id             String          @id @default(uuid())
+  notificationId String
+  organizationId String
+  hotelId        String?
+  actionType     String          @db.VarChar(100)
+  actorId        String?         @db.VarChar(255)
+  previousStatus DeliveryStatus?
+  currentStatus  DeliveryStatus
+  metadata       Json?
+  createdAt      DateTime        @default(now())
+
+  @@index([notificationId])
+  @@index([organizationId])
+  @@index([actionType])
+  @@index([createdAt])
+  @@map("notification_audit_logs")
+}
+
+// ─── NotificationTemplate ─────────────────────────────────────────────────────
+
+model NotificationTemplate {
+  id              String           @id @default(uuid())
+  templateName    String           @unique @db.VarChar(100)
+  templateType    NotificationType
+  subjectTemplate String?          @db.VarChar(500)
+  bodyTemplate    String           @db.Text
+  variables       String[]         // required placeholder names e.g. ["guestName", "bookingNumber"]
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([templateType])
+  @@index([isActive])
+  @@map("notification_templates")
+}
+
+// ─── CentralAuditLog ──────────────────────────────────────────────────────────
+// Platform-wide immutable audit log — all entity changes across every module.
+// The existing AuditLog in common.prisma covers auth/RBAC ops (resource/action).
+// CentralAuditLog covers business entity changes (entityType/entityId/actionType).
+// Immutable — no updatedAt; never cascade-deleted from a parent entity.
+// Sensitive values in previousState/currentState should be masked before insert.
+
+model CentralAuditLog {
+  id             String          @id @default(uuid())
+  organizationId String
+  hotelId        String?
+  entityType     String          @db.VarChar(100)
+  entityId       String
+  actionType     AuditActionType
+  performedBy    String
+  previousState  Json?
+  currentState   Json?
+  ipAddress      String?         @db.VarChar(45)
+  userAgent      String?         @db.VarChar(500)
+  metadata       Json?
+  createdAt      DateTime        @default(now())
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([entityType, entityId])
+  @@index([actionType])
+  @@index([performedBy])
+  @@index([createdAt])
+  @@map("central_audit_logs")
+}
+
+// ─── BackgroundJob ────────────────────────────────────────────────────────────
+// idempotencyKey prevents duplicate job submission for the same logical unit.
+// Production: replace in-memory processing with BullMQ + Redis workers.
+
+model BackgroundJob {
+  id             String              @id @default(uuid())
+  jobType        String              @db.VarChar(100)
+  jobStatus      BackgroundJobStatus @default(PENDING)
+  payload        Json?
+  retryCount     Int                 @default(0)
+  maxRetries     Int                 @default(3)
+  idempotencyKey String?             @unique @db.VarChar(255)
+  scheduledAt    DateTime?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  failedReason   String?             @db.VarChar(2000)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([jobStatus])
+  @@index([jobType])
+  @@index([scheduledAt])
+  @@index([createdAt])
+  @@map("background_jobs")
+}
+
+// ─── SystemHealth ─────────────────────────────────────────────────────────────
+// One row per named service; upserted on each health check run.
+
+model SystemHealth {
+  id            String              @id @default(uuid())
+  serviceName   String              @unique @db.VarChar(100)
+  serviceStatus SystemServiceStatus @default(UNKNOWN)
+  lastCheckedAt DateTime            @default(now())
+  metadata      Json?
+
+  @@index([serviceStatus])
+  @@map("system_health")
+}

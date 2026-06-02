@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@stayflexi/shared-types": ["../../packages/shared-types/src/index.ts"],
+      "@stayflexi/shared-errors": ["../../packages/shared-errors/src/index.ts"],
+      "@stayflexi/shared-logger": ["../../packages/shared-logger/src/index.ts"],
+      "@stayflexi/shared-config": ["../../packages/shared-config/src/index.ts"],
+      "@stayflexi/shared-events": ["../../packages/shared-events/src/index.ts"],
+      "@stayflexi/shared-validation": ["../../packages/shared-validation/src/index.ts"],
+      "@stayflexi/shared-database": ["../../packages/shared-database/src/index.ts"],
+      "@stayflexi/shared-auth": ["../../packages/shared-auth/src/index.ts"]
+    },
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/tests",
+    "src/index.ts",
+    "src/app.ts",
+    "src/config.ts",
+    "src/db.ts",
+    "src/events.ts",
+    "src/middleware.ts",
+    "src/routes",
+    "src/health.ts"
+  ]
+}

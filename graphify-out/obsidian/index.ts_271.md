@@ -1,0 +1,20 @@
+---
+source_file: "src/modules/payment/routes/index.ts"
+type: "code"
+community: "Controllers & Validation"
+location: "L1"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Controllers__Validation
+---
+
+# index.ts
+
+## Connections
+- [[PaymentController_1]] - `imports` [EXTRACTED]
+- [[createPaymentRoutes()]] - `contains` [EXTRACTED]
+- [[index.ts_268]] - `imports_from` [EXTRACTED]
+- [[index.ts_272]] - `imports_from` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Controllers__Validation

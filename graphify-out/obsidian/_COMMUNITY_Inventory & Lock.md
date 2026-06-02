@@ -1,0 +1,237 @@
+---
+type: community
+cohesion: 0.03
+members: 159
+---
+
+# Inventory & Lock
+
+**Cohesion:** 0.03 - loosely connected
+**Members:** 159 nodes
+
+## Members
+- [[.amenities()]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.basePrice()]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.belongsTo()_2]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.constructor()_100]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.constructor()_104]] - code - services/hotel-service/src/interfaces/http/HotelController.ts
+- [[.constructor()_82]] - code - services/hotel-service/src/application/services/HotelCache.ts
+- [[.constructor()_6]] - code - packages/shared-errors/src/index.ts
+- [[.constructor()_5]] - code - packages/shared-errors/src/index.ts
+- [[.constructor()_85]] - code - services/hotel-service/src/application/use-cases/CreateHotel.ts
+- [[.constructor()_86]] - code - services/hotel-service/src/application/use-cases/CreateRoom.ts
+- [[.constructor()_87]] - code - services/hotel-service/src/application/use-cases/CreateRoomType.ts
+- [[.constructor()_88]] - code - services/hotel-service/src/application/use-cases/GetHotel.ts
+- [[.constructor()_90]] - code - services/hotel-service/src/application/use-cases/GetRoomType.ts
+- [[.constructor()_91]] - code - services/hotel-service/src/application/use-cases/ListHotels.ts
+- [[.constructor()_93]] - code - services/hotel-service/src/application/use-cases/ListRoomTypes.ts
+- [[.constructor()_94]] - code - services/hotel-service/src/application/use-cases/UpdateHotel.ts
+- [[.constructor()_95]] - code - services/hotel-service/src/application/use-cases/UpdateRoom.ts
+- [[.constructor()_96]] - code - services/hotel-service/src/application/use-cases/UpdateRoomStatus.ts
+- [[.constructor()_97]] - code - services/hotel-service/src/application/use-cases/UpdateRoomType.ts
+- [[.createdAt()_5]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.description()]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.execute()_26]] - code - services/hotel-service/src/application/use-cases/CreateHotel.ts
+- [[.execute()_27]] - code - services/hotel-service/src/application/use-cases/CreateRoom.ts
+- [[.execute()_28]] - code - services/hotel-service/src/application/use-cases/CreateRoomType.ts
+- [[.execute()_29]] - code - services/hotel-service/src/application/use-cases/GetHotel.ts
+- [[.execute()_31]] - code - services/hotel-service/src/application/use-cases/GetRoomType.ts
+- [[.execute()_32]] - code - services/hotel-service/src/application/use-cases/ListHotels.ts
+- [[.execute()_34]] - code - services/hotel-service/src/application/use-cases/ListRoomTypes.ts
+- [[.execute()_35]] - code - services/hotel-service/src/application/use-cases/UpdateHotel.ts
+- [[.execute()_36]] - code - services/hotel-service/src/application/use-cases/UpdateRoom.ts
+- [[.execute()_37]] - code - services/hotel-service/src/application/use-cases/UpdateRoomStatus.ts
+- [[.execute()_38]] - code - services/hotel-service/src/application/use-cases/UpdateRoomType.ts
+- [[.get()_6]] - code - services/hotel-service/src/application/services/HotelCache.ts
+- [[.getAuthContext()]] - code - services/hotel-service/src/interfaces/http/HotelController.ts
+- [[.hotelId()_6]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.id()_10]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.invalidate()_1]] - code - services/hotel-service/src/application/services/HotelCache.ts
+- [[.isActive()_5]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.key()_3]] - code - services/hotel-service/src/application/services/HotelCache.ts
+- [[.maxOccupancy()]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.name()_1]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.organizationId()_6]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.set()_4]] - code - services/hotel-service/src/application/services/HotelCache.ts
+- [[.toJSON()_8]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[.updatedAt()_4]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[AuthContext]] - code - services/hotel-service/src/interfaces/http/HotelController.ts
+- [[ConflictError]] - code - packages/shared-errors/src/index.ts
+- [[CreateHotel]] - code - services/hotel-service/src/application/use-cases/CreateHotel.ts
+- [[CreateHotel.test.ts]] - code - services/hotel-service/src/tests/unit/CreateHotel.test.ts
+- [[CreateHotel.ts]] - code - services/hotel-service/src/application/use-cases/CreateHotel.ts
+- [[CreateHotelData]] - code - services/hotel-service/src/domain/repositories/IHotelRepository.ts
+- [[CreateHotelDto]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[CreateRoom]] - code - services/hotel-service/src/application/use-cases/CreateRoom.ts
+- [[CreateRoom.test.ts]] - code - services/hotel-service/src/tests/unit/CreateRoom.test.ts
+- [[CreateRoom.ts]] - code - services/hotel-service/src/application/use-cases/CreateRoom.ts
+- [[CreateRoomDto]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[CreateRoomType]] - code - services/hotel-service/src/application/use-cases/CreateRoomType.ts
+- [[CreateRoomType.test.ts]] - code - services/hotel-service/src/tests/unit/CreateRoomType.test.ts
+- [[CreateRoomType.ts]] - code - services/hotel-service/src/application/use-cases/CreateRoomType.ts
+- [[CreateRoomTypeData]] - code - services/hotel-service/src/domain/repositories/IRoomTypeRepository.ts
+- [[CreateRoomTypeDto]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[GetHotel]] - code - services/hotel-service/src/application/use-cases/GetHotel.ts
+- [[GetHotel.test.ts]] - code - services/hotel-service/src/tests/unit/GetHotel.test.ts
+- [[GetHotel.ts]] - code - services/hotel-service/src/application/use-cases/GetHotel.ts
+- [[GetRoomType]] - code - services/hotel-service/src/application/use-cases/GetRoomType.ts
+- [[GetRoomType.ts]] - code - services/hotel-service/src/application/use-cases/GetRoomType.ts
+- [[HOTEL_EVENTS]] - code - packages/shared-events/src/index.ts
+- [[Hotel.ts]] - code - services/hotel-service/src/domain/entities/Hotel.ts
+- [[HotelCache]] - code - services/hotel-service/src/application/services/HotelCache.ts
+- [[HotelCache.ts]] - code - services/hotel-service/src/application/services/HotelCache.ts
+- [[HotelController]] - code - services/hotel-service/src/interfaces/http/HotelController.ts
+- [[HotelController.ts]] - code - services/hotel-service/src/interfaces/http/HotelController.ts
+- [[HotelFilter]] - code - services/hotel-service/src/domain/repositories/IHotelRepository.ts
+- [[HotelProps]] - code - services/hotel-service/src/domain/entities/Hotel.ts
+- [[HotelStatus]] - code - services/hotel-service/src/domain/entities/Hotel.ts
+- [[IEventPublisher]] - code - packages/shared-events/src/index.ts
+- [[IHotelRepository]] - code - services/hotel-service/src/domain/repositories/IHotelRepository.ts
+- [[IHotelRepository.ts]] - code - services/hotel-service/src/domain/repositories/IHotelRepository.ts
+- [[IRoomTypeRepository]] - code - services/hotel-service/src/domain/repositories/IRoomTypeRepository.ts
+- [[IRoomTypeRepository.ts]] - code - services/hotel-service/src/domain/repositories/IRoomTypeRepository.ts
+- [[ListHotels]] - code - services/hotel-service/src/application/use-cases/ListHotels.ts
+- [[ListHotels.ts]] - code - services/hotel-service/src/application/use-cases/ListHotels.ts
+- [[ListHotelsDto]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[ListRoomTypes]] - code - services/hotel-service/src/application/use-cases/ListRoomTypes.ts
+- [[ListRoomTypes.ts]] - code - services/hotel-service/src/application/use-cases/ListRoomTypes.ts
+- [[ListRoomTypesDto]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[NotFoundError]] - code - packages/shared-errors/src/index.ts
+- [[PrismaHotel]] - code - services/hotel-service/src/infrastructure/database/PrismaHotelRepository.ts
+- [[PrismaHotelRepository.ts]] - code - services/hotel-service/src/infrastructure/database/PrismaHotelRepository.ts
+- [[PrismaRoomType]] - code - services/hotel-service/src/infrastructure/database/PrismaRoomTypeRepository.ts
+- [[PrismaRoomTypeRepository.ts]] - code - services/hotel-service/src/infrastructure/database/PrismaRoomTypeRepository.ts
+- [[RoomType]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[RoomType.ts]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[RoomTypeCache.ts]] - code - services/hotel-service/src/application/services/RoomTypeCache.ts
+- [[RoomTypeFilter]] - code - services/hotel-service/src/domain/repositories/IRoomTypeRepository.ts
+- [[RoomTypeProps]] - code - services/hotel-service/src/domain/entities/RoomType.ts
+- [[UpdateHotel]] - code - services/hotel-service/src/application/use-cases/UpdateHotel.ts
+- [[UpdateHotel.test.ts]] - code - services/hotel-service/src/tests/unit/UpdateHotel.test.ts
+- [[UpdateHotel.ts]] - code - services/hotel-service/src/application/use-cases/UpdateHotel.ts
+- [[UpdateHotelData]] - code - services/hotel-service/src/domain/repositories/IHotelRepository.ts
+- [[UpdateHotelDto]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[UpdateRoom]] - code - services/hotel-service/src/application/use-cases/UpdateRoom.ts
+- [[UpdateRoom.ts]] - code - services/hotel-service/src/application/use-cases/UpdateRoom.ts
+- [[UpdateRoomDto]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[UpdateRoomStatus]] - code - services/hotel-service/src/application/use-cases/UpdateRoomStatus.ts
+- [[UpdateRoomStatus.ts]] - code - services/hotel-service/src/application/use-cases/UpdateRoomStatus.ts
+- [[UpdateRoomStatusDto]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[UpdateRoomType]] - code - services/hotel-service/src/application/use-cases/UpdateRoomType.ts
+- [[UpdateRoomType.ts]] - code - services/hotel-service/src/application/use-cases/UpdateRoomType.ts
+- [[UpdateRoomTypeData]] - code - services/hotel-service/src/domain/repositories/IRoomTypeRepository.ts
+- [[UpdateRoomTypeDto]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[app.ts_7]] - code - services/hotel-service/src/interfaces/app.ts
+- [[buildPaginationMeta()]] - code - packages/shared-types/src/index.ts
+- [[createHotelDtoSchema]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[createHotelRouter()]] - code - services/hotel-service/src/interfaces/http/routes.ts
+- [[createRoomDtoSchema]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[createRoomTypeDtoSchema]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[dto_3]] - code - services/hotel-service/src/interfaces/http/HotelController.ts
+- [[hotel.dto.ts]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[listHotelsDtoSchema]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[listRoomTypesDtoSchema]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[listRoomsDtoSchema]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[makeCache()_2]] - code - services/hotel-service/src/tests/unit/GetHotel.test.ts
+- [[makeCache()_3]] - code - services/hotel-service/src/tests/unit/UpdateHotel.test.ts
+- [[makeHotel()]] - code - services/hotel-service/src/tests/unit/CreateHotel.test.ts
+- [[makeHotel()_1]] - code - services/hotel-service/src/tests/unit/CreateRoom.test.ts
+- [[makeHotel()_2]] - code - services/hotel-service/src/tests/unit/CreateRoomType.test.ts
+- [[makeHotel()_3]] - code - services/hotel-service/src/tests/unit/GetHotel.test.ts
+- [[makeHotel()_4]] - code - services/hotel-service/src/tests/unit/UpdateHotel.test.ts
+- [[makeHotelRepo()]] - code - services/hotel-service/src/tests/unit/CreateHotel.test.ts
+- [[makeHotelRepo()_1]] - code - services/hotel-service/src/tests/unit/CreateRoom.test.ts
+- [[makeHotelRepo()_2]] - code - services/hotel-service/src/tests/unit/CreateRoomType.test.ts
+- [[makeHotelRepo()_3]] - code - services/hotel-service/src/tests/unit/GetHotel.test.ts
+- [[makeHotelRepo()_4]] - code - services/hotel-service/src/tests/unit/UpdateHotel.test.ts
+- [[makeRoom()_1]] - code - services/hotel-service/src/tests/unit/CreateRoom.test.ts
+- [[makeRoomRepo()]] - code - services/hotel-service/src/tests/unit/CreateRoom.test.ts
+- [[makeRoomType()]] - code - services/hotel-service/src/tests/unit/CreateRoom.test.ts
+- [[makeRoomType()_1]] - code - services/hotel-service/src/tests/unit/CreateRoomType.test.ts
+- [[makeRoomTypeRepo()]] - code - services/hotel-service/src/tests/unit/CreateRoom.test.ts
+- [[makeRoomTypeRepo()_1]] - code - services/hotel-service/src/tests/unit/CreateRoomType.test.ts
+- [[mockLogger_15]] - code - services/hotel-service/src/tests/unit/CreateHotel.test.ts
+- [[mockLogger_16]] - code - services/hotel-service/src/tests/unit/CreateRoom.test.ts
+- [[mockLogger_17]] - code - services/hotel-service/src/tests/unit/CreateRoomType.test.ts
+- [[mockLogger_18]] - code - services/hotel-service/src/tests/unit/UpdateHotel.test.ts
+- [[mockPublisher_6]] - code - services/hotel-service/src/tests/unit/CreateHotel.test.ts
+- [[mockPublisher_7]] - code - services/hotel-service/src/tests/unit/CreateRoom.test.ts
+- [[mockPublisher_8]] - code - services/hotel-service/src/tests/unit/CreateRoomType.test.ts
+- [[mockPublisher_9]] - code - services/hotel-service/src/tests/unit/UpdateHotel.test.ts
+- [[requireOrgId()]] - code - services/hotel-service/src/interfaces/http/HotelController.ts
+- [[routes.ts_3]] - code - services/hotel-service/src/interfaces/http/routes.ts
+- [[slugify()]] - code - services/hotel-service/src/application/use-cases/CreateHotel.ts
+- [[updateHotelDtoSchema]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[updateRoomDtoSchema]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[updateRoomStatusDtoSchema]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[updateRoomTypeDtoSchema]] - code - services/hotel-service/src/application/dtos/hotel.dto.ts
+- [[{ orgId, correlationId }_2]] - code - services/hotel-service/src/interfaces/http/HotelController.ts
+- [[{ orgId, role, correlationId }]] - code - services/hotel-service/src/interfaces/http/HotelController.ts
+- [[{ userId, orgId, correlationId }_2]] - code - services/hotel-service/src/interfaces/http/HotelController.ts
+- [[{ userId, orgId, role, correlationId }]] - code - services/hotel-service/src/interfaces/http/HotelController.ts
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/Inventory__Lock
+SORT file.name ASC
+```
+
+## Connections to other communities
+- 51 edges to [[_COMMUNITY_Community 16]]
+- 45 edges to [[_COMMUNITY_Community 21]]
+- 31 edges to [[_COMMUNITY_Organization Domain]]
+- 27 edges to [[_COMMUNITY_App Infrastructure & Events]]
+- 24 edges to [[_COMMUNITY_Community 80]]
+- 13 edges to [[_COMMUNITY_Community 92]]
+- 9 edges to [[_COMMUNITY_Community 3]]
+- 8 edges to [[_COMMUNITY_Community 52]]
+- 7 edges to [[_COMMUNITY_Community 77]]
+- 6 edges to [[_COMMUNITY_Community 81]]
+- 6 edges to [[_COMMUNITY_Community 131]]
+- 6 edges to [[_COMMUNITY_Community 59]]
+- 5 edges to [[_COMMUNITY_Community 187]]
+- 4 edges to [[_COMMUNITY_Community 22]]
+- 4 edges to [[_COMMUNITY_Community 215]]
+- 4 edges to [[_COMMUNITY_Community 82]]
+- 4 edges to [[_COMMUNITY_Community 371]]
+- 3 edges to [[_COMMUNITY_Community 86]]
+- 3 edges to [[_COMMUNITY_Community 50]]
+- 3 edges to [[_COMMUNITY_Community 116]]
+- 3 edges to [[_COMMUNITY_Community 315]]
+- 3 edges to [[_COMMUNITY_Community 332]]
+- 2 edges to [[_COMMUNITY_Community 19]]
+- 2 edges to [[_COMMUNITY_Community 28]]
+- 2 edges to [[_COMMUNITY_Community 248]]
+- 2 edges to [[_COMMUNITY_Community 112]]
+- 2 edges to [[_COMMUNITY_Community 151]]
+- 2 edges to [[_COMMUNITY_Community 135]]
+- 2 edges to [[_COMMUNITY_Community 96]]
+- 2 edges to [[_COMMUNITY_Community 122]]
+- 2 edges to [[_COMMUNITY_Community 173]]
+- 2 edges to [[_COMMUNITY_Community 72]]
+- 2 edges to [[_COMMUNITY_Community 84]]
+- 2 edges to [[_COMMUNITY_Community 225]]
+- 1 edge to [[_COMMUNITY_Community 108]]
+- 1 edge to [[_COMMUNITY_Community 124]]
+- 1 edge to [[_COMMUNITY_Community 358]]
+- 1 edge to [[_COMMUNITY_Community 54]]
+- 1 edge to [[_COMMUNITY_Community 134]]
+- 1 edge to [[_COMMUNITY_Community 87]]
+- 1 edge to [[_COMMUNITY_Community 136]]
+- 1 edge to [[_COMMUNITY_Community 202]]
+- 1 edge to [[_COMMUNITY_Community 160]]
+- 1 edge to [[_COMMUNITY_Community 188]]
+- 1 edge to [[_COMMUNITY_Community 20]]
+- 1 edge to [[_COMMUNITY_Community 178]]
+- 1 edge to [[_COMMUNITY_Community 219]]
+- 1 edge to [[_COMMUNITY_Community 73]]
+- 1 edge to [[_COMMUNITY_Community 61]]
+- 1 edge to [[_COMMUNITY_Community 297]]
+
+## Top bridge nodes
+- [[IEventPublisher]] - degree 71, connects to 30 communities
+- [[NotFoundError]] - degree 59, connects to 19 communities
+- [[app.ts_7]] - degree 62, connects to 11 communities
+- [[ConflictError]] - degree 32, connects to 11 communities
+- [[buildPaginationMeta()]] - degree 14, connects to 10 communities

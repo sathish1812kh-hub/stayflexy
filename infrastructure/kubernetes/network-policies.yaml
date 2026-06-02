@@ -1,0 +1,348 @@
+# NetworkPolicies enforce zero-trust inter-service communication.
+# Default deny-all ingress, then explicitly allow only required paths.
+
+---
+# Default deny-all ingress for the stayflexi namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: stayflexi
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+
+---
+# api-gateway: accepts external traffic from ingress controller only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-gateway-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: api-gateway
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - port: 8080
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 8080
+          protocol: TCP
+
+---
+# auth-service: accepts from api-gateway and other services (service-to-service)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: auth-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: auth-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - port: 3001
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3001
+          protocol: TCP
+
+---
+# booking-service: accepts from api-gateway only (P0 service)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: booking-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: booking-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - port: 3005
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3005
+          protocol: TCP
+
+---
+# payment-service: accepts from api-gateway only (P0 service — financial data)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: payment-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - port: 3006
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3006
+          protocol: TCP
+
+---
+# organization-service: accepts from api-gateway
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: organization-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: organization-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - port: 3002
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3002
+          protocol: TCP
+
+---
+# hotel-service: accepts from api-gateway and booking-service
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hotel-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: hotel-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+        - podSelector:
+            matchLabels:
+              app: booking-service
+        - podSelector:
+            matchLabels:
+              app: inventory-service
+      ports:
+        - port: 3003
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3003
+          protocol: TCP
+
+---
+# inventory-service: accepts from api-gateway, booking-service, ota-service
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: inventory-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: inventory-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+        - podSelector:
+            matchLabels:
+              app: booking-service
+        - podSelector:
+            matchLabels:
+              app: ota-service
+      ports:
+        - port: 3004
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3004
+          protocol: TCP
+
+---
+# notification-service: accepts from api-gateway and workflow-service
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: notification-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: notification-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+        - podSelector:
+            matchLabels:
+              app: workflow-service
+      ports:
+        - port: 3009
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3009
+          protocol: TCP
+
+---
+# workflow-service: accepts from api-gateway only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: workflow-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: workflow-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - port: 3010
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3010
+          protocol: TCP
+
+---
+# analytics-service: accepts from api-gateway only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: analytics-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: analytics-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - port: 3008
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3008
+          protocol: TCP
+
+---
+# ota-service: accepts from api-gateway only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ota-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: ota-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - port: 3007
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3007
+          protocol: TCP

@@ -1,0 +1,86 @@
+# Production environment overrides
+# Apply with: helm upgrade --install stayflexi ./helm -f values.yaml -f values.production.yaml -n stayflexi
+
+global:
+  environment: production
+
+services:
+  api-gateway:
+    replicaCount: 3
+    autoscaling:
+      minReplicas: 3
+      maxReplicas: 15
+
+  auth-service:
+    replicaCount: 2
+    autoscaling:
+      minReplicas: 2
+      maxReplicas: 12
+
+  organization-service:
+    replicaCount: 2
+    autoscaling:
+      minReplicas: 2
+      maxReplicas: 10
+
+  hotel-service:
+    replicaCount: 2
+    autoscaling:
+      minReplicas: 2
+      maxReplicas: 10
+
+  inventory-service:
+    replicaCount: 2
+    autoscaling:
+      minReplicas: 2
+      maxReplicas: 10
+
+  booking-service:
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+    autoscaling:
+      minReplicas: 3
+      maxReplicas: 20
+
+  payment-service:
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+    autoscaling:
+      minReplicas: 3
+      maxReplicas: 20
+
+  ota-service:
+    replicaCount: 2
+    autoscaling:
+      minReplicas: 2
+      maxReplicas: 10
+
+  analytics-service:
+    replicaCount: 2
+    autoscaling:
+      minReplicas: 2
+      maxReplicas: 10
+
+  notification-service:
+    replicaCount: 2
+    autoscaling:
+      minReplicas: 2
+      maxReplicas: 10
+
+  workflow-service:
+    replicaCount: 2
+    autoscaling:
+      minReplicas: 2
+      maxReplicas: 10

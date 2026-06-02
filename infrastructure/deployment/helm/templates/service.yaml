@@ -1,0 +1,22 @@
+{{- range $serviceName, $serviceValues := .Values.services }}
+{{- if $serviceValues.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $serviceName }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $serviceName }}
+    {{- include "stayflexi.labels" $ | nindent 4 }}
+spec:
+  type: {{ $serviceValues.service.type }}
+  selector:
+    app: {{ $serviceName }}
+  ports:
+  - name: http
+    protocol: TCP
+    port: {{ $serviceValues.service.port }}
+    targetPort: http
+{{- end }}
+{{- end }}

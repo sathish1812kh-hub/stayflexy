@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apollo-router
+  namespace: stayflexi
+  labels:
+    app: apollo-router
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: apollo-router
+  template:
+    metadata:
+      labels:
+        app: apollo-router
+    spec:
+      containers:
+        - name: apollo-router
+          image: ghcr.io/apollographql/router:v1.46.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4000
+              name: http
+            - containerPort: 8088
+              name: health
+          env:
+            - name: APOLLO_ROUTER_CONFIG_PATH
+              value: "/dist/config/router.yaml"
+            - name: APOLLO_ROUTER_SUPERGRAPH_PATH
+              value: "/dist/schema/supergraph.graphql"
+          volumeMounts:
+            - name: router-config
+              mountPath: /dist/config
+            - name: supergraph-schema
+              mountPath: /dist/schema
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8088
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8088
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1024Mi
+      volumes:
+        - name: router-config
+          configMap:
+            name: apollo-router-config
+        - name: supergraph-schema
+          configMap:
+            name: supergraph-schema

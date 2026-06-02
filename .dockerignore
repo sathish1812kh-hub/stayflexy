@@ -1,0 +1,65 @@
+# ─── .dockerignore ───────────────────────────────────────────────────────────
+# Optimized for monorepo multi-service builds.
+# Each service is built from project root: docker build -f services/<name>/Dockerfile .
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Node artifacts (each stage installs its own) ─────────────────────────────
+**/node_modules
+**/dist
+**/.next
+
+# ── Environment & secrets ────────────────────────────────────────────────────
+**/.env
+**/.env.local
+**/.env.*.local
+.env.docker
+
+# ── Git ──────────────────────────────────────────────────────────────────────
+.git
+.gitignore
+.github
+
+# ── IDE & editor ─────────────────────────────────────────────────────────────
+.vscode
+.idea
+**/*.swp
+**/*.swo
+
+# ── OS files ─────────────────────────────────────────────────────────────────
+**/Thumbs.db
+**/.DS_Store
+
+# ── Test files & coverage ────────────────────────────────────────────────────
+**/*.test.ts
+**/*.spec.ts
+**/coverage
+**/__tests__
+**/__mocks__
+playwright.config.ts
+platform-validation
+
+# ── Build & cache artifacts ──────────────────────────────────────────────────
+.turbo
+**/*.tsbuildinfo
+**/*.log
+
+# ── Docker (prevent recursive context, but keep service Dockerfiles) ─────────
+docker-compose*.yml
+
+# ── Documentation ────────────────────────────────────────────────────────────
+*.md
+LICENSE
+docs
+
+# ── Tool & config directories not needed in container ────────────────────────
+.antigravitycli
+.gemini
+.obsidian
+.bkit
+.husky
+graphify-out
+agents
+infrastructure/kubernetes
+infrastructure/deployment
+infrastructure/secrets
+infrastructure/monitoring

@@ -1,0 +1,18 @@
+---
+source_file: "packages/shared-errors/src/index.ts"
+type: "code"
+community: "Community 16"
+location: "L1"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_16
+---
+
+# AppError
+
+## Connections
+- [[.constructor()_4]] - `method` [EXTRACTED]
+- [[index.ts_9]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_16

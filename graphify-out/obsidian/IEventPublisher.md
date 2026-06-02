@@ -1,0 +1,87 @@
+---
+source_file: "packages/shared-events/src/index.ts"
+type: "code"
+community: "Inventory & Lock"
+location: "L17"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Inventory__Lock
+---
+
+# IEventPublisher
+
+## Connections
+- [[AddMember.test.ts]] - `imports` [EXTRACTED]
+- [[AddMember.ts]] - `imports` [EXTRACTED]
+- [[BlockInventory.test.ts]] - `imports` [EXTRACTED]
+- [[BlockInventory.ts]] - `imports` [EXTRACTED]
+- [[BookingCreationSaga.ts]] - `imports` [EXTRACTED]
+- [[BookingEventConsumer.ts]] - `imports` [EXTRACTED]
+- [[BookingSaga.test.ts]] - `imports` [EXTRACTED]
+- [[CancelBooking.test.ts]] - `imports` [EXTRACTED]
+- [[CancelBooking.ts]] - `imports` [EXTRACTED]
+- [[CancelPayment.test.ts]] - `imports` [EXTRACTED]
+- [[CancelPayment.ts]] - `imports` [EXTRACTED]
+- [[CheckIn.ts]] - `imports` [EXTRACTED]
+- [[CheckInCheckOut.test.ts]] - `imports` [EXTRACTED]
+- [[CheckOut.ts]] - `imports` [EXTRACTED]
+- [[ConfirmPayment.test.ts]] - `imports` [EXTRACTED]
+- [[ConfirmPayment.ts]] - `imports` [EXTRACTED]
+- [[CreateBooking.test.ts]] - `imports` [EXTRACTED]
+- [[CreateBooking.ts]] - `imports` [EXTRACTED]
+- [[CreateHotel.test.ts]] - `imports` [EXTRACTED]
+- [[CreateHotel.ts]] - `imports` [EXTRACTED]
+- [[CreateOrganization.test.ts]] - `imports` [EXTRACTED]
+- [[CreateOrganization.ts]] - `imports` [EXTRACTED]
+- [[CreateRoom.test.ts]] - `imports` [EXTRACTED]
+- [[CreateRoom.ts]] - `imports` [EXTRACTED]
+- [[CreateRoomType.test.ts]] - `imports` [EXTRACTED]
+- [[CreateRoomType.ts]] - `imports` [EXTRACTED]
+- [[GenerateInvoice.ts]] - `imports` [EXTRACTED]
+- [[InitiatePayment.test.ts]] - `imports` [EXTRACTED]
+- [[InitiatePayment.ts]] - `imports` [EXTRACTED]
+- [[LoginUser.test.ts]] - `imports` [EXTRACTED]
+- [[LoginUser.ts]] - `imports` [EXTRACTED]
+- [[OtaEventPublisher.ts]] - `imports` [EXTRACTED]
+- [[ProcessRefund.test.ts]] - `imports` [EXTRACTED]
+- [[ProcessRefund.ts]] - `imports` [EXTRACTED]
+- [[RegisterUser.test.ts]] - `imports` [EXTRACTED]
+- [[RegisterUser.ts]] - `imports` [EXTRACTED]
+- [[ReleaseInventory.test.ts]] - `imports` [EXTRACTED]
+- [[ReleaseInventory.ts]] - `imports` [EXTRACTED]
+- [[RemoveMember.test.ts]] - `imports` [EXTRACTED]
+- [[RemoveMember.ts]] - `imports` [EXTRACTED]
+- [[ReserveInventory.test.ts]] - `imports` [EXTRACTED]
+- [[ReserveInventory.ts]] - `imports` [EXTRACTED]
+- [[RetryNotification.ts]] - `imports` [EXTRACTED]
+- [[SendNotification.test.ts]] - `imports` [EXTRACTED]
+- [[SendNotification.ts]] - `imports` [EXTRACTED]
+- [[TenantIsolation.test.ts_1]] - `imports` [EXTRACTED]
+- [[TenantIsolation.test.ts_2]] - `imports` [EXTRACTED]
+- [[UnblockInventory.ts]] - `imports` [EXTRACTED]
+- [[UpdateHotel.test.ts]] - `imports` [EXTRACTED]
+- [[UpdateHotel.ts]] - `imports` [EXTRACTED]
+- [[UpdateOrganization.test.ts]] - `imports` [EXTRACTED]
+- [[UpdateOrganization.ts]] - `imports` [EXTRACTED]
+- [[UpdateRoom.ts]] - `imports` [EXTRACTED]
+- [[UpdateRoomStatus.test.ts]] - `imports` [EXTRACTED]
+- [[UpdateRoomStatus.ts]] - `imports` [EXTRACTED]
+- [[UpdateRoomType.ts]] - `imports` [EXTRACTED]
+- [[WebhookController.test.ts]] - `imports` [EXTRACTED]
+- [[WebhookController.ts]] - `imports` [EXTRACTED]
+- [[WorkflowEngine.test.ts]] - `imports` [EXTRACTED]
+- [[WorkflowEngine.ts]] - `imports` [EXTRACTED]
+- [[app.ts_3]] - `imports` [EXTRACTED]
+- [[app.ts_5]] - `imports` [EXTRACTED]
+- [[app.ts_7]] - `imports` [EXTRACTED]
+- [[app.ts_9]] - `imports` [EXTRACTED]
+- [[app.ts_10]] - `imports` [EXTRACTED]
+- [[app.ts_12]] - `imports` [EXTRACTED]
+- [[app.ts_13]] - `imports` [EXTRACTED]
+- [[app.ts_15]] - `imports` [EXTRACTED]
+- [[app.ts_18]] - `imports` [EXTRACTED]
+- [[dlq.ts]] - `imports` [EXTRACTED]
+- [[index.ts_10]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Inventory__Lock

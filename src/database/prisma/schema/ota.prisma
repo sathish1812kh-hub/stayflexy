@@ -1,0 +1,209 @@
+// ─── OTA Channel Manager Domain ─────────────────────────────────────────────
+// OTAProvider: system-level registry of supported OTA channels.
+// OTAMapping:  per-hotel (and optionally per-room-type) mapping to an OTA.
+// SyncJob:     a unit of work representing one sync operation; idempotency key
+//              prevents duplicate submissions even under concurrent triggers.
+// SyncEvent:   immutable append-only log emitted during SyncJob processing.
+// OTAReservation: inbound reservations ingested from an OTA before import
+//                 into the Booking engine. @@unique([providerId, externalReservationId])
+//                 is the primary idempotency guard against double-imports.
+//
+// Lifecycle:
+//   SyncJob:  PENDING → RUNNING → SUCCESS | FAILED
+//                                FAILED  → RETRYING → RUNNING (up to maxRetries)
+//                                          FAILED   → CANCELLED (limit exceeded)
+//   OTAReservation: PENDING → IMPORTED | FAILED | DUPLICATE | REJECTED
+
+enum OTAProviderStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+enum SyncType {
+  INVENTORY_PUSH
+  RATE_PUSH
+  RESERVATION_PULL
+  RESERVATION_IMPORT
+  RECONCILIATION
+  FULL_SYNC
+}
+
+enum SyncStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  CANCELLED
+  RETRYING
+}
+
+enum SyncEventType {
+  SYNC_STARTED
+  SYNC_COMPLETED
+  SYNC_FAILED
+  RETRY_INITIATED
+  INVENTORY_UPDATED
+  RATE_UPDATED
+  RESERVATION_RECEIVED
+  RESERVATION_IMPORTED
+  MAPPING_VALIDATED
+  RECONCILIATION_COMPLETE
+}
+
+enum ReservationImportStatus {
+  PENDING
+  IMPORTED
+  FAILED
+  DUPLICATE
+  REJECTED
+}
+
+// ─── OTAProvider ──────────────────────────────────────────────────────────────
+// System-level registry. Not org-scoped — providers are global.
+// providerCode is a stable machine identifier: BOOKING_COM, AIRBNB, EXPEDIA, AGODA
+
+model OTAProvider {
+  id           String            @id @default(uuid())
+  providerName String            @db.VarChar(100)
+  providerCode String            @unique @db.VarChar(50)
+  status       OTAProviderStatus @default(ACTIVE)
+  description  String?           @db.Text
+  webhookUrl   String?           @db.VarChar(500)
+  metadata     Json?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  mappings     OTAMapping[]
+  syncJobs     SyncJob[]
+  reservations OTAReservation[]
+
+  @@index([providerCode])
+  @@index([status])
+  @@map("ota_providers")
+}
+
+// ─── OTAMapping ───────────────────────────────────────────────────────────────
+// Maps a Stayflexi hotel (or room type) to its external identity on an OTA.
+// Hotel-level: roomTypeId = NULL, externalRoomTypeId = NULL
+// Room-level:  roomTypeId set, externalRoomTypeId set
+// Uniqueness rules enforced at application layer:
+//   one hotel-level mapping per (hotelId, providerId)
+//   one room-level mapping per (roomTypeId, providerId)
+
+model OTAMapping {
+  id                 String      @id @default(uuid())
+  organizationId     String
+  hotelId            String
+  hotel              Hotel       @relation("HotelOTAMappings", fields: [hotelId], references: [id], onDelete: Restrict)
+  roomTypeId         String?
+  roomType           RoomType?   @relation("RoomTypeOTAMappings", fields: [roomTypeId], references: [id], onDelete: Restrict)
+  providerId         String
+  provider           OTAProvider @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  externalHotelId    String      @db.VarChar(200)
+  externalRoomTypeId String?     @db.VarChar(200)
+  syncStatus         SyncStatus  @default(PENDING)
+  isActive           Boolean     @default(true)
+  lastSyncedAt       DateTime?
+  metadata           Json?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  @@unique([hotelId, providerId, externalHotelId])
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([roomTypeId])
+  @@index([providerId])
+  @@index([syncStatus])
+  @@index([isActive])
+  @@map("ota_mappings")
+}
+
+// ─── SyncJob ──────────────────────────────────────────────────────────────────
+// Represents one scheduled or on-demand sync operation.
+// idempotencyKey format: "{hotelId}:{providerId}:{syncType}:{date-window}"
+// Prevents concurrent or duplicate job submissions for the same sync window.
+
+model SyncJob {
+  id             String      @id @default(uuid())
+  organizationId String
+  hotelId        String
+  hotel          Hotel       @relation("HotelSyncJobs", fields: [hotelId], references: [id], onDelete: Restrict)
+  providerId     String
+  provider       OTAProvider @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  syncType       SyncType
+  syncStatus     SyncStatus  @default(PENDING)
+  idempotencyKey String      @unique @db.VarChar(255)
+  startedAt      DateTime?
+  completedAt    DateTime?
+  retryCount     Int         @default(0)
+  maxRetries     Int         @default(3)
+  errorMessage   String?     @db.VarChar(2000)
+  payload        Json?
+  createdById    String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  events SyncEvent[]
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([providerId])
+  @@index([syncStatus])
+  @@index([syncType])
+  @@index([createdAt])
+  @@map("sync_jobs")
+}
+
+// ─── SyncEvent ────────────────────────────────────────────────────────────────
+// Immutable append-only event stream for each SyncJob.
+// Used for audit, debugging, and replay.
+
+model SyncEvent {
+  id               String        @id @default(uuid())
+  syncJobId        String
+  syncJob          SyncJob       @relation(fields: [syncJobId], references: [id], onDelete: Cascade)
+  eventType        SyncEventType
+  payload          Json?
+  processingStatus SyncStatus    @default(PENDING)
+  errorMessage     String?       @db.VarChar(2000)
+  createdAt        DateTime      @default(now())
+
+  @@index([syncJobId])
+  @@index([eventType])
+  @@index([processingStatus])
+  @@index([createdAt])
+  @@map("sync_events")
+}
+
+// ─── OTAReservation ───────────────────────────────────────────────────────────
+// Raw inbound reservation from an OTA before it is imported into the Booking engine.
+// @@unique([providerId, externalReservationId]) is the idempotency guard —
+// re-processing the same OTA payload is safe and returns DUPLICATE status.
+
+model OTAReservation {
+  id                    String                  @id @default(uuid())
+  organizationId        String
+  hotelId               String
+  hotel                 Hotel                   @relation("HotelOTAReservations", fields: [hotelId], references: [id], onDelete: Restrict)
+  providerId            String
+  provider              OTAProvider             @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  externalReservationId String                  @db.VarChar(200)
+  bookingId             String?                 @unique
+  booking               Booking?                @relation("BookingOTAReservation", fields: [bookingId], references: [id], onDelete: SetNull)
+  syncStatus            ReservationImportStatus @default(PENDING)
+  rawPayload            Json
+  importedAt            DateTime?
+  errorMessage          String?                 @db.VarChar(2000)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@unique([providerId, externalReservationId])
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([providerId])
+  @@index([syncStatus])
+  @@index([bookingId])
+  @@index([externalReservationId])
+  @@map("ota_reservations")
+}

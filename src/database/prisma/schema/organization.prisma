@@ -1,0 +1,169 @@
+// ─── Organization Domain ───────────────────────────────────────────────────────
+// Owns: Tenant boundary, membership, full RBAC (Role, Permission, UserRole,
+//       RolePermission). Organization is the root of all multi-tenant isolation.
+//
+// RBAC design:
+//   User → UserRole (scoped) → Role → RolePermission → Permission
+//   Scope: a UserRole entry binds a user to a role within an organization
+//   and optionally a specific hotel (for hotel-level granularity in Phase 2).
+//
+// @@unique on UserRole: PostgreSQL treats NULLs as distinct in UNIQUE indexes,
+//   so (userId, roleId, orgId, NULL) would allow duplicates.
+//   Uniqueness is enforced at the service layer instead; @@index is used here.
+
+model Organization {
+  id           String    @id @default(uuid())
+  name         String    @db.VarChar(200) // displayName / trading name
+  legalName    String?   @db.VarChar(300) // registered legal entity name
+  slug         String    @unique @db.VarChar(64)
+  plan         OrgPlan   @default(FREE)
+  status       OrgStatus @default(PENDING_SETUP)
+  email        String    @db.VarChar(255) // primary contact email
+  phone        String?   @db.VarChar(20)
+  website      String?   @db.VarChar(255)
+  logoUrl      String?
+  addressLine1 String?   @db.VarChar(255)
+  addressLine2 String?   @db.VarChar(255)
+  city         String?   @db.VarChar(100)
+  state        String?   @db.VarChar(100)
+  country      String    @default("US") @db.VarChar(2)
+  postalCode   String?   @db.VarChar(20)
+  maxHotels    Int       @default(1)
+  metadata     Json? // flexible org-level configuration blob
+  createdById  String? // userId who created this org (null for seeded data)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  // Owner is a User; no FK cascade — owner cannot be deleted while org exists
+  ownerId String @unique
+  owner   User   @relation("OrganizationOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+
+  // Members — users scoped to this org
+  users   User[]               @relation("OrganizationUsers")
+  members OrganizationMember[]
+
+  // Domain relations
+  hotels Hotel[]
+  roles  Role[]
+
+  // Audit back-relation
+  auditLogs AuditLog[] @relation("OrganizationAuditLogs")
+
+  @@index([status])
+  @@index([plan])
+  @@index([ownerId])
+  @@index([deletedAt])
+  @@map("organizations")
+}
+
+// ─── OrganizationMember ────────────────────────────────────────────────────────
+// Explicit membership record separate from RBAC.
+// Enables org-level operations (list members, remove member, transfer ownership)
+// without depending on the RBAC role assignment table.
+
+model OrganizationMember {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  isOwner        Boolean      @default(false)
+  joinedAt       DateTime     @default(now())
+  removedAt      DateTime?
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+  @@index([removedAt])
+  @@map("organization_members")
+}
+
+// ─── Role ──────────────────────────────────────────────────────────────────────
+// organizationId = null → system-level role (seeded at startup, not modifiable)
+// organizationId = <id> → org-scoped custom role
+// isSystem = true protects against accidental deletion in application logic
+
+model Role {
+  id             String        @id @default(uuid())
+  name           String        @db.VarChar(100)
+  description    String?       @db.VarChar(500)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  isSystem       Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  // A role name must be unique within the same organization (null = system scope)
+  // Service layer enforces uniqueness for (name, organizationId=null) system roles
+  @@index([organizationId])
+  @@index([isSystem])
+  @@index([name])
+  @@map("roles")
+}
+
+// ─── Permission ────────────────────────────────────────────────────────────────
+// resource: the domain entity (hotel, booking, room…)
+// action:   the operation (create, read, update, delete, export, approve, cancel)
+// All permissions are seeded at startup and are read-only at runtime.
+
+model Permission {
+  id          String   @id @default(uuid())
+  resource    String   @db.VarChar(100)
+  action      String   @db.VarChar(100)
+  description String?  @db.VarChar(500)
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@unique([resource, action])
+  @@index([resource])
+  @@map("permissions")
+}
+
+// ─── UserRole ──────────────────────────────────────────────────────────────────
+// Binds a user to a role in a specific scope.
+// organizationId: limits the role to a single org context
+// hotelId:        further narrows to a single hotel (Phase 2 granularity)
+// Both are nullable — a null on either means "all" within the parent scope.
+// Uniqueness: enforced at service layer (see comment on Organization model).
+
+model UserRole {
+  id             String    @id @default(uuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId         String
+  role           Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  organizationId String?
+  hotelId        String?
+  assignedById   String?
+  assignedAt     DateTime  @default(now())
+  expiresAt      DateTime?
+
+  @@index([userId])
+  @@index([roleId])
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([expiresAt])
+  @@map("user_roles")
+}
+
+// ─── RolePermission ────────────────────────────────────────────────────────────
+// Join table granting a permission to a role.
+// Cascade on both sides: removing a role or permission cleans up the grants.
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  roleId       String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  grantedAt    DateTime   @default(now())
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}

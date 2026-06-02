@@ -1,0 +1,135 @@
+# PodDisruptionBudgets ensure minimum availability during node drains and rolling updates.
+# All services with ≥ 2 replicas require at least 1 pod available at all times.
+# Booking, payment and gateway (P0 services) require at least 2 pods available.
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-gateway-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: api-gateway
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: auth-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: auth-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: organization-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: organization-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: hotel-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: hotel-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: inventory-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: inventory-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: booking-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: booking-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: payment-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: payment-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ota-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ota-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: analytics-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: analytics-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: notification-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: notification-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: workflow-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: workflow-service

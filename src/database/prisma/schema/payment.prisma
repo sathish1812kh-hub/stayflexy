@@ -1,0 +1,311 @@
+// ─── Payment Domain ──────────────────────────────────────────────────────────
+// Payment lifecycle: PENDING → PROCESSING → SUCCESS | FAILED
+//                    SUCCESS → REFUNDED | PARTIALLY_REFUNDED
+//
+// Invoice lifecycle: DRAFT → FINALIZED → PAID | VOID
+// Invoices are immutable after finalization.
+//
+// Cascade rules:
+//   Booking deleted → RESTRICT (cannot delete booking with payments)
+//   Payment deleted → Refund, PaymentAudit CASCADE
+//   Invoice deleted → InvoiceItem CASCADE
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  AUTHORIZED
+  CAPTURED
+  SUCCESS
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  CANCELLED
+}
+
+enum LedgerEntryType {
+  DEBIT
+  CREDIT
+}
+
+enum LedgerCategory {
+  PAYMENT
+  REFUND
+  FEE
+  ADJUSTMENT
+  TAX
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  UPI
+  WALLET
+  OTA_COLLECT
+  OTHER
+}
+
+enum RefundStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  FINALIZED
+  PAID
+  VOID
+}
+
+enum InvoiceItemType {
+  ROOM_CHARGE
+  TAX
+  DISCOUNT
+  SERVICE_CHARGE
+  FOOD_BEVERAGE
+  LAUNDRY
+  TRANSPORT
+  OTHER
+}
+
+enum PaymentAuditEvent {
+  CREATED
+  PROCESSING
+  SUCCESS
+  FAILED
+  REFUND_INITIATED
+  REFUND_SUCCESS
+  REFUND_FAILED
+  RECONCILED
+  VOIDED
+}
+
+// ─── Payment ──────────────────────────────────────────────────────────────────
+
+model Payment {
+  id               String        @id @default(uuid())
+  organizationId   String
+  hotelId          String
+  hotel            Hotel         @relation("HotelPayments", fields: [hotelId], references: [id], onDelete: Restrict)
+  bookingId        String
+  booking          Booking       @relation("BookingPayments", fields: [bookingId], references: [id], onDelete: Restrict)
+  paymentReference String        @unique @db.VarChar(50)
+  paymentMethod    PaymentMethod
+  paymentProvider  String?       @db.VarChar(100)
+  transactionId    String?       @db.VarChar(255)
+  paymentStatus    PaymentStatus @default(PENDING)
+  amount           Decimal       @db.Decimal(12, 2)
+  currency         String        @default("USD") @db.VarChar(3)
+  paidAt           DateTime?
+  refundedAt       DateTime?
+  failureReason    String?       @db.VarChar(500)
+  metadata         Json?
+  processedById    String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  refunds          Refund[]
+  audit            PaymentAudit[]
+  transactions     PaymentTransaction[] @relation("PaymentTransactions")
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([bookingId])
+  @@index([paymentStatus])
+  @@index([paymentReference])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+// ─── Refund ───────────────────────────────────────────────────────────────────
+
+model Refund {
+  id               String       @id @default(uuid())
+  paymentId        String
+  payment          Payment      @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  refundReference  String       @unique @db.VarChar(50)
+  refundAmount     Decimal      @db.Decimal(12, 2)
+  refundReason     String       @db.VarChar(500)
+  refundStatus     RefundStatus @default(PENDING)
+  processedById    String
+  processedAt      DateTime?
+  failureReason    String?      @db.VarChar(500)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([paymentId])
+  @@index([refundStatus])
+  @@index([createdAt])
+  @@map("refunds")
+}
+
+// ─── Invoice ──────────────────────────────────────────────────────────────────
+// Immutable after status = FINALIZED. invoiceNumber unique per hotel.
+
+model Invoice {
+  id               String        @id @default(uuid())
+  organizationId   String
+  hotelId          String
+  hotel            Hotel         @relation("HotelInvoices", fields: [hotelId], references: [id], onDelete: Restrict)
+  bookingId        String
+  booking          Booking       @relation("BookingInvoices", fields: [bookingId], references: [id], onDelete: Restrict)
+  invoiceNumber    String        @db.VarChar(30)
+  invoiceStatus    InvoiceStatus @default(DRAFT)
+  subtotal         Decimal       @db.Decimal(12, 2)
+  taxAmount        Decimal       @default(0) @db.Decimal(12, 2)
+  discountAmount   Decimal       @default(0) @db.Decimal(12, 2)
+  totalAmount      Decimal       @db.Decimal(12, 2)
+  currency         String        @default("USD") @db.VarChar(3)
+  issuedAt         DateTime?
+  dueDate          DateTime?
+  notes            String?       @db.Text
+  createdById      String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  items            InvoiceItem[]
+
+  @@unique([hotelId, invoiceNumber])
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([bookingId])
+  @@index([invoiceStatus])
+  @@index([invoiceNumber])
+  @@index([createdAt])
+  @@map("invoices")
+}
+
+// ─── InvoiceItem ──────────────────────────────────────────────────────────────
+
+model InvoiceItem {
+  id          String          @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  itemType    InvoiceItemType
+  itemName    String          @db.VarChar(255)
+  quantity    Int             @default(1)
+  unitPrice   Decimal         @db.Decimal(10, 2)
+  totalPrice  Decimal         @db.Decimal(12, 2)
+  taxRate     Decimal         @default(0) @db.Decimal(5, 4)
+  createdAt   DateTime        @default(now())
+
+  @@index([invoiceId])
+  @@index([itemType])
+  @@map("invoice_items")
+}
+
+// ─── PaymentAudit ─────────────────────────────────────────────────────────────
+// Immutable append-only event log for all payment state changes.
+
+model PaymentAudit {
+  id               String            @id @default(uuid())
+  paymentId        String
+  payment          Payment           @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  eventType        PaymentAuditEvent
+  eventDescription String            @db.VarChar(1000)
+  performedById    String
+  metadata         Json?
+  createdAt        DateTime          @default(now())
+
+  @@index([paymentId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("payment_audit")
+}
+
+// ─── PaymentIdempotencyKey ────────────────────────────────────────────────────
+// Persistent idempotency store for payment mutations.
+// Complements the Redis cache — survives Redis restarts for critical operations.
+
+model PaymentIdempotencyKey {
+  id           String   @id @default(uuid())
+  idempotencyKey String @unique @db.VarChar(255)
+  organizationId String
+  statusCode   Int
+  responseBody Json
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  @@index([organizationId])
+  @@index([expiresAt])
+  @@map("payment_idempotency_keys")
+}
+
+// ─── PaymentWebhookEvent ──────────────────────────────────────────────────────
+// Audit log for all incoming webhook events from payment gateways.
+// Append-only — replay prevention tracked here and in Redis.
+
+model PaymentWebhookEvent {
+  id           String   @id @default(uuid())
+  externalEventId String @unique @db.VarChar(255)
+  eventType    String   @db.VarChar(100)
+  paymentId    String?
+  rawPayload   Json
+  processed    Boolean  @default(false)
+  processedAt  DateTime?
+  error        String?  @db.VarChar(1000)
+  createdAt    DateTime @default(now())
+
+  @@index([externalEventId])
+  @@index([paymentId])
+  @@index([processed])
+  @@index([createdAt])
+  @@map("payment_webhook_events")
+}
+
+// ─── PaymentTransaction ───────────────────────────────────────────────────────
+// Tracks each individual gateway transaction attempt for a payment.
+// Multiple attempts may exist for one payment (retries, partial captures, etc).
+
+model PaymentTransaction {
+  id              String        @id @default(uuid())
+  paymentId       String
+  payment         Payment       @relation("PaymentTransactions", fields: [paymentId], references: [id], onDelete: Cascade)
+  gatewayName     String        @db.VarChar(100)
+  gatewayTxnId    String?       @db.VarChar(255)
+  amount          Decimal       @db.Decimal(12, 2)
+  currency        String        @default("USD") @db.VarChar(3)
+  status          PaymentStatus
+  requestPayload  Json?
+  responsePayload Json?
+  failureReason   String?       @db.VarChar(500)
+  attemptedAt     DateTime      @default(now())
+  completedAt     DateTime?
+
+  @@index([paymentId])
+  @@index([gatewayTxnId])
+  @@index([status])
+  @@index([attemptedAt])
+  @@map("payment_transactions")
+}
+
+// ─── LedgerEntry ─────────────────────────────────────────────────────────────
+// Immutable, double-entry ledger. Every financial event produces an entry.
+// Append-only — never updated or deleted.
+
+model LedgerEntry {
+  id             String           @id @default(uuid())
+  organizationId String
+  hotelId        String
+  referenceId    String           @db.VarChar(255)
+  referenceType  String           @db.VarChar(50)
+  entryType      LedgerEntryType
+  category       LedgerCategory
+  amount         Decimal          @db.Decimal(12, 2)
+  currency       String           @default("USD") @db.VarChar(3)
+  description    String           @db.VarChar(1000)
+  correlationId  String?          @db.VarChar(255)
+  createdAt      DateTime         @default(now())
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([referenceId])
+  @@index([entryType])
+  @@index([category])
+  @@index([currency])
+  @@index([createdAt])
+  @@map("ledger_entries")
+}

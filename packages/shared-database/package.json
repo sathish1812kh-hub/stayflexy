@@ -1,0 +1,14 @@
+{
+  "name": "@stayflexi/shared-database",
+  "version": "2.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "dependencies": {
+    "@prisma/client": "^6.8.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.0"
+  },
+  "types": "dist/index.d.ts"
+}

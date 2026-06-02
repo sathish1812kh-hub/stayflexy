@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: stayflexi
+  labels:
+    app: payment-service
+    version: "2.0.0"
+    component: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: payment-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: payment-service
+        version: "2.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3006"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: stayflexi-service-account
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: payment-service
+        image: stayflexi/payment-service:2.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 3006
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: NODE_ENV
+        - name: PORT
+          value: "3006"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-db-secret
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-redis-secret
+              key: REDIS_URL
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-jwt-secret
+              key: JWT_SECRET
+        - name: SERVICE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-service-secret
+              key: SERVICE_KEY
+        - name: JAEGER_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: JAEGER_ENDPOINT
+        - name: JAEGER_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: JAEGER_ENABLED
+        - name: KAFKA_BROKERS
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: KAFKA_BROKERS
+        - name: KAFKA_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: KAFKA_ENABLED
+        - name: OTEL_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: OTEL_ENABLED
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values: [payment-service]
+              topologyKey: kubernetes.io/hostname
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: payment-service

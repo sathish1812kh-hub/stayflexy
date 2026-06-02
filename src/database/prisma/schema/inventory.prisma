@@ -1,0 +1,75 @@
+// ─── Inventory Domain ───────────────────────────────────────────────────────────
+// Tracks daily room-type availability. One record per (roomType, date).
+//
+// Invariants enforced by the service layer (not the DB):
+//   reservedInventory >= 0
+//   blockedInventory >= 0
+//   reservedInventory + blockedInventory <= totalInventory
+//   availableInventory = totalInventory - reservedInventory - blockedInventory  (computed, NOT stored)
+//
+// availableInventory is intentionally NOT a stored column — it would create a
+// derived data consistency problem. Compute it in the service/repository layer.
+//
+// Concurrency safety: use Prisma transactions + optimistic locking or
+// SELECT FOR UPDATE when reservedInventory is incremented at booking time.
+
+enum InventoryBlockReason {
+  MAINTENANCE
+  OTA_BLOCK
+  MANUAL_BLOCK
+  HOTEL_USE
+  RENOVATION
+  VIP_HOLD
+  CONTINGENCY
+}
+
+// ─── Inventory ─────────────────────────────────────────────────────────────────
+
+model Inventory {
+  id                String   @id @default(uuid())
+  hotelId           String
+  hotel             Hotel    @relation("HotelInventory", fields: [hotelId], references: [id], onDelete: Cascade)
+  organizationId    String
+  roomTypeId        String
+  roomType          RoomType @relation("RoomTypeInventory", fields: [roomTypeId], references: [id], onDelete: Cascade)
+  inventoryDate     DateTime @db.Date
+  totalInventory    Int      @default(0)
+  reservedInventory Int      @default(0)
+  blockedInventory  Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  blocks InventoryBlock[] @relation("InventoryBlocks")
+
+  @@unique([roomTypeId, inventoryDate])
+  @@index([hotelId])
+  @@index([organizationId])
+  @@index([roomTypeId])
+  @@index([inventoryDate])
+  @@map("inventory")
+}
+
+// ─── InventoryBlock ────────────────────────────────────────────────────────────
+// Represents a manual hold on inventory units for a specific reason.
+// When isActive = true and the block covers an inventory date,
+// blockedInventory on that Inventory record is incremented.
+// quantity is the number of units held (1 = one room-night blocked).
+
+model InventoryBlock {
+  id          String               @id @default(uuid())
+  inventoryId String
+  inventory   Inventory            @relation("InventoryBlocks", fields: [inventoryId], references: [id], onDelete: Cascade)
+  hotelId     String
+  reason      InventoryBlockReason
+  blockedById String
+  quantity    Int                  @default(1)
+  notes       String?              @db.VarChar(500)
+  isActive    Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([inventoryId])
+  @@index([hotelId])
+  @@index([isActive])
+  @@map("inventory_blocks")
+}

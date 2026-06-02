@@ -1,0 +1,120 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ReservationStatus {
+  ACTIVE
+  RELEASED
+  EXPIRED
+}
+
+enum BlockReason {
+  MAINTENANCE
+  OTA_BLOCK
+  MANUAL_BLOCK
+  HOTEL_USE
+  RENOVATION
+  VIP_HOLD
+  CONTINGENCY
+}
+
+model Inventory {
+  id             String   @id @default(uuid())
+  hotelId        String
+  organizationId String
+  roomTypeId     String
+  inventoryDate  DateTime @db.Date
+  totalRooms     Int      @default(0)
+  reservedCount  Int      @default(0)
+  blockedCount   Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  reservations InventoryReservation[]
+  blocks       InventoryBlock[]
+  auditLogs    InventoryAuditLog[]
+
+  @@unique([roomTypeId, inventoryDate])
+  @@index([hotelId])
+  @@index([organizationId])
+  @@index([hotelId, inventoryDate])
+  @@index([roomTypeId, inventoryDate])
+}
+
+model InventoryReservation {
+  id             String            @id @default(uuid())
+  inventoryId    String
+  hotelId        String
+  organizationId String
+  roomTypeId     String
+  bookingRef     String
+  quantity       Int               @default(1)
+  status         ReservationStatus @default(ACTIVE)
+  correlationId  String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  releasedAt     DateTime?
+
+  inventory Inventory @relation(fields: [inventoryId], references: [id])
+
+  @@index([inventoryId])
+  @@index([hotelId])
+  @@index([bookingRef])
+  @@index([roomTypeId])
+  @@index([bookingRef, status])
+}
+
+model InventoryBlock {
+  id             String      @id @default(uuid())
+  inventoryId    String
+  hotelId        String
+  organizationId String
+  reason         BlockReason
+  blockedById    String
+  quantity       Int         @default(1)
+  notes          String?
+  isActive       Boolean     @default(true)
+  correlationId  String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  inventory Inventory @relation(fields: [inventoryId], references: [id])
+
+  @@index([inventoryId])
+  @@index([hotelId])
+  @@index([isActive])
+}
+
+model InventoryAuditLog {
+  id            String   @id @default(uuid())
+  inventoryId   String?
+  hotelId       String
+  action        String
+  performedBy   String
+  oldValues     Json?
+  newValues     Json?
+  correlationId String?
+  createdAt     DateTime @default(now())
+
+  @@index([hotelId])
+  @@index([inventoryId])
+}
+
+model InventoryLockAudit {
+  id            String   @id @default(uuid())
+  lockKey       String
+  acquiredBy    String
+  acquiredAt    DateTime @default(now())
+  releasedAt    DateTime?
+  durationMs    Int?
+  wasStale      Boolean  @default(false)
+  correlationId String?
+
+  @@index([lockKey])
+  @@index([acquiredAt])
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@stayflexi/shared-logger",
+  "version": "2.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "dependencies": {
+    "pino": "^8.17.0",
+    "pino-http": "^9.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.0"
+  },
+  "types": "dist/index.d.ts"
+}

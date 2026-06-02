@@ -1,0 +1,171 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: stayflexi
+  labels:
+    app: api-gateway
+    version: "2.0.0"
+    component: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api-gateway
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        version: "2.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: stayflexi-service-account
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: api-gateway
+        image: stayflexi/api-gateway:2.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: NODE_ENV
+        - name: PORT
+          value: "8080"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-db-secret
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-redis-secret
+              key: REDIS_URL
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-jwt-secret
+              key: JWT_SECRET
+        - name: SERVICE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-service-secret
+              key: SERVICE_KEY
+        - name: JAEGER_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: JAEGER_ENDPOINT
+        - name: SERVICE_AUTH_URL
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: SERVICE_AUTH_URL
+        - name: SERVICE_ORGANIZATION_URL
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: SERVICE_ORGANIZATION_URL
+        - name: SERVICE_HOTEL_URL
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: SERVICE_HOTEL_URL
+        - name: SERVICE_INVENTORY_URL
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: SERVICE_INVENTORY_URL
+        - name: SERVICE_BOOKING_URL
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: SERVICE_BOOKING_URL
+        - name: SERVICE_PAYMENT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: SERVICE_PAYMENT_URL
+        - name: SERVICE_OTA_URL
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: SERVICE_OTA_URL
+        - name: SERVICE_ANALYTICS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: SERVICE_ANALYTICS_URL
+        - name: SERVICE_NOTIFICATION_URL
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: SERVICE_NOTIFICATION_URL
+        - name: SERVICE_WORKFLOW_URL
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: SERVICE_WORKFLOW_URL
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values: [api-gateway]
+              topologyKey: kubernetes.io/hostname
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: api-gateway

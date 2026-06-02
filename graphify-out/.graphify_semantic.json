@@ -1,0 +1,3289 @@
+{
+  "nodes": [
+    {
+      "id": "dockercompose_api_gateway",
+      "label": "API Gateway Service",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_auth_service",
+      "label": "Auth Service",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_organization_service",
+      "label": "Organization Service",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_hotel_service",
+      "label": "Hotel Service",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_inventory_service",
+      "label": "Inventory Service",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_booking_service",
+      "label": "Booking Service",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_payment_service",
+      "label": "Payment Service",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_ota_service",
+      "label": "OTA Service",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_analytics_service",
+      "label": "Analytics Service",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_notification_service",
+      "label": "Notification Service",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_workflow_service",
+      "label": "Workflow Service",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_postgres",
+      "label": "Postgres Database",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_redis",
+      "label": "Redis Cache",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dockercompose_kafka",
+      "label": "Kafka Event Bus",
+      "file_type": "code",
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_platform_architect",
+      "label": "Platform Architect Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_auth_security",
+      "label": "Auth Security Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_organization",
+      "label": "Organization Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_hotel",
+      "label": "Hotel Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_inventory_consistency",
+      "label": "Inventory Consistency Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_booking_saga",
+      "label": "Booking Saga Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_payment_ledger",
+      "label": "Payment Ledger Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_ota_sync",
+      "label": "OTA Sync Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_analytics",
+      "label": "Analytics Agent",
+      "file_type": "document",
+      "source_file": "agents/analytics-agent/GEMINI.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_notification_workflow",
+      "label": "Notification Workflow Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_infrastructure_devops",
+      "label": "Infrastructure DevOps Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_observability_sre",
+      "label": "Observability SRE Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_database_prisma",
+      "label": "Database Prisma Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_kafka_event",
+      "label": "Kafka Event Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_redis_consistency",
+      "label": "Redis Consistency Agent",
+      "file_type": "document",
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_qa_resilience",
+      "label": "QA Resilience Agent",
+      "file_type": "document",
+      "source_file": "agents/QA_ORCHESTRATION.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_integration_governance",
+      "label": "Integration Governance Agent",
+      "file_type": "document",
+      "source_file": "agents/GOVERNANCE_WORKFLOW.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_service_http_client",
+      "label": "Service HTTP Client",
+      "file_type": "document",
+      "source_file": "agents/INTEGRATION_PROTOCOL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_kafka_events",
+      "label": "Kafka Events",
+      "file_type": "document",
+      "source_file": "agents/INTEGRATION_PROTOCOL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_tenant_isolation",
+      "label": "Tenant Isolation",
+      "file_type": "document",
+      "source_file": "agents/QA_ORCHESTRATION.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_distributed_lock",
+      "label": "Distributed Lock",
+      "file_type": "document",
+      "source_file": "agents/INTEGRATION_PROTOCOL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_saga_orchestration",
+      "label": "Saga Orchestration",
+      "file_type": "document",
+      "source_file": "agents/QA_ORCHESTRATION.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_idempotency",
+      "label": "Idempotency",
+      "file_type": "document",
+      "source_file": "agents/INTEGRATION_PROTOCOL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "auth_security_agent",
+      "label": "Auth & Security Agent",
+      "file_type": "document",
+      "source_file": "agents/auth-security-agent/GEMINI.md"
+    },
+    {
+      "id": "auth_service",
+      "label": "auth-service",
+      "file_type": "code",
+      "source_file": "agents/auth-security-agent/GEMINI.md"
+    },
+    {
+      "id": "booking_saga_agent",
+      "label": "Booking Saga Agent",
+      "file_type": "document",
+      "source_file": "agents/booking-saga-agent/GEMINI.md"
+    },
+    {
+      "id": "booking_service",
+      "label": "booking-service",
+      "file_type": "code",
+      "source_file": "agents/booking-saga-agent/GEMINI.md"
+    },
+    {
+      "id": "database_prisma_agent",
+      "label": "Database Prisma Agent",
+      "file_type": "document",
+      "source_file": "agents/database-prisma-agent/GEMINI.md"
+    },
+    {
+      "id": "hotel_agent",
+      "label": "Hotel Agent",
+      "file_type": "document",
+      "source_file": "agents/hotel-agent/GEMINI.md"
+    },
+    {
+      "id": "hotel_service",
+      "label": "hotel-service",
+      "file_type": "code",
+      "source_file": "agents/hotel-agent/GEMINI.md"
+    },
+    {
+      "id": "infrastructure_devops_agent",
+      "label": "Infrastructure DevOps Agent",
+      "file_type": "document",
+      "source_file": "agents/infrastructure-devops-agent/GEMINI.md"
+    },
+    {
+      "id": "integration_governance_agent",
+      "label": "Integration Governance Agent",
+      "file_type": "document",
+      "source_file": "agents/integration-governance-agent/GEMINI.md"
+    },
+    {
+      "id": "inventory_consistency_agent",
+      "label": "Inventory Consistency Agent",
+      "file_type": "document",
+      "source_file": "agents/inventory-consistency-agent/GEMINI.md"
+    },
+    {
+      "id": "inventory_service",
+      "label": "inventory-service",
+      "file_type": "code",
+      "source_file": "agents/inventory-consistency-agent/GEMINI.md"
+    },
+    {
+      "id": "kafka_event_agent",
+      "label": "Kafka Event Agent",
+      "file_type": "document",
+      "source_file": "agents/kafka-event-agent/GEMINI.md"
+    },
+    {
+      "id": "notification_workflow_agent",
+      "label": "Notification Workflow Agent",
+      "file_type": "document",
+      "source_file": "agents/notification-workflow-agent/GEMINI.md"
+    },
+    {
+      "id": "notification_service",
+      "label": "notification-service",
+      "file_type": "code",
+      "source_file": "agents/notification-workflow-agent/GEMINI.md"
+    },
+    {
+      "id": "workflow_service",
+      "label": "workflow-service",
+      "file_type": "code",
+      "source_file": "agents/notification-workflow-agent/GEMINI.md"
+    },
+    {
+      "id": "observability_sre_agent",
+      "label": "Observability SRE Agent",
+      "file_type": "document",
+      "source_file": "agents/observability-sre-agent/GEMINI.md"
+    },
+    {
+      "id": "organization_agent",
+      "label": "Organization Agent",
+      "file_type": "document",
+      "source_file": "agents/organization-agent/GEMINI.md"
+    },
+    {
+      "id": "organization_service",
+      "label": "organization-service",
+      "file_type": "code",
+      "source_file": "agents/organization-agent/GEMINI.md"
+    },
+    {
+      "id": "ota_sync_agent",
+      "label": "OTA Sync Agent",
+      "file_type": "document",
+      "source_file": "agents/ota-sync-agent/GEMINI.md"
+    },
+    {
+      "id": "ota_service",
+      "label": "ota-service",
+      "file_type": "code",
+      "source_file": "agents/ota-sync-agent/GEMINI.md"
+    },
+    {
+      "id": "payment_ledger_agent",
+      "label": "Payment Ledger Agent",
+      "file_type": "document",
+      "source_file": "agents/payment-ledger-agent/GEMINI.md"
+    },
+    {
+      "id": "payment_service",
+      "label": "payment-service",
+      "file_type": "code",
+      "source_file": "agents/payment-ledger-agent/GEMINI.md"
+    },
+    {
+      "id": "platform_architect_agent",
+      "label": "Platform Architect Agent",
+      "file_type": "document",
+      "source_file": "agents/platform-architect-agent/GEMINI.md"
+    },
+    {
+      "id": "qa_resilience_agent",
+      "label": "QA Resilience Agent",
+      "file_type": "document",
+      "source_file": "agents/qa-resilience-agent/GEMINI.md"
+    },
+    {
+      "id": "redis_consistency_agent",
+      "label": "Redis Consistency Agent",
+      "file_type": "document",
+      "source_file": "agents/redis-consistency-agent/GEMINI.md"
+    },
+    {
+      "id": "api_gateway",
+      "label": "api-gateway",
+      "file_type": "code",
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "id": "analytics_service",
+      "label": "analytics-service",
+      "file_type": "code",
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "id": "tenant_isolation",
+      "label": "Tenant Isolation",
+      "file_type": "document",
+      "source_file": "docs/DATABASE_ARCHITECTURE.md"
+    },
+    {
+      "id": "rbac_flow",
+      "label": "RBAC Flow",
+      "file_type": "document",
+      "source_file": "docs/DATABASE_ARCHITECTURE.md"
+    },
+    {
+      "id": "saga_consistency",
+      "label": "Saga Consistency",
+      "file_type": "document",
+      "source_file": "docs/BACKEND_CERTIFICATION.md"
+    },
+    {
+      "id": "circuit_breaker",
+      "label": "Circuit Breaker",
+      "file_type": "document",
+      "source_file": "docs/architecture/RESILIENCE.md"
+    },
+    {
+      "id": "booking_events",
+      "label": "booking.events",
+      "file_type": "document",
+      "source_file": "docs/architecture/EVENTS.md"
+    },
+    {
+      "id": "payment_events",
+      "label": "payment.events",
+      "file_type": "document",
+      "source_file": "docs/architecture/EVENTS.md"
+    },
+    {
+      "id": "inventory_events",
+      "label": "inventory.events",
+      "file_type": "document",
+      "source_file": "docs/architecture/EVENTS.md"
+    },
+    {
+      "id": "stayflexi_api_gateway",
+      "label": "API Gateway",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_auth_service",
+      "label": "Auth Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_booking_service",
+      "label": "Booking Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_payment_service",
+      "label": "Payment Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_inventory_service",
+      "label": "Inventory Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_hotel_service",
+      "label": "Hotel Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_ota_service",
+      "label": "OTA Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_analytics_service",
+      "label": "Analytics Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_notification_service",
+      "label": "Notification Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_workflow_service",
+      "label": "Workflow Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_postgres",
+      "label": "PostgreSQL",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_redis",
+      "label": "Redis",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_kafka",
+      "label": "Kafka",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_tier1_deployment",
+      "label": "Tier 1 Deployment",
+      "file_type": "document",
+      "source_file": "docs/runbooks/DEPLOYMENT_RUNBOOK.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "runbook_dependency_order",
+      "label": "Dependency Order Deployment",
+      "file_type": "document",
+      "source_file": "docs/runbooks/DEPLOYMENT_RUNBOOK.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "runbook_graceful_degradation",
+      "label": "Graceful Degradation",
+      "file_type": "document",
+      "source_file": "docs/runbooks/service-degradation.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "runbook_fail_open_safe",
+      "label": "Fail Open Where Safe",
+      "file_type": "document",
+      "source_file": "docs/runbooks/service-degradation.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_k8s_network_policies",
+      "label": "Network Policies",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/network-policies.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_keda_autoscaling",
+      "label": "KEDA Autoscaling",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/autoscaling/keda-scaled-objects.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_k8s_pdb",
+      "label": "Pod Disruption Budgets",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/pod-disruption-budgets.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_incident_p0",
+      "label": "P0 Incident Response",
+      "file_type": "document",
+      "source_file": "docs/runbooks/incident-response.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_kafka_dlq",
+      "label": "Kafka DLQ Architecture",
+      "file_type": "document",
+      "source_file": "docs/runbooks/KAFKA_DLQ_RUNBOOK.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_shared_stayflexi_db_secret",
+      "label": "Secret stayflexi-db-secret",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_shared_stayflexi_redis_secret",
+      "label": "Secret stayflexi-redis-secret",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_shared_stayflexi_jwt_secret",
+      "label": "Secret stayflexi-jwt-secret",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_shared_stayflexi_service_secret",
+      "label": "Secret stayflexi-service-secret",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_shared_stayflexi_config",
+      "label": "ConfigMap stayflexi-config",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_shared_stayflexi_service_account",
+      "label": "ServiceAccount stayflexi-service-account",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_job_prisma_migrate",
+      "label": "Job prisma-migrate",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/jobs/prisma-migrate.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_deploy_analytics_service",
+      "label": "Deployment analytics-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/analytics-service/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_hpa_analytics_service",
+      "label": "HPA analytics-service-hpa",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/analytics-service/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_svc_analytics_service",
+      "label": "Service analytics-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/analytics-service/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_deploy_api_gateway",
+      "label": "Deployment api-gateway",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_hpa_api_gateway",
+      "label": "HPA api-gateway-hpa",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/api-gateway/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_svc_api_gateway",
+      "label": "Service api-gateway",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/api-gateway/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_deploy_auth_service",
+      "label": "Deployment auth-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/auth-service/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_hpa_auth_service",
+      "label": "HPA auth-service-hpa",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/auth-service/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_svc_auth_service",
+      "label": "Service auth-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/auth-service/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_deploy_booking_service",
+      "label": "Deployment booking-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/booking-service/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_hpa_booking_service",
+      "label": "HPA booking-service-hpa",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/booking-service/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_svc_booking_service",
+      "label": "Service booking-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/booking-service/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_deploy_hotel_service",
+      "label": "Deployment hotel-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/hotel-service/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_hpa_hotel_service",
+      "label": "HPA hotel-service-hpa",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/hotel-service/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_svc_hotel_service",
+      "label": "Service hotel-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/hotel-service/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_deploy_inventory_service",
+      "label": "Deployment inventory-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/inventory-service/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_hpa_inventory_service",
+      "label": "HPA inventory-service-hpa",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/inventory-service/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_svc_inventory_service",
+      "label": "Service inventory-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/inventory-service/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_deploy_notification_service",
+      "label": "Deployment notification-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/notification-service/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_hpa_notification_service",
+      "label": "HPA notification-service-hpa",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/notification-service/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_svc_notification_service",
+      "label": "Service notification-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/notification-service/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_deploy_organization_service",
+      "label": "Deployment organization-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/organization-service/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_hpa_organization_service",
+      "label": "HPA organization-service-hpa",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/organization-service/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "k8s_svc_organization_service",
+      "label": "Service organization-service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/organization-service/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deployment_ota_service",
+      "label": "OTA Service Deployment",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/ota-service/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "hpa_ota_service",
+      "label": "OTA Service HPA",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/ota-service/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "service_ota_service",
+      "label": "OTA Service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/ota-service/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deployment_payment_service",
+      "label": "Payment Service Deployment",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/payment-service/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "hpa_payment_service",
+      "label": "Payment Service HPA",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/payment-service/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "service_payment_service",
+      "label": "Payment Service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/payment-service/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deployment_pricing_engine_service",
+      "label": "Pricing Engine Service Deployment",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/pricing-engine-service/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "hpa_pricing_engine_service",
+      "label": "Pricing Engine Service HPA",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/pricing-engine-service/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "service_pricing_engine_service",
+      "label": "Pricing Engine Service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/pricing-engine-service/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deployment_workflow_service",
+      "label": "Workflow Service Deployment",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/workflow-service/deployment.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "hpa_workflow_service",
+      "label": "Workflow Service HPA",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/workflow-service/hpa.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "service_workflow_service",
+      "label": "Workflow Service",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/services/workflow-service/service.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "config_alertmanager",
+      "label": "Alertmanager Configuration",
+      "file_type": "code",
+      "source_file": "infrastructure/monitoring/alertmanager/alertmanager.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "config_grafana_dashboards",
+      "label": "Grafana Dashboards Configuration",
+      "file_type": "code",
+      "source_file": "infrastructure/monitoring/grafana/provisioning/dashboards/dashboards.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "config_grafana_datasources",
+      "label": "Grafana Datasources Configuration",
+      "file_type": "code",
+      "source_file": "infrastructure/monitoring/grafana/provisioning/datasources/datasources.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "config_loki",
+      "label": "Loki Configuration",
+      "file_type": "code",
+      "source_file": "infrastructure/monitoring/loki/loki-config.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "config_prometheus_alerts",
+      "label": "Prometheus Alerts",
+      "file_type": "code",
+      "source_file": "infrastructure/monitoring/prometheus/alerts.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "config_prometheus",
+      "label": "Prometheus Configuration",
+      "file_type": "code",
+      "source_file": "infrastructure/monitoring/prometheus/prometheus.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "config_prometheus_rules",
+      "label": "Prometheus Recording Rules",
+      "file_type": "code",
+      "source_file": "infrastructure/monitoring/prometheus/recording-rules.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "doc_observability",
+      "label": "Observability Validation Checklist",
+      "file_type": "document",
+      "source_file": "platform-validation/reports/checklists/observability.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "doc_production_readiness",
+      "label": "Production Readiness Checklist",
+      "file_type": "document",
+      "source_file": "platform-validation/reports/checklists/production-readiness.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "doc_recovery",
+      "label": "Disaster Recovery Procedures",
+      "file_type": "document",
+      "source_file": "platform-validation/reports/checklists/recovery.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "doc_scalability",
+      "label": "Scalability Checklist",
+      "file_type": "document",
+      "source_file": "platform-validation/reports/checklists/scalability.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "doc_security",
+      "label": "Security Hardening Checklist",
+      "file_type": "document",
+      "source_file": "platform-validation/reports/checklists/security-hardening.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "doc_sre_ops",
+      "label": "SRE Operations Runbook",
+      "file_type": "document",
+      "source_file": "platform-validation/reports/checklists/sre-operations.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_slo",
+      "label": "Service Level Objectives",
+      "file_type": "document",
+      "source_file": "platform-validation/reports/checklists/sre-operations.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_error_budget",
+      "label": "Error Budget",
+      "file_type": "document",
+      "source_file": "platform-validation/reports/checklists/sre-operations.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "concept_incident_severity",
+      "label": "Incident Severity Levels",
+      "file_type": "document",
+      "source_file": "platform-validation/reports/checklists/sre-operations.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "dockercompose_api_gateway",
+      "target": "dockercompose_auth_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_api_gateway",
+      "target": "dockercompose_organization_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_api_gateway",
+      "target": "dockercompose_hotel_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_api_gateway",
+      "target": "dockercompose_inventory_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_api_gateway",
+      "target": "dockercompose_booking_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_api_gateway",
+      "target": "dockercompose_payment_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_api_gateway",
+      "target": "dockercompose_ota_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_api_gateway",
+      "target": "dockercompose_analytics_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_api_gateway",
+      "target": "dockercompose_notification_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_api_gateway",
+      "target": "dockercompose_workflow_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_organization_service",
+      "target": "dockercompose_auth_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_hotel_service",
+      "target": "dockercompose_organization_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_inventory_service",
+      "target": "dockercompose_hotel_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_booking_service",
+      "target": "dockercompose_inventory_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_booking_service",
+      "target": "dockercompose_payment_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "dockercompose_ota_service",
+      "target": "dockercompose_inventory_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1,
+      "source_file": "docker-compose.microservices.yml",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_platform_architect",
+      "target": "dockercompose_api_gateway",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_auth_security",
+      "target": "dockercompose_auth_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_organization",
+      "target": "dockercompose_organization_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_hotel",
+      "target": "dockercompose_hotel_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_inventory_consistency",
+      "target": "dockercompose_inventory_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_booking_saga",
+      "target": "dockercompose_booking_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_payment_ledger",
+      "target": "dockercompose_payment_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_ota_sync",
+      "target": "dockercompose_ota_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_analytics",
+      "target": "dockercompose_analytics_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_notification_workflow",
+      "target": "dockercompose_notification_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_notification_workflow",
+      "target": "dockercompose_workflow_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_database_prisma",
+      "target": "dockercompose_postgres",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_kafka_event",
+      "target": "dockercompose_kafka",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "agent_redis_consistency",
+      "target": "dockercompose_redis",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "agents/README.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "concept_service_http_client",
+      "target": "agent_platform_architect",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "agents/INTEGRATION_PROTOCOL.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "concept_kafka_events",
+      "target": "agent_kafka_event",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "agents/INTEGRATION_PROTOCOL.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "concept_tenant_isolation",
+      "target": "agent_auth_security",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "agents/QA_ORCHESTRATION.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "concept_distributed_lock",
+      "target": "agent_inventory_consistency",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "agents/QA_ORCHESTRATION.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "concept_saga_orchestration",
+      "target": "agent_booking_saga",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "agents/QA_ORCHESTRATION.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "concept_idempotency",
+      "target": "agent_analytics",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "agents/analytics-agent/GEMINI.md",
+      "source_location": null,
+      "weight": 1
+    },
+    {
+      "source": "auth_security_agent",
+      "target": "auth_service",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/auth-security-agent/GEMINI.md"
+    },
+    {
+      "source": "booking_saga_agent",
+      "target": "booking_service",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/booking-saga-agent/GEMINI.md"
+    },
+    {
+      "source": "hotel_agent",
+      "target": "hotel_service",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/hotel-agent/GEMINI.md"
+    },
+    {
+      "source": "inventory_consistency_agent",
+      "target": "inventory_service",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/inventory-consistency-agent/GEMINI.md"
+    },
+    {
+      "source": "notification_workflow_agent",
+      "target": "notification_service",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/notification-workflow-agent/GEMINI.md"
+    },
+    {
+      "source": "notification_workflow_agent",
+      "target": "workflow_service",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/notification-workflow-agent/GEMINI.md"
+    },
+    {
+      "source": "organization_agent",
+      "target": "organization_service",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/organization-agent/GEMINI.md"
+    },
+    {
+      "source": "ota_sync_agent",
+      "target": "ota_service",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/ota-sync-agent/GEMINI.md"
+    },
+    {
+      "source": "payment_ledger_agent",
+      "target": "payment_service",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/payment-ledger-agent/GEMINI.md"
+    },
+    {
+      "source": "booking_service",
+      "target": "inventory_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/booking-saga-agent/GEMINI.md"
+    },
+    {
+      "source": "booking_service",
+      "target": "payment_service",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/booking-saga-agent/GEMINI.md"
+    },
+    {
+      "source": "ota_service",
+      "target": "booking_service",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/ota-sync-agent/GEMINI.md"
+    },
+    {
+      "source": "ota_service",
+      "target": "inventory_service",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/ota-sync-agent/GEMINI.md"
+    },
+    {
+      "source": "api_gateway",
+      "target": "auth_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "source": "api_gateway",
+      "target": "booking_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "source": "api_gateway",
+      "target": "hotel_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "source": "api_gateway",
+      "target": "inventory_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "source": "api_gateway",
+      "target": "payment_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "source": "api_gateway",
+      "target": "organization_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "source": "api_gateway",
+      "target": "ota_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "source": "api_gateway",
+      "target": "analytics_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "source": "api_gateway",
+      "target": "notification_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "source": "api_gateway",
+      "target": "workflow_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/ARCHITECTURE.md"
+    },
+    {
+      "source": "tenant_isolation",
+      "target": "database_prisma_agent",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "docs/DATABASE_ARCHITECTURE.md"
+    },
+    {
+      "source": "circuit_breaker",
+      "target": "qa_resilience_agent",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "docs/architecture/RESILIENCE.md"
+    },
+    {
+      "source": "booking_service",
+      "target": "booking_events",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/EVENTS.md"
+    },
+    {
+      "source": "payment_service",
+      "target": "payment_events",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/EVENTS.md"
+    },
+    {
+      "source": "stayflexi_api_gateway",
+      "target": "stayflexi_booking_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_api_gateway",
+      "target": "stayflexi_auth_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_api_gateway",
+      "target": "stayflexi_payment_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_api_gateway",
+      "target": "stayflexi_inventory_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_booking_service",
+      "target": "stayflexi_inventory_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_booking_service",
+      "target": "stayflexi_auth_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_payment_service",
+      "target": "stayflexi_booking_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_analytics_service",
+      "target": "stayflexi_booking_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_workflow_service",
+      "target": "stayflexi_booking_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "runbook_dependency_order",
+      "target": "stayflexi_tier1_deployment",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/runbooks/DEPLOYMENT_RUNBOOK.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "runbook_fail_open_safe",
+      "target": "runbook_graceful_degradation",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/runbooks/service-degradation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_k8s_network_policies",
+      "target": "stayflexi_api_gateway",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/network-policies.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_k8s_network_policies",
+      "target": "stayflexi_booking_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/network-policies.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_keda_autoscaling",
+      "target": "stayflexi_kafka",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "infrastructure/kubernetes/autoscaling/keda-scaled-objects.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_k8s_pdb",
+      "target": "stayflexi_booking_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/pod-disruption-budgets.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_incident_p0",
+      "target": "stayflexi_booking_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/runbooks/incident-response.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_booking_service",
+      "target": "stayflexi_payment_service",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": null,
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_kafka_dlq",
+      "target": "stayflexi_kafka",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/runbooks/KAFKA_DLQ_RUNBOOK.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_job_prisma_migrate",
+      "target": "k8s_shared_stayflexi_db_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/jobs/prisma-migrate.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_job_prisma_migrate",
+      "target": "k8s_shared_stayflexi_service_account",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/jobs/prisma-migrate.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_hpa_analytics_service",
+      "target": "k8s_deploy_analytics_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/analytics-service/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_svc_analytics_service",
+      "target": "k8s_deploy_analytics_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/analytics-service/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_analytics_service",
+      "target": "k8s_shared_stayflexi_db_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/analytics-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_analytics_service",
+      "target": "k8s_shared_stayflexi_redis_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/analytics-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_analytics_service",
+      "target": "k8s_shared_stayflexi_jwt_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/analytics-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_analytics_service",
+      "target": "k8s_shared_stayflexi_service_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/analytics-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_analytics_service",
+      "target": "k8s_shared_stayflexi_config",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/analytics-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_analytics_service",
+      "target": "k8s_shared_stayflexi_service_account",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/analytics-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_hpa_api_gateway",
+      "target": "k8s_deploy_api_gateway",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_svc_api_gateway",
+      "target": "k8s_deploy_api_gateway",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_shared_stayflexi_db_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_shared_stayflexi_redis_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_shared_stayflexi_jwt_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_shared_stayflexi_service_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_shared_stayflexi_config",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_shared_stayflexi_service_account",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_hpa_auth_service",
+      "target": "k8s_deploy_auth_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/auth-service/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_svc_auth_service",
+      "target": "k8s_deploy_auth_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/auth-service/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_auth_service",
+      "target": "k8s_shared_stayflexi_db_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/auth-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_auth_service",
+      "target": "k8s_shared_stayflexi_redis_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/auth-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_auth_service",
+      "target": "k8s_shared_stayflexi_jwt_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/auth-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_auth_service",
+      "target": "k8s_shared_stayflexi_service_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/auth-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_auth_service",
+      "target": "k8s_shared_stayflexi_config",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/auth-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_auth_service",
+      "target": "k8s_shared_stayflexi_service_account",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/auth-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_hpa_booking_service",
+      "target": "k8s_deploy_booking_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/booking-service/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_svc_booking_service",
+      "target": "k8s_deploy_booking_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/booking-service/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_booking_service",
+      "target": "k8s_shared_stayflexi_db_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/booking-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_booking_service",
+      "target": "k8s_shared_stayflexi_redis_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/booking-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_booking_service",
+      "target": "k8s_shared_stayflexi_jwt_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/booking-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_booking_service",
+      "target": "k8s_shared_stayflexi_service_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/booking-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_booking_service",
+      "target": "k8s_shared_stayflexi_config",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/booking-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_booking_service",
+      "target": "k8s_shared_stayflexi_service_account",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/booking-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_hpa_hotel_service",
+      "target": "k8s_deploy_hotel_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/hotel-service/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_svc_hotel_service",
+      "target": "k8s_deploy_hotel_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/hotel-service/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_hotel_service",
+      "target": "k8s_shared_stayflexi_db_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/hotel-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_hotel_service",
+      "target": "k8s_shared_stayflexi_redis_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/hotel-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_hotel_service",
+      "target": "k8s_shared_stayflexi_jwt_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/hotel-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_hotel_service",
+      "target": "k8s_shared_stayflexi_service_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/hotel-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_hotel_service",
+      "target": "k8s_shared_stayflexi_config",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/hotel-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_hotel_service",
+      "target": "k8s_shared_stayflexi_service_account",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/hotel-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_hpa_inventory_service",
+      "target": "k8s_deploy_inventory_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/inventory-service/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_svc_inventory_service",
+      "target": "k8s_deploy_inventory_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/inventory-service/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_inventory_service",
+      "target": "k8s_shared_stayflexi_db_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/inventory-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_inventory_service",
+      "target": "k8s_shared_stayflexi_redis_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/inventory-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_inventory_service",
+      "target": "k8s_shared_stayflexi_jwt_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/inventory-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_inventory_service",
+      "target": "k8s_shared_stayflexi_service_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/inventory-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_inventory_service",
+      "target": "k8s_shared_stayflexi_config",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/inventory-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_inventory_service",
+      "target": "k8s_shared_stayflexi_service_account",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/inventory-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_hpa_notification_service",
+      "target": "k8s_deploy_notification_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/notification-service/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_svc_notification_service",
+      "target": "k8s_deploy_notification_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/notification-service/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_notification_service",
+      "target": "k8s_shared_stayflexi_db_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/notification-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_notification_service",
+      "target": "k8s_shared_stayflexi_redis_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/notification-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_notification_service",
+      "target": "k8s_shared_stayflexi_jwt_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/notification-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_notification_service",
+      "target": "k8s_shared_stayflexi_service_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/notification-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_notification_service",
+      "target": "k8s_shared_stayflexi_config",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/notification-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_notification_service",
+      "target": "k8s_shared_stayflexi_service_account",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/notification-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_hpa_organization_service",
+      "target": "k8s_deploy_organization_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/organization-service/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_svc_organization_service",
+      "target": "k8s_deploy_organization_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/organization-service/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_organization_service",
+      "target": "k8s_shared_stayflexi_db_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/organization-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_organization_service",
+      "target": "k8s_shared_stayflexi_redis_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/organization-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_organization_service",
+      "target": "k8s_shared_stayflexi_jwt_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/organization-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_organization_service",
+      "target": "k8s_shared_stayflexi_service_secret",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/organization-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_organization_service",
+      "target": "k8s_shared_stayflexi_config",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/organization-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_organization_service",
+      "target": "k8s_shared_stayflexi_service_account",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/organization-service/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_svc_auth_service",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_svc_organization_service",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_svc_hotel_service",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_svc_inventory_service",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_svc_booking_service",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_svc_analytics_service",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "k8s_deploy_api_gateway",
+      "target": "k8s_svc_notification_service",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "infrastructure/kubernetes/services/api-gateway/deployment.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "hpa_ota_service",
+      "target": "deployment_ota_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/ota-service/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "service_ota_service",
+      "target": "deployment_ota_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/ota-service/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "hpa_payment_service",
+      "target": "deployment_payment_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/payment-service/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "service_payment_service",
+      "target": "deployment_payment_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/payment-service/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "hpa_pricing_engine_service",
+      "target": "deployment_pricing_engine_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/pricing-engine-service/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "service_pricing_engine_service",
+      "target": "deployment_pricing_engine_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/pricing-engine-service/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "hpa_workflow_service",
+      "target": "deployment_workflow_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/workflow-service/hpa.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "service_workflow_service",
+      "target": "deployment_workflow_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/services/workflow-service/service.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "config_prometheus",
+      "target": "config_prometheus_alerts",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/monitoring/prometheus/prometheus.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "config_prometheus",
+      "target": "config_prometheus_rules",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/monitoring/prometheus/prometheus.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "config_prometheus",
+      "target": "config_alertmanager",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/monitoring/prometheus/prometheus.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "config_grafana_datasources",
+      "target": "config_prometheus",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/monitoring/grafana/provisioning/datasources/datasources.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "config_grafana_datasources",
+      "target": "config_loki",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/monitoring/grafana/provisioning/datasources/datasources.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "doc_sre_ops",
+      "target": "concept_slo",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "platform-validation/reports/checklists/sre-operations.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "doc_sre_ops",
+      "target": "concept_error_budget",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "platform-validation/reports/checklists/sre-operations.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "doc_sre_ops",
+      "target": "concept_incident_severity",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "platform-validation/reports/checklists/sre-operations.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "hyper_deployment_pipeline",
+      "label": "Production Deployment Pipeline",
+      "nodes": [
+        "dockercompose_api_gateway",
+        "agent_infrastructure_devops",
+        "agent_qa_resilience",
+        "agent_integration_governance"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.9,
+      "source_file": "agents/DEPLOYMENT_WORKFLOW.md"
+    },
+    {
+      "id": "hyper_multi_agent_governance",
+      "label": "Multi-Agent Governance",
+      "nodes": [
+        "agent_platform_architect",
+        "agent_integration_governance",
+        "agent_database_prisma",
+        "agent_qa_resilience",
+        "agent_infrastructure_devops"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.9,
+      "source_file": "agents/GOVERNANCE_WORKFLOW.md"
+    },
+    {
+      "id": "booking_creation_saga",
+      "label": "Booking Creation Saga",
+      "nodes": [
+        "booking_service",
+        "inventory_service",
+        "payment_service"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/booking-saga-agent/GEMINI.md"
+    },
+    {
+      "id": "ota_sync_process",
+      "label": "OTA Sync Process",
+      "nodes": [
+        "ota_service",
+        "booking_service",
+        "inventory_service",
+        "analytics_service"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.9,
+      "source_file": "agents/ota-sync-agent/GEMINI.md"
+    },
+    {
+      "id": "stayflexi_p0_critical_services",
+      "label": "P0 Critical Services",
+      "nodes": [
+        "stayflexi_api_gateway",
+        "stayflexi_booking_service",
+        "stayflexi_payment_service"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "infrastructure/kubernetes/network-policies.yaml"
+    },
+    {
+      "id": "stayflexi_data_infrastructure",
+      "label": "Shared Data Infrastructure",
+      "nodes": [
+        "stayflexi_postgres",
+        "stayflexi_redis",
+        "stayflexi_kafka"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md"
+    },
+    {
+      "id": "stayflexi_event_consumers",
+      "label": "Event-Driven Async Consumers",
+      "nodes": [
+        "stayflexi_notification_service",
+        "stayflexi_workflow_service",
+        "stayflexi_analytics_service",
+        "stayflexi_ota_service"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md"
+    },
+    {
+      "id": "stayflexi_backend_workloads",
+      "label": "Stayflexi Backend Workloads",
+      "nodes": [
+        "k8s_deploy_analytics_service",
+        "k8s_deploy_api_gateway",
+        "k8s_deploy_auth_service",
+        "k8s_deploy_booking_service",
+        "k8s_deploy_hotel_service",
+        "k8s_deploy_inventory_service",
+        "k8s_deploy_notification_service",
+        "k8s_deploy_organization_service"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": null
+    },
+    {
+      "id": "observability_monitoring_stack",
+      "label": "Observability Monitoring Stack",
+      "nodes": [
+        "config_alertmanager",
+        "config_grafana_dashboards",
+        "config_grafana_datasources",
+        "config_loki",
+        "config_prometheus",
+        "config_prometheus_alerts",
+        "config_prometheus_rules"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "platform-validation/reports/checklists/observability.md"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

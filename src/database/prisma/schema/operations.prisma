@@ -1,0 +1,191 @@
+// ─── Housekeeping, Maintenance, and Operations Domain ────────────────────────
+//
+// HousekeepingTask lifecycle: PENDING → ASSIGNED → IN_PROGRESS → COMPLETED → VERIFIED
+//   COMPLETED event updates Room.housekeepingStatus = CLEAN
+//   VERIFIED  event updates Room.housekeepingStatus = INSPECTED
+//
+// MaintenanceTicket lifecycle: OPEN → ASSIGNED → IN_PROGRESS → RESOLVED → CLOSED
+//   OPEN     event sets Room.operationalStatus = UNDER_MAINTENANCE (blocks availability)
+//   RESOLVED event checks for other open tickets; restores AVAILABLE if none remain
+//
+// OperationalTask lifecycle: PENDING → IN_PROGRESS → COMPLETED | CANCELLED
+//   Completed tasks are immutable.
+//
+// OperationalAudit: immutable append-only event log spanning all three domains.
+//
+// Cascade rules:
+//   Hotel deleted  → RESTRICT (cannot delete hotel with operational records)
+//   Room deleted   → RESTRICT (cannot delete room with open tasks/tickets)
+//   Task/Ticket deleted → RESTRICT (prefer soft state transitions)
+
+enum HousekeepingTaskType {
+  STANDARD_CLEANING
+  DEEP_CLEANING
+  TURNDOWN
+  INSPECTION
+  LINEN_CHANGE
+  BATHROOM_CLEANING
+  CHECKOUT_CLEANING
+}
+
+enum HousekeepingPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum HousekeepingTaskStatus {
+  PENDING
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  VERIFIED
+}
+
+enum MaintenanceSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum MaintenanceTicketStatus {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum OperationalTaskCategory {
+  FRONT_DESK
+  CONCIERGE
+  FOOD_BEVERAGE
+  GENERAL
+  MAINTENANCE_FOLLOWUP
+  GUEST_REQUEST
+  ADMINISTRATIVE
+}
+
+enum OperationalTaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ─── HousekeepingTask ─────────────────────────────────────────────────────────
+
+model HousekeepingTask {
+  id             String              @id @default(uuid())
+  organizationId String
+  hotelId        String
+  hotel          Hotel               @relation("HotelHousekeepingTasks", fields: [hotelId], references: [id], onDelete: Restrict)
+  roomId         String
+  room           Room                @relation("RoomHousekeepingTasks", fields: [roomId], references: [id], onDelete: Restrict)
+  assignedTo     String?
+  taskType       HousekeepingTaskType
+  priority       HousekeepingPriority  @default(NORMAL)
+  taskStatus     HousekeepingTaskStatus @default(PENDING)
+  scheduledAt    DateTime?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  notes          String?              @db.VarChar(1000)
+  createdById    String
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([roomId])
+  @@index([assignedTo])
+  @@index([taskStatus])
+  @@index([priority])
+  @@index([scheduledAt])
+  @@index([createdAt])
+  @@map("housekeeping_tasks")
+}
+
+// ─── MaintenanceTicket ────────────────────────────────────────────────────────
+
+model MaintenanceTicket {
+  id              String             @id @default(uuid())
+  organizationId  String
+  hotelId         String
+  hotel           Hotel              @relation("HotelMaintenanceTickets", fields: [hotelId], references: [id], onDelete: Restrict)
+  roomId          String
+  room            Room               @relation("RoomMaintenanceTickets", fields: [roomId], references: [id], onDelete: Restrict)
+  issueType       String             @db.VarChar(100)
+  severity        MaintenanceSeverity
+  ticketStatus    MaintenanceTicketStatus @default(OPEN)
+  reportedBy      String
+  assignedTo      String?
+  reportedAt      DateTime           @default(now())
+  resolvedAt      DateTime?
+  resolutionNotes String?            @db.VarChar(2000)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([roomId])
+  @@index([ticketStatus])
+  @@index([severity])
+  @@index([assignedTo])
+  @@index([reportedAt])
+  @@map("maintenance_tickets")
+}
+
+// ─── OperationalTask ──────────────────────────────────────────────────────────
+
+model OperationalTask {
+  id              String                  @id @default(uuid())
+  organizationId  String
+  hotelId         String
+  hotel           Hotel                   @relation("HotelOperationalTasks", fields: [hotelId], references: [id], onDelete: Restrict)
+  taskTitle       String                  @db.VarChar(255)
+  taskDescription String?                 @db.Text
+  taskCategory    OperationalTaskCategory
+  priority        HousekeepingPriority    @default(NORMAL)
+  assignedTo      String?
+  taskStatus      OperationalTaskStatus   @default(PENDING)
+  dueDate         DateTime?
+  completedAt     DateTime?
+  createdById     String
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([assignedTo])
+  @@index([taskStatus])
+  @@index([taskCategory])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([createdAt])
+  @@map("operational_tasks")
+}
+
+// ─── OperationalAudit ────────────────────────────────────────────────────────
+// Immutable append-only log spanning housekeeping, maintenance, and operations.
+
+model OperationalAudit {
+  id             String   @id @default(uuid())
+  organizationId String
+  hotelId        String
+  entityType     String   @db.VarChar(50)  // "HousekeepingTask" | "MaintenanceTicket" | "OperationalTask"
+  entityId       String
+  eventType      String   @db.VarChar(100) // e.g. "TASK_COMPLETED", "TICKET_RESOLVED"
+  performedBy    String
+  eventMetadata  Json?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([entityType, entityId])
+  @@index([eventType])
+  @@index([performedBy])
+  @@index([createdAt])
+  @@map("operational_audit")
+}

@@ -1,0 +1,212 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  NO_SHOW
+}
+
+enum BookingSource {
+  DIRECT
+  OTA
+  WALK_IN
+  PHONE
+  EMAIL
+  AGENT
+  ONLINE
+}
+
+enum CancellationReason {
+  GUEST_REQUEST
+  NO_SHOW
+  HOTEL_REQUEST
+  FORCE_MAJEURE
+  DUPLICATE_BOOKING
+  OTHER
+}
+
+enum BookingRoomStatus {
+  RESERVED
+  OCCUPIED
+  VACATED
+  CANCELLED
+}
+
+enum GovIdType {
+  PASSPORT
+  NATIONAL_ID
+  DRIVERS_LICENSE
+  OTHER
+}
+
+// ─── Booking domain models ────────────────────────────────────────────────────
+
+model Booking {
+  id                 String              @id @default(uuid())
+  organizationId     String
+  hotelId            String
+  bookingNumber      String              @unique
+  status             BookingStatus       @default(PENDING)
+  source             BookingSource       @default(DIRECT)
+  primaryGuestId     String?
+  totalAmount        Decimal             @db.Decimal(10, 2)
+  taxAmount          Decimal             @db.Decimal(10, 2)
+  discountAmount     Decimal             @db.Decimal(10, 2)
+  finalAmount        Decimal             @db.Decimal(10, 2)
+  currency           String              @default("USD")
+  specialRequests    String?
+  internalNotes      String?
+  bookedById         String
+  checkedInAt        DateTime?
+  checkedInById      String?
+  checkedOutAt       DateTime?
+  checkedOutById     String?
+  cancelledAt        DateTime?
+  cancelledById      String?
+  cancellationReason CancellationReason?
+  cancellationNote   String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  deletedAt          DateTime?
+
+  rooms     BookingRoom[]
+  guests    BookingGuest[]
+  auditLogs BookingAudit[]
+  events    BookingEvent[]
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([organizationId, status])
+  @@index([organizationId, hotelId])
+  @@index([createdAt])
+}
+
+model BookingRoom {
+  id              String            @id @default(uuid())
+  bookingId       String
+  roomId          String
+  roomTypeId      String
+  hotelId         String
+  checkInDate     DateTime          @db.Date
+  checkOutDate    DateTime          @db.Date
+  nightCount      Int
+  adultCount      Int
+  childCount      Int               @default(0)
+  roomRate        Decimal           @db.Decimal(10, 2)
+  totalRoomAmount Decimal           @db.Decimal(10, 2)
+  status          BookingRoomStatus @default(RESERVED)
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([bookingId])
+  @@index([roomId])
+  @@index([roomTypeId])
+  @@index([checkInDate, checkOutDate])
+}
+
+model BookingGuest {
+  id                 String     @id @default(uuid())
+  bookingId          String
+  isPrimary          Boolean    @default(false)
+  firstName          String
+  lastName           String
+  email              String?
+  phone              String?
+  nationality        String?
+  governmentIdType   GovIdType?
+  governmentIdNumber String?
+  dateOfBirth        DateTime?
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([bookingId])
+  @@index([email])
+}
+
+model BookingAudit {
+  id               String   @id @default(uuid())
+  bookingId        String
+  eventType        String
+  eventDescription String
+  performedById    String
+  metadata         Json?
+  createdAt        DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([bookingId])
+  @@index([createdAt])
+}
+
+model BookingEvent {
+  id            String   @id @default(uuid())
+  bookingId     String
+  eventType     String
+  status        String   @default("PENDING")
+  payload       Json
+  retryCount    Int      @default(0)
+  correlationId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([bookingId])
+  @@index([status])
+}
+
+/// Persistent idempotency record (Redis is primary; DB provides long-term audit)
+model BookingIdempotencyKey {
+  key          String   @id
+  bookingId    String
+  statusCode   Int
+  responseBody Json
+  createdAt    DateTime @default(now())
+
+  @@index([bookingId])
+}
+
+// ─── Cross-service read models (same PostgreSQL, managed by other services) ──
+
+/// Inventory records managed by inventory-service
+model Inventory {
+  id             String   @id @default(uuid())
+  hotelId        String
+  organizationId String
+  roomTypeId     String
+  inventoryDate  DateTime @db.Date
+  totalRooms     Int      @default(0)
+  reservedCount  Int      @default(0)
+  blockedCount   Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([roomTypeId, inventoryDate])
+  @@index([hotelId])
+  @@index([roomTypeId, inventoryDate])
+}
+
+/// Room types managed by hotel-service (used for pricing lookups)
+model RoomType {
+  id             String  @id @default(uuid())
+  hotelId        String
+  organizationId String
+  name           String
+  basePrice      Decimal @db.Decimal(10, 2)
+  maxOccupancy   Int
+  isActive       Boolean @default(true)
+
+  @@index([hotelId])
+}

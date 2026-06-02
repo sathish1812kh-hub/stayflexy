@@ -1,0 +1,254 @@
+groups:
+  - name: stayflexi.availability
+    interval: 30s
+    rules:
+      - alert: ServiceDown
+        expr: up{job=~"stayflexi-.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} on instance {{ $labels.instance }} has been down for more than 1 minute."
+          runbook: "https://github.com/stayflexi/runbooks/blob/main/docs/runbooks/service-degradation.md"
+
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
+            /
+            sum(rate(http_requests_total[5m])) by (service)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has >5% error rate for 5 minutes (current: {{ $value | humanizePercentage }})."
+          runbook: "https://github.com/stayflexi/runbooks/blob/main/docs/runbooks/incident-response.md"
+
+      - alert: ElevatedErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
+            /
+            sum(rate(http_requests_total[5m])) by (service)
+          ) > 0.01
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Elevated error rate on {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has >1% error rate for 10 minutes (current: {{ $value | humanizePercentage }})."
+
+  - name: stayflexi.latency
+    interval: 30s
+    rules:
+      - alert: HighP95Latency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le)
+          ) > 1.0
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "High P95 latency on {{ $labels.service }}"
+          description: "P95 latency on {{ $labels.service }} exceeds 1s for 5 minutes (current: {{ $value | humanizeDuration }})."
+
+      - alert: ElevatedP95Latency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le)
+          ) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Elevated P95 latency on {{ $labels.service }}"
+          description: "P95 latency on {{ $labels.service }} exceeds 500ms for 10 minutes (current: {{ $value | humanizeDuration }})."
+
+      - alert: BookingCreationSlowdown
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="booking-service",method="POST"}[5m])) by (le)
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Booking creation P95 latency exceeds SLO"
+          description: "Booking creation P95 latency is {{ $value | humanizeDuration }} (SLO: 500ms)."
+
+      - alert: PaymentProcessingSlowdown
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="payment-service"}[5m])) by (le)
+          ) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Payment processing P95 latency exceeds SLO"
+          description: "Payment P95 latency is {{ $value | humanizeDuration }} (SLO: 2000ms)."
+
+  - name: stayflexi.infrastructure
+    interval: 60s
+    rules:
+      - alert: PodCrashLooping
+        expr: |
+          rate(kube_pod_container_status_restarts_total{namespace="stayflexi"}[15m]) * 60 > 5
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Pod {{ $labels.pod }} is crash looping"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is restarting more than 5 times per minute."
+          runbook: "https://github.com/stayflexi/runbooks/blob/main/docs/runbooks/service-degradation.md"
+
+      - alert: PodOOMKilled
+        expr: |
+          kube_pod_container_status_last_terminated_reason{namespace="stayflexi",reason="OOMKilled"} == 1
+        for: 0m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Container OOMKilled: {{ $labels.container }}"
+          description: "Container {{ $labels.container }} in pod {{ $labels.pod }} was OOMKilled. Consider increasing memory limits."
+
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            container_memory_working_set_bytes{namespace="stayflexi",container!=""}
+            /
+            kube_pod_container_resource_limits{namespace="stayflexi",resource="memory"}
+          ) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High memory usage in container {{ $labels.container }}"
+          description: "Container {{ $labels.container }} is using >85% of memory limit."
+
+      - alert: HighCPUUsage
+        expr: |
+          (
+            rate(container_cpu_usage_seconds_total{namespace="stayflexi",container!=""}[5m])
+            /
+            kube_pod_container_resource_limits{namespace="stayflexi",resource="cpu"}
+          ) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High CPU usage in container {{ $labels.container }}"
+          description: "Container {{ $labels.container }} is using >85% of CPU limit."
+
+      - alert: PersistentVolumeAlmostFull
+        expr: |
+          (
+            kubelet_volume_stats_available_bytes{namespace="stayflexi"}
+            /
+            kubelet_volume_stats_capacity_bytes{namespace="stayflexi"}
+          ) < 0.20
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "PersistentVolume almost full: {{ $labels.persistentvolumeclaim }}"
+          description: "PVC {{ $labels.persistentvolumeclaim }} has less than 20% space available."
+
+  - name: stayflexi.kafka
+    interval: 60s
+    rules:
+      - alert: KafkaConsumerLagHigh
+        expr: |
+          kafka_consumer_group_lag{namespace="stayflexi"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Kafka consumer lag high for group {{ $labels.consumergroup }}"
+          description: "Consumer group {{ $labels.consumergroup }} on topic {{ $labels.topic }} has lag {{ $value }}."
+
+      - alert: KafkaConsumerLagCritical
+        expr: |
+          kafka_consumer_group_lag{namespace="stayflexi"} > 10000
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Kafka consumer lag critical for group {{ $labels.consumergroup }}"
+          description: "Consumer group {{ $labels.consumergroup }} on topic {{ $labels.topic }} has critical lag {{ $value }}."
+
+  - name: stayflexi.redis
+    interval: 30s
+    rules:
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Redis instance {{ $labels.instance }} is down"
+          description: "Redis {{ $labels.instance }} has been down for 1 minute. Rate limiting and caching are degraded."
+
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Redis memory usage high on {{ $labels.instance }}"
+          description: "Redis {{ $labels.instance }} is using {{ $value | humanizePercentage }} of max memory."
+
+  - name: stayflexi.slo
+    interval: 60s
+    rules:
+      - alert: SLOBudgetBurningFast
+        expr: |
+          (
+            sum(rate(http_requests_total{service="booking-service",status=~"5.."}[1h]))
+            /
+            sum(rate(http_requests_total{service="booking-service"}[1h]))
+          ) > 0.014  # 14x burn rate (1% error budget in 1h = 5x burn; this is critical)
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+          slo: booking-availability
+        annotations:
+          summary: "SLO error budget burning fast for booking-service"
+          description: "Booking service error rate {{ $value | humanizePercentage }} is burning the error budget at >14x rate."
+
+      - alert: SLOBudgetBurnWarning
+        expr: |
+          (
+            sum(rate(http_requests_total{service="booking-service",status=~"5.."}[6h]))
+            /
+            sum(rate(http_requests_total{service="booking-service"}[6h]))
+          ) > 0.005  # 5x burn rate over 6h window
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+          slo: booking-availability
+        annotations:
+          summary: "SLO error budget elevated consumption for booking-service"
+          description: "Booking service is consuming error budget at an elevated rate over the last 6h."

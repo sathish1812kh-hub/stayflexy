@@ -1,0 +1,215 @@
+// ─── Enterprise Security, Compliance, and Disaster Recovery Domain ───────────
+//
+// UserSession:       Device-level session tracking. One row per device per user.
+//                    refreshTokenHash links to the active token in the rotation chain.
+//                    Revoked when token is rotated, logout, or suspicious activity detected.
+//
+// SecurityEvent:     Immutable append-only security event log.
+//                    Powers suspicious activity detection and SIEM integration.
+//
+// ComplianceRequest: GDPR/DPDP request lifecycle.
+//                    subjectUserId is the person whose data is affected.
+//
+// BackupSnapshot:    Records each backup execution. checksum enables corruption detection.
+//                    retentionUntil drives automatic cleanup.
+//
+// RecoveryExecution: Tracks disaster recovery workflow runs. executionLogs is a JSON
+//                    array of timestamped log entries for audit.
+
+enum SessionStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+  LOGGED_OUT
+}
+
+enum SecurityEventType {
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  TOKEN_REVOKED
+  SUSPICIOUS_ACTIVITY
+  BRUTE_FORCE_DETECTED
+  SESSION_HIJACK_ATTEMPT
+  UNAUTHORIZED_ACCESS
+  DATA_EXPORT_REQUESTED
+  ADMIN_ACTION
+  RATE_LIMIT_EXCEEDED
+  MFA_CHALLENGE
+  PERMISSION_DENIED
+}
+
+enum SecuritySeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ComplianceRequestType {
+  DATA_EXPORT
+  DATA_DELETION
+  DATA_ANONYMIZATION
+  AUDIT_REPORT
+  CONSENT_WITHDRAWAL
+}
+
+enum ComplianceRequestStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum BackupType {
+  DATABASE
+  REDIS_SNAPSHOT
+  QUEUE_STATE
+  FULL
+}
+
+enum BackupStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  VERIFIED
+  CORRUPTED
+}
+
+enum RecoveryType {
+  DATABASE_RESTORE
+  CACHE_WARMUP
+  QUEUE_REPLAY
+  FULL_RECOVERY
+}
+
+enum RecoveryStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ─── UserSession ──────────────────────────────────────────────────────────────
+
+model UserSession {
+  id               String        @id @default(uuid())
+  userId           String
+  user             User          @relation("UserSessions", fields: [userId], references: [id], onDelete: Cascade)
+  organizationId   String?
+  deviceId         String        @db.VarChar(255) // fingerprint of the client device
+  ipAddress        String        @db.VarChar(45)
+  userAgent        String        @db.VarChar(500)
+  refreshTokenHash String        @db.VarChar(255) // bcrypt hash of the current refresh token
+  sessionStatus    SessionStatus @default(ACTIVE)
+  lastActivityAt   DateTime      @default(now())
+  expiresAt        DateTime
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([sessionStatus])
+  @@index([refreshTokenHash])
+  @@index([expiresAt])
+  @@index([lastActivityAt])
+  @@map("user_sessions")
+}
+
+// ─── SecurityEvent ────────────────────────────────────────────────────────────
+// Immutable — no updatedAt. Archive-safe (never deleted, only rotated by retention policy).
+
+model SecurityEvent {
+  id             String             @id @default(uuid())
+  organizationId String?
+  hotelId        String?
+  userId         String?
+  eventType      SecurityEventType
+  severity       SecuritySeverity   @default(LOW)
+  ipAddress      String?            @db.VarChar(45)
+  userAgent      String?            @db.VarChar(500)
+  metadata       Json?
+  detectedAt     DateTime           @default(now())
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([userId])
+  @@index([eventType])
+  @@index([severity])
+  @@index([detectedAt])
+  @@map("security_events")
+}
+
+// ─── ComplianceRequest ────────────────────────────────────────────────────────
+
+model ComplianceRequest {
+  id             String                 @id @default(uuid())
+  organizationId String
+  requestType    ComplianceRequestType
+  requestStatus  ComplianceRequestStatus @default(PENDING)
+  requestedBy    String                 // userId who submitted the request
+  subjectUserId  String                 // userId whose data is affected
+  notes          String?                @db.VarChar(2000)
+  resultPayload  Json?                  // export result or deletion summary
+  processedAt    DateTime?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+
+  @@index([organizationId])
+  @@index([requestStatus])
+  @@index([requestType])
+  @@index([requestedBy])
+  @@index([subjectUserId])
+  @@index([createdAt])
+  @@map("compliance_requests")
+}
+
+// ─── BackupSnapshot ───────────────────────────────────────────────────────────
+// System-level — not org-scoped (backups cover the whole platform).
+
+model BackupSnapshot {
+  id              String       @id @default(uuid())
+  backupType      BackupType
+  backupStatus    BackupStatus @default(PENDING)
+  storageLocation String       @db.VarChar(500)
+  sizeBytes       BigInt?
+  checksum        String?      @db.VarChar(128) // SHA-256 for integrity verification
+  startedAt       DateTime     @default(now())
+  completedAt     DateTime?
+  retentionUntil  DateTime
+  metadata        Json?
+  createdAt       DateTime     @default(now())
+
+  recoveryExecutions RecoveryExecution[]
+
+  @@index([backupType])
+  @@index([backupStatus])
+  @@index([startedAt])
+  @@index([retentionUntil])
+  @@map("backup_snapshots")
+}
+
+// ─── RecoveryExecution ────────────────────────────────────────────────────────
+
+model RecoveryExecution {
+  id               String          @id @default(uuid())
+  recoveryType     RecoveryType
+  recoveryStatus   RecoveryStatus  @default(PENDING)
+  backupSnapshotId String?
+  backupSnapshot   BackupSnapshot? @relation(fields: [backupSnapshotId], references: [id], onDelete: SetNull)
+  startedAt        DateTime        @default(now())
+  completedAt      DateTime?
+  executionLogs    Json?           // Array<{ timestamp: string; level: string; message: string }>
+  metadata         Json?
+  initiatedBy      String?         // userId who triggered recovery
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([recoveryType])
+  @@index([recoveryStatus])
+  @@index([backupSnapshotId])
+  @@index([startedAt])
+  @@map("recovery_executions")
+}

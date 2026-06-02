@@ -1,0 +1,301 @@
+global:
+  environment: production
+  imageRegistry: docker.io
+  storageClass: standard
+
+postgresql:
+  enabled: false
+  external:
+    host: postgres.stayflexi.svc.cluster.local
+    port: 5432
+    database: stayflexi
+    existingSecret: stayflexi-db-secret
+
+redis:
+  enabled: false
+  external:
+    host: redis.stayflexi.svc.cluster.local
+    port: 6379
+    existingSecret: stayflexi-redis-secret
+
+ingress:
+  enabled: true
+  className: nginx
+  host: api.stayflexi.com
+  tls: true
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+
+services:
+  api-gateway:
+    enabled: true
+    replicaCount: 3
+    image:
+      repository: stayflexi/api-gateway
+      tag: "2.0.0"
+      pullPolicy: IfNotPresent
+    service:
+      type: LoadBalancer
+      port: 8080
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    env:
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX: "100"
+      CORS_ORIGINS: "https://app.stayflexi.com,https://admin.stayflexi.com"
+
+  auth-service:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: stayflexi/auth-service
+      tag: "2.0.0"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3001
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    env:
+      ACCESS_TOKEN_TTL: "900"
+      REFRESH_TOKEN_TTL: "604800"
+
+  organization-service:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: stayflexi/organization-service
+      tag: "2.0.0"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3002
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    env: {}
+
+  hotel-service:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: stayflexi/hotel-service
+      tag: "2.0.0"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3003
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    env: {}
+
+  inventory-service:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: stayflexi/inventory-service
+      tag: "2.0.0"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3004
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    env: {}
+
+  booking-service:
+    enabled: true
+    replicaCount: 3
+    image:
+      repository: stayflexi/booking-service
+      tag: "2.0.0"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3005
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    env: {}
+
+  payment-service:
+    enabled: true
+    replicaCount: 3
+    image:
+      repository: stayflexi/payment-service
+      tag: "2.0.0"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3006
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    env: {}
+
+  ota-service:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: stayflexi/ota-service
+      tag: "2.0.0"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3007
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    env: {}
+
+  analytics-service:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: stayflexi/analytics-service
+      tag: "2.0.0"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3008
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    env: {}
+
+  notification-service:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: stayflexi/notification-service
+      tag: "2.0.0"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3009
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    env: {}
+
+  workflow-service:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: stayflexi/workflow-service
+      tag: "2.0.0"
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3010
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    env: {}

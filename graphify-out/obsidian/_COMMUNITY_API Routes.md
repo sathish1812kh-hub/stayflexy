@@ -1,0 +1,215 @@
+---
+type: community
+cohesion: 0.04
+members: 163
+---
+
+# API Routes
+
+**Cohesion:** 0.04 - loosely connected
+**Members:** 163 nodes
+
+## Members
+- [[DELETE]] - code - src/app/api/v1/rooms/[id]/route.ts
+- [[ErrorResponse]] - code - src/common/utils/apiResponse.ts
+- [[GET_43]] - code - src/app/api/v1/security/activity/route.ts
+- [[GET]] - code - src/app/api/v1/ai/anomalies/route.ts
+- [[GET_14]] - code - src/app/api/v1/compliance/audit-retention/route.ts
+- [[GET_15]] - code - src/app/api/v1/disaster-recovery/backups/route.ts
+- [[GET_26]] - code - src/app/api/v1/invoices/[id]/download/route.ts
+- [[GET_10]] - code - src/app/api/v1/automation/executions/route.ts
+- [[GET_39]] - code - src/app/api/v1/revenue/forecast/route.ts
+- [[GET_21]] - code - src/app/api/v1/intelligence/forecasting/route.ts
+- [[GET_17]] - code - src/app/api/v1/resilience/health/route.ts
+- [[GET_18]] - code - src/app/api/v1/hotels/route.ts
+- [[GET_7]] - code - src/app/api/v1/rooms/[id]/route.ts
+- [[GET_22]] - code - src/app/api/v1/intelligence/insights/route.ts
+- [[GET_25]] - code - src/app/api/v1/invoices/route.ts
+- [[GET_27]] - code - src/app/api/v1/jobs/route.ts
+- [[GET_8]] - code - src/app/api/v1/audit/logs/route.ts
+- [[GET_35]] - code - src/app/api/v1/ota/mappings/route.ts
+- [[GET_29]] - code - src/app/api/v1/revenue/metrics/route.ts
+- [[GET_30]] - code - src/app/api/v1/notifications/route.ts
+- [[GET_40]] - code - src/app/api/v1/revenue/occupancy/route.ts
+- [[GET_4]] - code - src/app/api/v1/analytics/operations/route.ts
+- [[GET_5]] - code - src/app/api/v1/analytics/ota/route.ts
+- [[GET_6]] - code - src/app/api/v1/payments/route.ts
+- [[GET_36]] - code - src/app/api/v1/ota/providers/route.ts
+- [[GET_1]] - code - src/app/api/v1/ai/recommendations/route.ts
+- [[GET_38]] - code - src/app/api/v1/payments/reconciliation/route.ts
+- [[GET_37]] - code - src/app/api/v1/ota/sync/reservations/route.ts
+- [[GET_11]] - code - src/app/api/v1/pricing/rules/route.ts
+- [[GET_44]] - code - src/app/api/v1/security/sessions/route.ts
+- [[GET_19]] - code - src/app/api/v1/hotels/[id]/settings/route.ts
+- [[GET_16]] - code - src/app/api/v1/ota/sync/status/route.ts
+- [[GET_12]] - code - src/app/api/v1/billing/summary/route.ts
+- [[GET_20]] - code - src/app/api/v1/operations/tasks/route.ts
+- [[GET_31]] - code - src/app/api/v1/notifications/templates/route.ts
+- [[GET_28]] - code - src/app/api/v1/maintenance/tickets/route.ts
+- [[GET_2]] - code - src/app/api/v1/ai/workflows/route.ts
+- [[GET_32]] - code - src/app/api/v1/operations/staff/workload/route.ts
+- [[PATCH]] - code - src/app/api/v1/rooms/[id]/route.ts
+- [[PATCH_1]] - code - src/app/api/v1/hotels/[id]/settings/route.ts
+- [[POST]] - code - src/app/api/v1/ai/anomalies/route.ts
+- [[POST_11]] - code - src/app/api/v1/disaster-recovery/backups/route.ts
+- [[POST_35]] - code - src/app/api/v1/pricing/calculate/route.ts
+- [[POST_7]] - code - src/app/api/v1/bookings/[id]/check-in/route.ts
+- [[POST_8]] - code - src/app/api/v1/bookings/[id]/check-out/route.ts
+- [[POST_9]] - code - src/app/api/v1/compliance/delete-request/route.ts
+- [[POST_3]] - code - src/app/api/v1/automation/executions/route.ts
+- [[POST_10]] - code - src/app/api/v1/compliance/export/route.ts
+- [[POST_36]] - code - src/app/api/v1/resilience/failover/route.ts
+- [[POST_19]] - code - src/app/api/v1/invoices/[id]/finalize/route.ts
+- [[POST_12]] - code - src/app/api/v1/hotels/route.ts
+- [[POST_22]] - code - src/app/api/v1/jobs/[id]/route.ts
+- [[POST_14]] - code - src/app/api/v1/intelligence/insights/route.ts
+- [[POST_18]] - code - src/app/api/v1/invoices/route.ts
+- [[POST_21]] - code - src/app/api/v1/jobs/route.ts
+- [[POST_2]] - code - src/app/api/v1/auth/logout/route.ts
+- [[POST_29]] - code - src/app/api/v1/ota/mappings/route.ts
+- [[POST_37]] - code - src/app/api/v1/revenue/metrics/route.ts
+- [[POST_25]] - code - src/app/api/v1/notifications/route.ts
+- [[POST_33]] - code - src/app/api/v1/payments/route.ts
+- [[POST_30]] - code - src/app/api/v1/ota/providers/route.ts
+- [[POST_31]] - code - src/app/api/v1/ota/sync/rates/route.ts
+- [[POST_1]] - code - src/app/api/v1/ai/recommendations/route.ts
+- [[POST_34]] - code - src/app/api/v1/payments/[id]/refund/route.ts
+- [[POST_32]] - code - src/app/api/v1/ota/sync/reservations/route.ts
+- [[POST_24]] - code - src/app/api/v1/maintenance/tickets/[id]/resolve/route.ts
+- [[POST_40]] - code - src/app/api/v1/security/revoke/route.ts
+- [[POST_4]] - code - src/app/api/v1/pricing/rules/route.ts
+- [[POST_13]] - code - src/app/api/v1/operations/tasks/route.ts
+- [[POST_26]] - code - src/app/api/v1/notifications/templates/route.ts
+- [[POST_23]] - code - src/app/api/v1/maintenance/tickets/route.ts
+- [[POST_20]] - code - src/app/api/v1/invoices/[id]/void/route.ts
+- [[PaginationMeta_2]] - code - src/common/utils/apiResponse.ts
+- [[Params_2]] - code - src/app/api/v1/bookings/[id]/check-in/route.ts
+- [[Params_3]] - code - src/app/api/v1/bookings/[id]/check-out/route.ts
+- [[Params_6]] - code - src/app/api/v1/invoices/[id]/download/route.ts
+- [[Params_7]] - code - src/app/api/v1/invoices/[id]/finalize/route.ts
+- [[Params]] - code - src/app/api/v1/rooms/[id]/route.ts
+- [[Params_11]] - code - src/app/api/v1/payments/[id]/refund/route.ts
+- [[Params_9]] - code - src/app/api/v1/maintenance/tickets/[id]/resolve/route.ts
+- [[Params_4]] - code - src/app/api/v1/hotels/[id]/settings/route.ts
+- [[Params_8]] - code - src/app/api/v1/invoices/[id]/void/route.ts
+- [[SuccessResponse]] - code - src/common/utils/apiResponse.ts
+- [[apiResponse.ts]] - code - src/common/utils/apiResponse.ts
+- [[errorHandler.ts_12]] - code - src/common/middleware/errorHandler.ts
+- [[getValidators()_2]] - code - src/app/api/v1/rooms/[id]/route.ts
+- [[index.ts_108]] - code - src/modules/auth/middleware/index.ts
+- [[index.ts_198]] - code - src/modules/inventory/middleware/index.ts
+- [[paginatedResponse()_1]] - code - src/common/utils/apiResponse.ts
+- [[route.ts]] - code - src/app/api/v1/ai/anomalies/route.ts
+- [[route.ts_1]] - code - src/app/api/v1/ai/recommendations/route.ts
+- [[route.ts_2]] - code - src/app/api/v1/ai/workflows/route.ts
+- [[route.ts_3]] - code - src/app/api/v1/analytics/bookings/route.ts
+- [[route.ts_4]] - code - src/app/api/v1/analytics/operations/route.ts
+- [[route.ts_5]] - code - src/app/api/v1/analytics/ota/route.ts
+- [[route.ts_6]] - code - src/app/api/v1/analytics/payments/route.ts
+- [[route.ts_7]] - code - src/app/api/v1/audit/entities/[id]/route.ts
+- [[route.ts_8]] - code - src/app/api/v1/audit/logs/route.ts
+- [[route.ts_10]] - code - src/app/api/v1/auth/logout/route.ts
+- [[route.ts_14]] - code - src/app/api/v1/automation/executions/route.ts
+- [[route.ts_15]] - code - src/app/api/v1/automation/rules/route.ts
+- [[route.ts_16]] - code - src/app/api/v1/billing/summary/route.ts
+- [[route.ts_21]] - code - src/app/api/v1/bookings/[id]/check-in/route.ts
+- [[route.ts_22]] - code - src/app/api/v1/bookings/[id]/check-out/route.ts
+- [[route.ts_19]] - code - src/app/api/v1/bookings/[id]/route.ts
+- [[route.ts_23]] - code - src/app/api/v1/compliance/audit-retention/route.ts
+- [[route.ts_24]] - code - src/app/api/v1/compliance/delete-request/route.ts
+- [[route.ts_25]] - code - src/app/api/v1/compliance/export/route.ts
+- [[route.ts_26]] - code - src/app/api/v1/disaster-recovery/backups/route.ts
+- [[route.ts_27]] - code - src/app/api/v1/disaster-recovery/status/route.ts
+- [[route.ts_28]] - code - src/app/api/v1/health/route.ts
+- [[route.ts_30]] - code - src/app/api/v1/hotels/[id]/route.ts
+- [[route.ts_31]] - code - src/app/api/v1/hotels/[id]/settings/route.ts
+- [[route.ts_29]] - code - src/app/api/v1/hotels/route.ts
+- [[route.ts_33]] - code - src/app/api/v1/housekeeping/rooms/status/route.ts
+- [[route.ts_35]] - code - src/app/api/v1/housekeeping/tasks/[id]/route.ts
+- [[route.ts_34]] - code - src/app/api/v1/housekeeping/tasks/route.ts
+- [[route.ts_36]] - code - src/app/api/v1/intelligence/forecasting/route.ts
+- [[route.ts_37]] - code - src/app/api/v1/intelligence/insights/route.ts
+- [[route.ts_44]] - code - src/app/api/v1/invoices/[id]/download/route.ts
+- [[route.ts_45]] - code - src/app/api/v1/invoices/[id]/finalize/route.ts
+- [[route.ts_43]] - code - src/app/api/v1/invoices/[id]/route.ts
+- [[route.ts_46]] - code - src/app/api/v1/invoices/[id]/void/route.ts
+- [[route.ts_42]] - code - src/app/api/v1/invoices/route.ts
+- [[route.ts_48]] - code - src/app/api/v1/jobs/[id]/route.ts
+- [[route.ts_47]] - code - src/app/api/v1/jobs/route.ts
+- [[route.ts_51]] - code - src/app/api/v1/maintenance/tickets/[id]/resolve/route.ts
+- [[route.ts_50]] - code - src/app/api/v1/maintenance/tickets/[id]/route.ts
+- [[route.ts_49]] - code - src/app/api/v1/maintenance/tickets/route.ts
+- [[route.ts_52]] - code - src/app/api/v1/monitoring/health/route.ts
+- [[route.ts_53]] - code - src/app/api/v1/monitoring/metrics/route.ts
+- [[route.ts_54]] - code - src/app/api/v1/monitoring/status/route.ts
+- [[route.ts_55]] - code - src/app/api/v1/notifications/route.ts
+- [[route.ts_56]] - code - src/app/api/v1/notifications/templates/route.ts
+- [[route.ts_57]] - code - src/app/api/v1/operations/staff/workload/route.ts
+- [[route.ts_59]] - code - src/app/api/v1/operations/tasks/[id]/route.ts
+- [[route.ts_58]] - code - src/app/api/v1/operations/tasks/route.ts
+- [[route.ts_61]] - code - src/app/api/v1/organizations/[id]/route.ts
+- [[route.ts_64]] - code - src/app/api/v1/ota/mappings/[id]/route.ts
+- [[route.ts_63]] - code - src/app/api/v1/ota/mappings/route.ts
+- [[route.ts_66]] - code - src/app/api/v1/ota/providers/[id]/route.ts
+- [[route.ts_65]] - code - src/app/api/v1/ota/providers/route.ts
+- [[route.ts_67]] - code - src/app/api/v1/ota/sync/inventory/route.ts
+- [[route.ts_68]] - code - src/app/api/v1/ota/sync/rates/route.ts
+- [[route.ts_69]] - code - src/app/api/v1/ota/sync/reservations/route.ts
+- [[route.ts_70]] - code - src/app/api/v1/ota/sync/status/route.ts
+- [[route.ts_74]] - code - src/app/api/v1/payments/[id]/refund/route.ts
+- [[route.ts_73]] - code - src/app/api/v1/payments/[id]/route.ts
+- [[route.ts_72]] - code - src/app/api/v1/payments/reconciliation/route.ts
+- [[route.ts_71]] - code - src/app/api/v1/payments/route.ts
+- [[route.ts_75]] - code - src/app/api/v1/pricing/calculate/route.ts
+- [[route.ts_77]] - code - src/app/api/v1/pricing/rules/[id]/route.ts
+- [[route.ts_76]] - code - src/app/api/v1/pricing/rules/route.ts
+- [[route.ts_78]] - code - src/app/api/v1/resilience/failover/route.ts
+- [[route.ts_79]] - code - src/app/api/v1/resilience/health/route.ts
+- [[route.ts_80]] - code - src/app/api/v1/revenue/forecast/route.ts
+- [[route.ts_81]] - code - src/app/api/v1/revenue/metrics/route.ts
+- [[route.ts_82]] - code - src/app/api/v1/revenue/occupancy/route.ts
+- [[route.ts_84]] - code - src/app/api/v1/room-types/[id]/route.ts
+- [[route.ts_86]] - code - src/app/api/v1/rooms/[id]/route.ts
+- [[route.ts_88]] - code - src/app/api/v1/security/activity/route.ts
+- [[route.ts_89]] - code - src/app/api/v1/security/revoke/route.ts
+- [[route.ts_90]] - code - src/app/api/v1/security/sessions/route.ts
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/API_Routes
+SORT file.name ASC
+```
+
+## Connections to other communities
+- 110 edges to [[_COMMUNITY_Controllers & Validation]]
+- 20 edges to [[_COMMUNITY_Community 17]]
+- 19 edges to [[_COMMUNITY_Community 27]]
+- 19 edges to [[_COMMUNITY_Community 37]]
+- 19 edges to [[_COMMUNITY_Community 36]]
+- 15 edges to [[_COMMUNITY_Community 62]]
+- 9 edges to [[_COMMUNITY_Community 14]]
+- 4 edges to [[_COMMUNITY_Payment Domain]]
+- 4 edges to [[_COMMUNITY_Community 33]]
+- 4 edges to [[_COMMUNITY_Community 326]]
+- 4 edges to [[_COMMUNITY_Community 171]]
+- 3 edges to [[_COMMUNITY_Community 85]]
+- 3 edges to [[_COMMUNITY_Community 34]]
+- 3 edges to [[_COMMUNITY_Automation Engine]]
+- 3 edges to [[_COMMUNITY_Community 167]]
+- 2 edges to [[_COMMUNITY_Community 88]]
+- 2 edges to [[_COMMUNITY_Community 196]]
+- 2 edges to [[_COMMUNITY_Community 68]]
+- 1 edge to [[_COMMUNITY_Community 58]]
+- 1 edge to [[_COMMUNITY_Community 362]]
+- 1 edge to [[_COMMUNITY_Community 169]]
+- 1 edge to [[_COMMUNITY_Community 142]]
+- 1 edge to [[_COMMUNITY_Community 55]]
+- 1 edge to [[_COMMUNITY_Community 339]]
+
+## Top bridge nodes
+- [[errorHandler.ts_12]] - degree 110, connects to 12 communities
+- [[apiResponse.ts]] - degree 119, connects to 11 communities
+- [[SuccessResponse]] - degree 101, connects to 9 communities
+- [[index.ts_108]] - degree 93, connects to 7 communities
+- [[paginatedResponse()_1]] - degree 30, connects to 6 communities

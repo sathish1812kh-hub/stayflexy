@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stayflexi-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "stayflexi.labels" . | nindent 4 }}
+data:
+  NODE_ENV: {{ .Values.global.environment | quote }}
+  LOG_LEVEL: "info"
+  JAEGER_ENDPOINT: "http://jaeger-collector.observability:14268/api/traces"
+  EVENT_BUS_TYPE: "redis"
+  SERVICE_AUTH_URL: {{ printf "http://auth-service.%s:3001" .Release.Namespace | quote }}
+  SERVICE_ORGANIZATION_URL: {{ printf "http://organization-service.%s:3002" .Release.Namespace | quote }}
+  SERVICE_HOTEL_URL: {{ printf "http://hotel-service.%s:3003" .Release.Namespace | quote }}
+  SERVICE_INVENTORY_URL: {{ printf "http://inventory-service.%s:3004" .Release.Namespace | quote }}
+  SERVICE_BOOKING_URL: {{ printf "http://booking-service.%s:3005" .Release.Namespace | quote }}
+  SERVICE_PAYMENT_URL: {{ printf "http://payment-service.%s:3006" .Release.Namespace | quote }}
+  SERVICE_OTA_URL: {{ printf "http://ota-service.%s:3007" .Release.Namespace | quote }}
+  SERVICE_ANALYTICS_URL: {{ printf "http://analytics-service.%s:3008" .Release.Namespace | quote }}
+  SERVICE_NOTIFICATION_URL: {{ printf "http://notification-service.%s:3009" .Release.Namespace | quote }}
+  SERVICE_WORKFLOW_URL: {{ printf "http://workflow-service.%s:3010" .Release.Namespace | quote }}

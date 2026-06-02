@@ -1,0 +1,160 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum HotelStatus {
+  ACTIVE
+  INACTIVE
+  UNDER_RENOVATION
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  OUT_OF_ORDER
+  HOUSEKEEPING
+  MAINTENANCE
+  BLOCKED
+}
+
+model Hotel {
+  id             String      @id @default(uuid())
+  organizationId String
+  name           String
+  slug           String      @unique
+  address        String?
+  city           String
+  state          String?
+  country        String
+  postalCode     String?
+  phone          String?
+  email          String?
+  website        String?
+  starRating     Int?
+  status         HotelStatus @default(ACTIVE)
+  timezone       String      @default("UTC")
+  checkInTime    String      @default("14:00")
+  checkOutTime   String      @default("11:00")
+  metadata       Json?
+  createdById    String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  deletedAt      DateTime?
+
+  roomTypes RoomType[]
+  rooms     Room[]
+  auditLogs HotelAuditLog[]
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+}
+
+model RoomType {
+  id             String   @id @default(uuid())
+  hotelId        String
+  organizationId String
+  name           String
+  description    String?
+  basePrice      Decimal  @db.Decimal(10, 2)
+  maxOccupancy   Int
+  maxAdults      Int      @default(2)
+  maxChildren    Int      @default(1)
+  maxInfants     Int      @default(1)
+  minChildAge    Int      @default(7)
+  maxChildAge    Int      @default(12)
+  minInfantAge   Int      @default(0)
+  maxInfantAge   Int      @default(6)
+  minOccupancy   Int      @default(1)
+  absoluteMax    Int      @default(3)
+  hourlyPrice    Decimal? @db.Decimal(10, 2)
+  extraBedPrice  Decimal  @default(0.00) @db.Decimal(10, 2)
+  extraGuestPrice Decimal @default(0.00) @db.Decimal(10, 2)
+  maxExtraBeds   Int      @default(0)
+  amenities      Json?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  hotel Hotel  @relation(fields: [hotelId], references: [id])
+  rooms Room[]
+
+  @@unique([hotelId, name])
+  @@index([hotelId])
+  @@index([organizationId])
+}
+
+model Room {
+  id             String     @id @default(uuid())
+  hotelId        String
+  organizationId String
+  roomTypeId     String
+  roomNumber     String
+  floor          Int?
+  status         RoomStatus @default(AVAILABLE)
+  isActive       Boolean    @default(true)
+  notes          String?
+  wing           String?
+  zone           String?
+  wifiSSID       String?
+  wifiPassword   String?
+  arrivalNotes   String?
+  lockVendor     String?
+  lockDeviceId   String?
+  lockSecret     String?
+  connectingRoomId String?
+  parentRoomId   String?
+  metadata       Json?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  hotel        Hotel             @relation(fields: [hotelId], references: [id])
+  roomType     RoomType          @relation(fields: [roomTypeId], references: [id])
+  statusAudits RoomStatusAudit[]
+
+  @@unique([hotelId, roomNumber])
+  @@index([hotelId])
+  @@index([organizationId])
+  @@index([hotelId, status])
+  @@index([roomTypeId])
+}
+
+model RoomStatusAudit {
+  id         String     @id @default(uuid())
+  roomId     String
+  fromStatus RoomStatus
+  toStatus   RoomStatus
+  changedBy  String
+  reason     String?
+  createdAt  DateTime   @default(now())
+
+  room Room @relation(fields: [roomId], references: [id])
+
+  @@index([roomId])
+}
+
+model HotelSetting {
+  id        String   @id @default(uuid())
+  hotelId   String   @unique
+  settings  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HotelAuditLog {
+  id            String   @id @default(uuid())
+  hotelId       String
+  action        String
+  performedBy   String
+  changes       Json?
+  correlationId String?
+  createdAt     DateTime @default(now())
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@index([hotelId])
+}

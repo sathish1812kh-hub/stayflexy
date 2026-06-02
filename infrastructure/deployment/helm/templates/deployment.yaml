@@ -1,0 +1,119 @@
+{{- range $serviceName, $serviceValues := .Values.services }}
+{{- if $serviceValues.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $serviceName }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $serviceName }}
+    version: {{ $.Chart.AppVersion | quote }}
+    component: backend
+    {{- include "stayflexi.labels" $ | nindent 4 }}
+spec:
+  replicas: {{ $serviceValues.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $serviceName }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: {{ $serviceName }}
+        version: {{ $.Chart.AppVersion | quote }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ $serviceValues.service.port | quote }}
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: stayflexi-service-account
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: {{ $serviceName }}
+        image: {{ $.Values.global.imageRegistry }}/{{ $serviceValues.image.repository }}:{{ $serviceValues.image.tag }}
+        imagePullPolicy: {{ $serviceValues.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ $serviceValues.service.port }}
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: NODE_ENV
+        - name: PORT
+          value: {{ $serviceValues.service.port | quote }}
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-db-secret
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-redis-secret
+              key: REDIS_URL
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-jwt-secret
+              key: JWT_SECRET
+        - name: SERVICE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: stayflexi-service-secret
+              key: SERVICE_KEY
+        - name: JAEGER_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: stayflexi-config
+              key: JAEGER_ENDPOINT
+        {{- range $key, $val := $serviceValues.env }}
+        - name: {{ $key }}
+          value: {{ $val | quote }}
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        resources:
+          {{- toYaml $serviceValues.resources | nindent 10 }}
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values: [{{ $serviceName }}]
+              topologyKey: kubernetes.io/hostname
+{{- end }}
+{{- end }}

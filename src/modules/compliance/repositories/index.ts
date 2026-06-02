@@ -1,0 +1,1 @@
+export { PrismaComplianceRequestRepository } from "./PrismaComplianceRequestRepository";

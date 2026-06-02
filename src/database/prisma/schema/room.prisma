@@ -1,0 +1,163 @@
+// ─── Room Domain ────────────────────────────────────────────────────────────────
+// RoomType defines the configuration template; Room is a physical instance.
+// Inventory tracks daily availability per RoomType (not per Room).
+//
+// Cascade rules:
+//   Hotel deleted → RoomType + Room cascade deleted (physical property gone)
+//   RoomType deleted → Room: RESTRICT (cannot remove type while rooms exist)
+//   RoomType deleted → Inventory: CASCADE (availability records removed too)
+
+enum RoomTypeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum BedType {
+  KING
+  QUEEN
+  DOUBLE
+  TWIN
+  SINGLE
+  BUNK
+  SOFA_BED
+  CALIFORNIA_KING
+}
+
+enum RoomOperationalStatus {
+  AVAILABLE
+  OUT_OF_ORDER
+  UNDER_MAINTENANCE
+  BLOCKED
+}
+
+enum HousekeepingStatus {
+  CLEAN
+  DIRTY
+  INSPECTED
+  IN_PROGRESS
+  OUT_OF_SERVICE
+}
+
+enum MaintenanceStatus {
+  NONE
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum OccupancyStatus {
+  VACANT
+  OCCUPIED
+  DUE_IN
+  DUE_OUT
+}
+
+// ─── RoomType ──────────────────────────────────────────────────────────────────
+// Logical room category (e.g. "Deluxe King", "Standard Twin").
+// basePrice is the rack rate; dynamic pricing applied at booking time.
+// totalRooms is a denormalized count kept in sync by the service layer
+// when rooms are created, deactivated, or deleted.
+
+model RoomType {
+  id             String         @id @default(uuid())
+  hotelId        String
+  hotel          Hotel          @relation("HotelRoomTypes", fields: [hotelId], references: [id], onDelete: Cascade)
+  organizationId String
+  name           String         @db.VarChar(100)
+  slug           String         @db.VarChar(100)
+  description    String?        @db.Text
+  maxAdults      Int            @default(2)
+  maxChildren    Int            @default(0)
+  maxInfants     Int            @default(1)
+  minChildAge    Int            @default(7)
+  maxChildAge    Int            @default(12)
+  minInfantAge   Int            @default(0)
+  maxInfantAge   Int            @default(6)
+  minOccupancy   Int            @default(1)
+  absoluteMax    Int            @default(3)
+  maxOccupancy   Int            @default(2)
+  basePrice      Decimal        @db.Decimal(10, 2)
+  hourlyPrice    Decimal?       @db.Decimal(10, 2)
+  extraBedPrice  Decimal        @default(0.00) @db.Decimal(10, 2)
+  extraGuestPrice Decimal       @default(0.00) @db.Decimal(10, 2)
+  maxExtraBeds   Int            @default(0)
+  sizeM2         Decimal?       @db.Decimal(8, 2)
+  bedType        BedType        @default(QUEEN)
+  amenities      String[]
+  status         RoomTypeStatus @default(ACTIVE)
+  totalRooms     Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+
+  rooms        Room[]        @relation("RoomTypeRooms")
+  inventory    Inventory[]   @relation("RoomTypeInventory")
+  otaMappings  OTAMapping[]  @relation("RoomTypeOTAMappings")
+  pricingRules PricingRule[] @relation("RoomTypePricingRules")
+  dynamicRates DynamicRate[] @relation("RoomTypeDynamicRates")
+
+  @@unique([hotelId, slug])
+  @@index([hotelId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("room_types")
+}
+
+// ─── Room ──────────────────────────────────────────────────────────────────────
+// Physical room instance. Status tracking enables front-desk operations.
+// operationalStatus: guest-facing availability (AVAILABLE, BLOCKED, etc.)
+// housekeepingStatus: housekeeping workflow
+// occupancyStatus: current guest occupancy
+// maintenanceStatus: maintenance workflow (independent of housekeeping)
+//
+// A room is excluded from inventory if operationalStatus != AVAILABLE.
+
+model Room {
+  id                 String                @id @default(uuid())
+  hotelId            String
+  hotel              Hotel                 @relation("HotelRooms", fields: [hotelId], references: [id], onDelete: Cascade)
+  organizationId     String
+  roomTypeId         String
+  roomType           RoomType              @relation("RoomTypeRooms", fields: [roomTypeId], references: [id], onDelete: Restrict)
+  roomNumber         String                @db.VarChar(20)
+  floor              Int                   @default(1)
+  description        String?               @db.VarChar(500)
+  view               String?               @db.VarChar(100)
+  operationalStatus  RoomOperationalStatus @default(AVAILABLE)
+  housekeepingStatus HousekeepingStatus    @default(CLEAN)
+  occupancyStatus    OccupancyStatus       @default(VACANT)
+  maintenanceStatus  MaintenanceStatus     @default(NONE)
+  notes              String?               @db.VarChar(1000)
+  wing               String?               @db.VarChar(100)
+  zone               String?               @db.VarChar(100)
+  wifiSSID           String?               @db.VarChar(100)
+  wifiPassword       String?               @db.VarChar(100)
+  arrivalNotes       String?               @db.VarChar(1000)
+  lockVendor         String?               @db.VarChar(50)
+  lockDeviceId       String?               @db.VarChar(100)
+  lockSecret         String?               @db.VarChar(500)
+  connectingRoomId   String?               @db.VarChar(100)
+  parentRoomId       String?               @db.VarChar(100)
+  lastCleanedAt      DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  deletedAt          DateTime?
+
+  // Booking module back-relation
+  bookingRooms       BookingRoom[]         @relation("RoomBookings")
+
+  // Operations back-relations
+  housekeepingTasks  HousekeepingTask[]  @relation("RoomHousekeepingTasks")
+  maintenanceTickets MaintenanceTicket[] @relation("RoomMaintenanceTickets")
+
+  @@unique([hotelId, roomNumber])
+  @@index([hotelId])
+  @@index([organizationId])
+  @@index([roomTypeId])
+  @@index([operationalStatus])
+  @@index([housekeepingStatus])
+  @@index([occupancyStatus])
+  @@index([deletedAt])
+  @@map("rooms")
+}

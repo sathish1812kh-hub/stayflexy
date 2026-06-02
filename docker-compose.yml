@@ -1,0 +1,806 @@
+# ─── Stayflexi Docker Compose — Production-Grade Local Stack ─────────────────
+#
+# Usage:
+#   cp .env.docker .env                                # configure secrets
+#   docker compose up -d                               # infrastructure + app
+#   docker compose --profile services up -d            # + all microservices
+#   docker compose --profile services --profile worker up -d  # + background worker
+#   docker compose --profile tools up -d               # + pgAdmin & RedisInsight
+#
+# Endpoints:
+#   App:          http://localhost:3000
+#   API Gateway:  http://localhost:8080
+#   pgAdmin:      http://localhost:5050
+#   RedisInsight: http://localhost:5540
+#   Kafka:        localhost:29092 (external)
+#
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Networks ─────────────────────────────────────────────────────────────────
+networks:
+  stayflexi-backend:
+    driver: bridge
+    name: stayflexi-backend
+  stayflexi-frontend:
+    driver: bridge
+    name: stayflexi-frontend
+
+# ── Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+    name: stayflexi-postgres-data
+  redis_data:
+    name: stayflexi-redis-data
+  zookeeper_data:
+    name: stayflexi-zookeeper-data
+  zookeeper_log:
+    name: stayflexi-zookeeper-log
+  kafka_data:
+    name: stayflexi-kafka-data
+  pgadmin_data:
+    name: stayflexi-pgadmin-data
+  redisinsight_data:
+    name: stayflexi-redisinsight-data
+
+# ── Shared Configuration (YAML Anchors) ─────────────────────────────────────
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+    tag: "{{.Name}}"
+
+x-service-env: &service-env
+  NODE_ENV: production
+  DATABASE_URL: postgresql://stayflexi:${POSTGRES_PASSWORD:-stayflexi_dev}@pgbouncer:6432/stayflexi
+  REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev}@redis:6379
+  SERVICE_KEY: ${SERVICE_KEY:-dev-service-key-32-chars-minimum}
+  JWT_SECRET: ${JWT_SECRET:-dev_secret_replace_in_production_must_be_at_least_64_characters_long_abc123}
+  KAFKA_BROKERS: kafka:9092
+  KAFKA_ENABLED: ${KAFKA_ENABLED:-false}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  read_only: true
+  logging: *default-logging
+  networks:
+    - stayflexi-backend
+  tmpfs:
+    - /tmp:size=64M
+  stop_grace_period: 30s
+
+x-service-healthcheck: &service-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 30s
+
+x-infra-depends: &infra-depends
+  postgres:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+
+# ── Services ─────────────────────────────────────────────────────────────────
+services:
+
+  # ╔══════════════════════════════════════════════════════════════════════════╗
+  # ║  INFRASTRUCTURE — always started (no profile)                          ║
+  # ╚══════════════════════════════════════════════════════════════════════════╝
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: stayflexi-postgres
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - stayflexi-backend
+    environment:
+      POSTGRES_DB: stayflexi
+      POSTGRES_USER: stayflexi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stayflexi_dev}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres:/docker-entrypoint-initdb.d:ro
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stayflexi -d stayflexi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    shm_size: 128mb
+
+  postgres-replica:
+    image: postgres:16-alpine
+    container_name: stayflexi-postgres-replica
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - stayflexi-backend
+    environment:
+      POSTGRES_DB: stayflexi
+      POSTGRES_USER: stayflexi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stayflexi_dev}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./docker/postgres:/docker-entrypoint-initdb.d:ro
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stayflexi -d stayflexi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    shm_size: 128mb
+
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: stayflexi-pgbouncer
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - stayflexi-backend
+    ports:
+      - "6432:6432"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: stayflexi
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-stayflexi_dev}
+      DB_NAME: stayflexi
+      PORT: 6432
+      DEFAULT_POOL_SIZE: 50
+      MAX_CLIENT_CONN: 500
+      AUTH_TYPE: md5
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  redis:
+    image: redis:7
+    container_name: stayflexi-redis
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - stayflexi-backend
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-redis_dev}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1
+      --loglevel warning
+      --tcp-backlog 128
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-redis_dev}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: stayflexi-zookeeper
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - stayflexi-backend
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_OPTS: "-Dzookeeper.4lw.commands.whitelist=ruok,stat,srvr"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "echo srvr | nc localhost 2181 | grep Zookeeper"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: stayflexi-kafka
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - stayflexi-backend
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+      KAFKA_NUM_PARTITIONS: 3
+    ports:
+      - "${KAFKA_PORT:-29092}:29092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ╔══════════════════════════════════════════════════════════════════════════╗
+  # ║  CORE APPLICATION — always started (no profile)                        ║
+  # ╚══════════════════════════════════════════════════════════════════════════╝
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: stayflexi-app
+    <<: *service-defaults
+    networks:
+      - stayflexi-backend
+      - stayflexi-frontend
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://stayflexi:${POSTGRES_PASSWORD:-stayflexi_dev}@pgbouncer:6432/stayflexi
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev}@redis:6379
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_replace_in_production_must_be_at_least_64_characters_long_abc123}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/v1/monitoring/status || exit 1"]
+      <<: *service-healthcheck
+      start_period: 20s
+
+  # ╔══════════════════════════════════════════════════════════════════════════╗
+  # ║  API GATEWAY — profile: services                                       ║
+  # ╚══════════════════════════════════════════════════════════════════════════╝
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: infrastructure/gateway/Dockerfile
+    container_name: stayflexi-api-gateway
+    <<: *service-defaults
+    profiles: ["services"]
+    networks:
+      - stayflexi-backend
+      - stayflexi-frontend
+    environment:
+      PORT: "8080"
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_replace_in_production_must_be_at_least_64_characters_long_abc123}
+      SERVICE_KEY: ${SERVICE_KEY:-dev-service-key-32-chars-minimum}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev}@redis:6379
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX: "1000"
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      SERVICE_AUTH_URL: http://auth-service:3001
+      SERVICE_ORGANIZATION_URL: http://organization-service:3002
+      SERVICE_HOTEL_URL: http://hotel-service:3003
+      SERVICE_INVENTORY_URL: http://inventory-service:3004
+      SERVICE_BOOKING_URL: http://booking-service:3005
+      SERVICE_PAYMENT_URL: http://payment-service:3006
+      SERVICE_OTA_URL: http://ota-service:3007
+      SERVICE_ANALYTICS_URL: http://analytics-service:3008
+      SERVICE_NOTIFICATION_URL: http://notification-service:3009
+      SERVICE_WORKFLOW_URL: http://workflow-service:3010
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health/live || exit 1"]
+      <<: *service-healthcheck
+      start_period: 15s
+
+  # ╔══════════════════════════════════════════════════════════════════════════╗
+  # ║  MICROSERVICES — profile: services                                     ║
+  # ╚══════════════════════════════════════════════════════════════════════════╝
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth-service/Dockerfile
+    container_name: stayflexi-auth-service
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      PORT: "3001"
+      KAFKA_CLIENT_ID: auth-service
+      KAFKA_GROUP_ID: auth-service
+      JWT_ACCESS_TOKEN_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_TOKEN_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX_REQUESTS: "100"
+    ports:
+      - "3001:3001"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  organization-service:
+    build:
+      context: .
+      dockerfile: services/organization-service/Dockerfile
+    container_name: stayflexi-organization-service
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      PORT: "3002"
+      KAFKA_CLIENT_ID: organization-service
+      KAFKA_GROUP_ID: organization-service
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX_REQUESTS: "200"
+    ports:
+      - "3002:3002"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3002/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  hotel-service:
+    build:
+      context: .
+      dockerfile: services/hotel-service/Dockerfile
+    container_name: stayflexi-hotel-service
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      PORT: "3003"
+      KAFKA_CLIENT_ID: hotel-service
+      HOTEL_CACHE_TTL_SECONDS: "300"
+      RATE_LIMIT_WINDOW_MS: "900000"
+      RATE_LIMIT_MAX_REQUESTS: "200"
+    ports:
+      - "3003:3003"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3003/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: services/inventory-service/Dockerfile
+    container_name: stayflexi-inventory-service
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      PORT: "3004"
+      KAFKA_CLIENT_ID: inventory-service
+      INVENTORY_CACHE_TTL_SECONDS: "60"
+      LOCK_TTL_MS: "30000"
+      LOCK_RETRY_ATTEMPTS: "3"
+      RATE_LIMIT_WINDOW_MS: "900000"
+      RATE_LIMIT_MAX_REQUESTS: "500"
+    ports:
+      - "3004:3004"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3004/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  booking-service:
+    build:
+      context: .
+      dockerfile: services/booking-service/Dockerfile
+    container_name: stayflexi-booking-service
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      PORT: "3005"
+      KAFKA_CLIENT_ID: booking-service
+      KAFKA_GROUP_ID: booking-service
+      BOOKING_LOCK_TTL_MS: "30000"
+      BOOKING_LOCK_RETRY_COUNT: "5"
+      BOOKING_LOCK_RETRY_DELAY_MS: "200"
+      IDEMPOTENCY_TTL_SECONDS: "86400"
+      BOOKING_CACHE_TTL_SECONDS: "300"
+      MAX_ROOMS_PER_BOOKING: "10"
+      MAX_ADVANCE_BOOKING_DAYS: "365"
+      RATE_LIMIT_WINDOW_MS: "900000"
+      RATE_LIMIT_MAX_REQUESTS: "200"
+    ports:
+      - "3005:3005"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3005/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: services/payment-service/Dockerfile
+    container_name: stayflexi-payment-service
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      PORT: "3006"
+      KAFKA_CLIENT_ID: payment-service
+      KAFKA_GROUP_ID: payment-service
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-change-this-webhook-secret}
+      IDEMPOTENCY_TTL_SECONDS: "86400"
+      PAYMENT_CACHE_TTL_SECONDS: "300"
+      MAX_REFUND_DAYS: "30"
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX_REQUESTS: "100"
+    ports:
+      - "3006:3006"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3006/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  ota-service:
+    build:
+      context: .
+      dockerfile: services/ota-service/Dockerfile
+    container_name: stayflexi-ota-service
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      PORT: "3007"
+      KAFKA_CLIENT_ID: ota-service
+      KAFKA_GROUP_ID: ota-service
+      OTA_SYNC_INTERVAL_MS: "300000"
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX_REQUESTS: "200"
+    ports:
+      - "3007:3007"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3007/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  analytics-service:
+    build:
+      context: .
+      dockerfile: services/analytics-service/Dockerfile
+    container_name: stayflexi-analytics-service
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      DATABASE_URL: postgresql://stayflexi:${POSTGRES_PASSWORD:-stayflexi_dev}@postgres-replica:5432/stayflexi
+      PORT: "3008"
+      KAFKA_CLIENT_ID: analytics-service
+      ANALYTICS_CACHE_TTL_SECONDS: "300"
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX_REQUESTS: "300"
+    ports:
+      - "3008:3008"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3008/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification-service/Dockerfile
+    container_name: stayflexi-notification-service
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      PORT: "3009"
+      KAFKA_CLIENT_ID: notification-service
+      KAFKA_GROUP_ID: notification-service
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@stayflexi.com}
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX_REQUESTS: "200"
+    ports:
+      - "3009:3009"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3009/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  workflow-service:
+    build:
+      context: .
+      dockerfile: services/workflow-service/Dockerfile
+    container_name: stayflexi-workflow-service
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      PORT: "3010"
+      KAFKA_CLIENT_ID: workflow-service
+      KAFKA_GROUP_ID: workflow-service
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX_REQUESTS: "200"
+    ports:
+      - "3010:3010"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3010/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  pricing-engine-service:
+    build:
+      context: .
+      dockerfile: services/pricing-engine-service/Dockerfile
+    container_name: stayflexi-pricing-engine
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      PORT: "3011"
+      KAFKA_CLIENT_ID: pricing-engine-service
+      KAFKA_GROUP_ID: pricing-engine-service
+      MAX_SURGE_MULTIPLIER: "3.0"
+      PRICING_LOCK_TTL_MS: "30000"
+      PRICING_CACHE_TTL_SECONDS: "300"
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX_REQUESTS: "500"
+    ports:
+      - "3011:3011"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3011/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  revenue-management-service:
+    build:
+      context: .
+      dockerfile: services/revenue-management-service/Dockerfile
+    container_name: stayflexi-revenue-mgmt
+    <<: *service-defaults
+    profiles: ["services"]
+    environment:
+      <<: *service-env
+      PORT: "3012"
+      KAFKA_CLIENT_ID: revenue-management-service
+      KAFKA_GROUP_ID: revenue-management-service
+      FORECAST_HORIZON_DAYS: "90"
+      RECOMMENDATION_TTL_HOURS: "24"
+      REVENUE_CACHE_TTL_SECONDS: "600"
+      RATE_LIMIT_WINDOW_MS: "60000"
+      RATE_LIMIT_MAX_REQUESTS: "300"
+    ports:
+      - "3012:3012"
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3012/health/live || exit 1"]
+      <<: *service-healthcheck
+
+  # ╔══════════════════════════════════════════════════════════════════════════╗
+  # ║  BACKGROUND WORKER — profile: worker                                   ║
+  # ╚══════════════════════════════════════════════════════════════════════════╝
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+      target: worker
+    container_name: stayflexi-worker
+    <<: *service-defaults
+    profiles: ["worker"]
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://stayflexi:${POSTGRES_PASSWORD:-stayflexi_dev}@pgbouncer:6432/stayflexi
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev}@redis:6379
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+      INSTANCE_ID: worker-1
+    depends_on:
+      <<: *infra-depends
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"process.exit(0)\""]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ╔══════════════════════════════════════════════════════════════════════════╗
+  # ║  DEV TOOLS — profile: tools                                            ║
+  # ╚══════════════════════════════════════════════════════════════════════════╝
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: stayflexi-pgadmin
+    restart: unless-stopped
+    logging: *default-logging
+    profiles: ["tools"]
+    networks:
+      - stayflexi-backend
+      - stayflexi-frontend
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@stayflexi.dev}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  redisinsight:
+    image: redis/redisinsight:2.64
+    container_name: stayflexi-redisinsight
+    restart: unless-stopped
+    logging: *default-logging
+    profiles: ["tools"]
+    networks:
+      - stayflexi-backend
+      - stayflexi-frontend
+    ports:
+      - "${REDISINSIGHT_PORT:-5540}:5540"
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - redisinsight_data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 256M

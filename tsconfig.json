@@ -1,0 +1,87 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "forceConsistentCasingInFileNames": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@common/*": [
+        "./src/common/*"
+      ],
+      "@modules/*": [
+        "./src/modules/*"
+      ],
+      "@database/*": [
+        "./src/database/*"
+      ],
+      "@configs/*": [
+        "./src/common/configs/*"
+      ],
+      "@errors/*": [
+        "./src/common/errors/*"
+      ],
+      "@utils/*": [
+        "./src/common/utils/*"
+      ],
+      "@shared-types": [
+        "./src/common/types/index"
+      ],
+      "@shared-types/*": [
+        "./src/common/types/*"
+      ],
+      "@middleware/*": [
+        "./src/common/middleware/*"
+      ],
+      "@validations/*": [
+        "./src/common/validations/*"
+      ],
+      "@constants/*": [
+        "./src/common/constants/*"
+      ],
+      "@lib/*": [
+        "./src/common/lib/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    ".next/dev/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "services",
+    "infrastructure",
+    "packages",
+    "platform-validation",
+    "graphify-out"
+  ]
+}

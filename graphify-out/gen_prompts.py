@@ -1,0 +1,49 @@
+import json
+from pathlib import Path
+
+detect = json.loads(Path('graphify-out/.graphify_detect.json').read_text(encoding='utf-8'))
+docs = detect.get('files', {}).get('document', [])
+
+chunks = [docs[i:i+25] for i in range(0, len(docs), 25)]
+for i, chunk in enumerate(chunks):
+    chunk_text = "\n".join(chunk)
+    prompt = f"""You are a graphify extraction subagent. Read the files listed and extract a knowledge graph fragment.
+Output ONLY valid JSON matching the schema below - no explanation, no markdown fences, no preamble.
+
+Files (chunk {i+1} of {len(chunks)}):
+{chunk_text}
+
+Rules:
+- EXTRACTED: relationship explicit in source (import, call, citation, "see §3.2")
+- INFERRED: reasonable inference (shared data structure, implied dependency)
+- AMBIGUOUS: uncertain - flag for review, do not omit
+
+Code files: focus on semantic edges AST cannot find (call relationships, shared data, arch patterns).
+  Do not re-extract imports - AST already has those.
+Doc/paper files: extract named concepts, entities, citations. Also extract rationale — sections that explain WHY a decision was made, trade-offs chosen, or design intent. These become nodes with `rationale_for` edges pointing to the concept they explain.
+Image files: use vision to understand what the image IS - do not just OCR.
+
+Semantic similarity: if two concepts in this chunk solve the same problem or represent the same idea without any structural link (no import, no call, no citation), add a `semantically_similar_to` edge marked INFERRED with a confidence_score reflecting how similar they are (0.6-0.95).
+
+Hyperedges: if 3 or more nodes clearly participate together in a shared concept, flow, or pattern that is not captured by pairwise edges alone, add a hyperedge to a top-level `hyperedges` array.
+
+If a file has YAML frontmatter (--- ... ---), copy source_url, captured_at, author,
+  contributor onto every node from that file.
+
+confidence_score is REQUIRED on every edge - never omit it, never use 0.5 as a default:
+- EXTRACTED edges: confidence_score = 1.0 always
+- INFERRED edges: reason about each edge individually.
+  Direct structural evidence (shared data structure, clear dependency): 0.8-0.9.
+  Reasonable inference with some uncertainty: 0.6-0.7.
+  Weak or speculative: 0.4-0.5. Most edges should be 0.6-0.9, not 0.5.
+- AMBIGUOUS edges: 0.1-0.3
+
+Node ID format: lowercase, only `[a-z0-9_]`, no dots or slashes. Format: `{{stem}}_{{entity}}`.
+
+Output exactly this JSON (no other text):
+{{"nodes":[{{"id":"session_validatetoken","label":"Human Readable Name","file_type":"code|document|paper|image","source_file":"relative/path","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null}}],"edges":[{{"source":"node_id","target":"node_id","relation":"calls|implements|references|cites|conceptually_related_to|shares_data_with|semantically_similar_to|rationale_for","confidence":"EXTRACTED|INFERRED|AMBIGUOUS","confidence_score":1.0,"source_file":"relative/path","source_location":null,"weight":1.0}}],"hyperedges":[{{"id":"snake_case_id","label":"Human Readable Label","nodes":["node_id1","node_id2","node_id3"],"relation":"participate_in|implement|form","confidence":"EXTRACTED|INFERRED","confidence_score":0.75,"source_file":"relative/path"}}],"input_tokens":0,"output_tokens":0}}
+
+Save your result to graphify-out/.graphify_chunk_{i+1:02d}.json
+"""
+    Path(f'graphify-out/prompt_{i+1:02d}.txt').write_text(prompt, encoding='utf-8')
+print("Prompts generated.")

@@ -1,0 +1,472 @@
+{
+  "nodes": [
+    {
+      "id": "stayflexi_api_gateway",
+      "label": "API Gateway",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_auth_service",
+      "label": "Auth Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_booking_service",
+      "label": "Booking Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_payment_service",
+      "label": "Payment Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_inventory_service",
+      "label": "Inventory Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_hotel_service",
+      "label": "Hotel Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_ota_service",
+      "label": "OTA Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_analytics_service",
+      "label": "Analytics Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_notification_service",
+      "label": "Notification Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_workflow_service",
+      "label": "Workflow Service",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_postgres",
+      "label": "PostgreSQL",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_redis",
+      "label": "Redis",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_kafka",
+      "label": "Kafka",
+      "file_type": "document",
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_tier1_deployment",
+      "label": "Tier 1 Deployment",
+      "file_type": "document",
+      "source_file": "docs/runbooks/DEPLOYMENT_RUNBOOK.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "runbook_dependency_order",
+      "label": "Dependency Order Deployment",
+      "file_type": "document",
+      "source_file": "docs/runbooks/DEPLOYMENT_RUNBOOK.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "runbook_graceful_degradation",
+      "label": "Graceful Degradation",
+      "file_type": "document",
+      "source_file": "docs/runbooks/service-degradation.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "runbook_fail_open_safe",
+      "label": "Fail Open Where Safe",
+      "file_type": "document",
+      "source_file": "docs/runbooks/service-degradation.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_k8s_network_policies",
+      "label": "Network Policies",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/network-policies.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_keda_autoscaling",
+      "label": "KEDA Autoscaling",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/autoscaling/keda-scaled-objects.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_k8s_pdb",
+      "label": "Pod Disruption Budgets",
+      "file_type": "code",
+      "source_file": "infrastructure/kubernetes/pod-disruption-budgets.yaml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_incident_p0",
+      "label": "P0 Incident Response",
+      "file_type": "document",
+      "source_file": "docs/runbooks/incident-response.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stayflexi_kafka_dlq",
+      "label": "Kafka DLQ Architecture",
+      "file_type": "document",
+      "source_file": "docs/runbooks/KAFKA_DLQ_RUNBOOK.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "stayflexi_api_gateway",
+      "target": "stayflexi_booking_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_api_gateway",
+      "target": "stayflexi_auth_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_api_gateway",
+      "target": "stayflexi_payment_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_api_gateway",
+      "target": "stayflexi_inventory_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_booking_service",
+      "target": "stayflexi_inventory_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_booking_service",
+      "target": "stayflexi_auth_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_payment_service",
+      "target": "stayflexi_booking_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_analytics_service",
+      "target": "stayflexi_booking_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_workflow_service",
+      "target": "stayflexi_booking_service",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "runbook_dependency_order",
+      "target": "stayflexi_tier1_deployment",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/runbooks/DEPLOYMENT_RUNBOOK.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "runbook_fail_open_safe",
+      "target": "runbook_graceful_degradation",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/runbooks/service-degradation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_k8s_network_policies",
+      "target": "stayflexi_api_gateway",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/network-policies.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_k8s_network_policies",
+      "target": "stayflexi_booking_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/network-policies.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_keda_autoscaling",
+      "target": "stayflexi_kafka",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "infrastructure/kubernetes/autoscaling/keda-scaled-objects.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_k8s_pdb",
+      "target": "stayflexi_booking_service",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "infrastructure/kubernetes/pod-disruption-budgets.yaml",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_incident_p0",
+      "target": "stayflexi_booking_service",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/runbooks/incident-response.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_booking_service",
+      "target": "stayflexi_payment_service",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": null,
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "stayflexi_kafka_dlq",
+      "target": "stayflexi_kafka",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/runbooks/KAFKA_DLQ_RUNBOOK.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "stayflexi_p0_critical_services",
+      "label": "P0 Critical Services",
+      "nodes": [
+        "stayflexi_api_gateway",
+        "stayflexi_booking_service",
+        "stayflexi_payment_service"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "infrastructure/kubernetes/network-policies.yaml"
+    },
+    {
+      "id": "stayflexi_data_infrastructure",
+      "label": "Shared Data Infrastructure",
+      "nodes": [
+        "stayflexi_postgres",
+        "stayflexi_redis",
+        "stayflexi_kafka"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md"
+    },
+    {
+      "id": "stayflexi_event_consumers",
+      "label": "Event-Driven Async Consumers",
+      "nodes": [
+        "stayflexi_notification_service",
+        "stayflexi_workflow_service",
+        "stayflexi_analytics_service",
+        "stayflexi_ota_service"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "docs/architecture/SERVICE_DEPENDENCY_MAP.md"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

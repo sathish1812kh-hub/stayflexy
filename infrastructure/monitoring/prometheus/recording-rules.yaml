@@ -1,0 +1,53 @@
+groups:
+  - name: stayflexi.request_rates
+    interval: 30s
+    rules:
+      - record: job:http_requests:rate5m
+        expr: sum(rate(http_requests_total[5m])) by (service, status)
+
+      - record: job:http_request_duration_p50:rate5m
+        expr: |
+          histogram_quantile(0.50,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le)
+          )
+
+      - record: job:http_request_duration_p95:rate5m
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le)
+          )
+
+      - record: job:http_request_duration_p99:rate5m
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le)
+          )
+
+      - record: job:http_error_rate:rate5m
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
+          /
+          sum(rate(http_requests_total[5m])) by (service)
+
+  - name: stayflexi.availability
+    interval: 60s
+    rules:
+      - record: job:service_availability:rate1h
+        expr: |
+          1 - (
+            sum(rate(http_requests_total{status=~"5.."}[1h])) by (service)
+            /
+            sum(rate(http_requests_total[1h])) by (service)
+          )
+
+      - record: job:booking_success_rate:rate5m
+        expr: |
+          sum(rate(http_requests_total{service="booking-service",status="201"}[5m]))
+          /
+          sum(rate(http_requests_total{service="booking-service",method="POST"}[5m]))
+
+      - record: job:payment_success_rate:rate5m
+        expr: |
+          sum(rate(http_requests_total{service="payment-service",status=~"2.."}[5m]))
+          /
+          sum(rate(http_requests_total{service="payment-service"}[5m]))

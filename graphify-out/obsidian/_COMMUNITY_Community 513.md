@@ -1,0 +1,20 @@
+---
+type: community
+cohesion: 1.00
+members: 1
+---
+
+# Community 513
+
+**Cohesion:** 1.00 - tightly connected
+**Members:** 1 nodes
+
+## Members
+- [[index.ts_222]] - code - src/modules/maintenance/services/index.ts
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/Community_513
+SORT file.name ASC
+```

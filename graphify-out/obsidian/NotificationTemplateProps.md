@@ -1,0 +1,19 @@
+---
+source_file: "services/notification-service/src/domain/entities/NotificationTemplate.ts"
+type: "code"
+community: "Community 87"
+location: "L1"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_87
+---
+
+# NotificationTemplateProps
+
+## Connections
+- [[NotificationTemplate.ts]] - `contains` [EXTRACTED]
+- [[PrismaTemplateRepository.ts]] - `imports` [EXTRACTED]
+- [[SendNotification.test.ts]] - `imports` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_87

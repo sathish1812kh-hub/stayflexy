@@ -1,0 +1,198 @@
+// ─── Booking Domain ─────────────────────────────────────────────────────────────
+// Booking is the central transactional entity of the PMS.
+//
+// Lifecycle:   PENDING → CONFIRMED → CHECKED_IN → CHECKED_OUT
+//               ↓                ↓
+//            CANCELLED         NO_SHOW
+//
+// Concurrency: booking creation uses a Prisma $transaction wrapping
+// inventory reserve + booking insert. For PostgreSQL-level row locking,
+// use $queryRaw`SELECT ... FOR UPDATE` on the inventory row before adjusting
+// reservedInventory (wired in BookingService).
+//
+// Cascade rules:
+//   Hotel deleted → RESTRICT (cannot delete hotel with bookings)
+//   Booking deleted → BookingRoom, BookingGuest, BookingAudit CASCADE
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  NO_SHOW
+}
+
+enum BookingSource {
+  DIRECT
+  OTA
+  WALK_IN
+  PHONE
+  EMAIL
+  AGENT
+  ONLINE
+}
+
+enum CancellationReason {
+  GUEST_REQUEST
+  NO_SHOW
+  HOTEL_REQUEST
+  FORCE_MAJEURE
+  DUPLICATE_BOOKING
+  OTHER
+}
+
+enum GovIdType {
+  PASSPORT
+  NATIONAL_ID
+  DRIVERS_LICENSE
+  OTHER
+}
+
+enum BookingAuditEvent {
+  CREATED
+  CONFIRMED
+  MODIFIED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  NO_SHOW_MARKED
+  NOTE_ADDED
+  ROOM_CHANGED
+  GUEST_UPDATED
+  PAYMENT_RECORDED
+}
+
+enum BookingRoomStatus {
+  RESERVED
+  OCCUPIED
+  VACATED
+  CANCELLED
+}
+
+// ─── Booking ───────────────────────────────────────────────────────────────────
+
+model Booking {
+  id                 String              @id @default(uuid())
+  organizationId     String
+  hotelId            String
+  hotel              Hotel               @relation("HotelBookings", fields: [hotelId], references: [id], onDelete: Restrict)
+  bookingNumber      String              @unique @db.VarChar(30)
+  status             BookingStatus       @default(PENDING)
+  source             BookingSource       @default(DIRECT)
+  primaryGuestId     String?             // FK to BookingGuest.id (set after guest created)
+  totalAmount        Decimal             @db.Decimal(12, 2)
+  taxAmount          Decimal             @default(0) @db.Decimal(12, 2)
+  discountAmount     Decimal             @default(0) @db.Decimal(12, 2)
+  finalAmount        Decimal             @db.Decimal(12, 2)
+  currency           String              @default("USD") @db.VarChar(3)
+  specialRequests    String?             @db.Text
+  internalNotes      String?             @db.Text
+  bookedById         String
+  checkedInAt        DateTime?
+  checkedInById      String?
+  checkedOutAt       DateTime?
+  checkedOutById     String?
+  cancelledAt        DateTime?
+  cancelledById      String?
+  cancellationReason CancellationReason?
+  cancellationNote   String?             @db.VarChar(1000)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  deletedAt          DateTime?
+
+  rooms              BookingRoom[]
+  guests             BookingGuest[]
+  audit              BookingAudit[]
+  payments           Payment[]       @relation("BookingPayments")
+  invoices           Invoice[]       @relation("BookingInvoices")
+  otaReservation     OTAReservation? @relation("BookingOTAReservation")
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([status])
+  @@index([source])
+  @@index([bookingNumber])
+  @@index([primaryGuestId])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("bookings")
+}
+
+// ─── BookingRoom ───────────────────────────────────────────────────────────────
+// One record per physical room assigned to the booking.
+// Multi-room bookings = multiple BookingRoom records sharing the same bookingId.
+// roomRate is per night; totalRoomAmount = roomRate × nightCount.
+
+model BookingRoom {
+  id              String            @id @default(uuid())
+  bookingId       String
+  booking         Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  roomId          String
+  room            Room              @relation("RoomBookings", fields: [roomId], references: [id], onDelete: Restrict)
+  roomTypeId      String
+  hotelId         String
+  checkInDate     DateTime          @db.Date
+  checkOutDate    DateTime          @db.Date
+  nightCount      Int
+  adultCount      Int               @default(1)
+  childCount      Int               @default(0)
+  roomRate        Decimal           @db.Decimal(10, 2)
+  totalRoomAmount Decimal           @db.Decimal(12, 2)
+  status          BookingRoomStatus @default(RESERVED)
+  specialRequests String?           @db.VarChar(500)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([bookingId])
+  @@index([roomId])
+  @@index([roomTypeId])
+  @@index([hotelId])
+  @@index([checkInDate, checkOutDate])
+  @@map("booking_rooms")
+}
+
+// ─── BookingGuest ──────────────────────────────────────────────────────────────
+// Guest records for a booking. isPrimary = true for the lead guest.
+// Government ID is stored for check-in compliance; access restricted to RBAC.
+
+model BookingGuest {
+  id                 String     @id @default(uuid())
+  bookingId          String
+  booking            Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  isPrimary          Boolean    @default(false)
+  firstName          String     @db.VarChar(100)
+  lastName           String     @db.VarChar(100)
+  email              String?    @db.VarChar(255)
+  phone              String?    @db.VarChar(20)
+  nationality        String?    @db.VarChar(2)
+  governmentIdType   GovIdType?
+  governmentIdNumber String?    @db.VarChar(100)
+  dateOfBirth        DateTime?  @db.Date
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  @@index([bookingId])
+  @@index([email])
+  @@map("booking_guests")
+}
+
+// ─── BookingAudit ──────────────────────────────────────────────────────────────
+// Immutable append-only event log for every booking state change.
+// performedById: userId who triggered the event.
+
+model BookingAudit {
+  id               String            @id @default(uuid())
+  bookingId        String
+  booking          Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  eventType        BookingAuditEvent
+  eventDescription String            @db.VarChar(1000)
+  performedById    String
+  metadata         Json?
+  createdAt        DateTime          @default(now())
+
+  @@index([bookingId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("booking_audit")
+}
