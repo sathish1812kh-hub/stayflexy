@@ -4,6 +4,8 @@ This file acts as the single-file project snapshot loaded at the beginning of ev
 
 ---
 
+- **Project Commit**: `092108bf1cb6c99e5259cfe8c4a200b9582c2ca4`
+- **Generated**: `2026-06-20T18:49:15Z`
 - **Current Release**: `v5.2.0-certified`
 - **Current Sprint**: `Sprint 26 - Automated Governance & Recovery Ingestion`
 - **Current Task**: `TSK-00129 - Formulate Session Recovery & Context Compression blueprints`
