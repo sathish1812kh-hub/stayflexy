@@ -29,7 +29,8 @@
     "test:integration": "playwright test --project=integration",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "session:restore": "powershell -ExecutionPolicy Bypass -File ./sync-task.ps1"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",
