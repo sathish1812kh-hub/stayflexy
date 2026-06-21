@@ -41,6 +41,12 @@ volumes:
     name: stayflexi-pgadmin-data
   redisinsight_data:
     name: stayflexi-redisinsight-data
+  neo4j_data:
+    name: stayflexi-neo4j-data
+  neo4j_import:
+    name: stayflexi-neo4j-import
+  neo4j_plugins:
+    name: stayflexi-neo4j-plugins
 
 # ── Shared Configuration (YAML Anchors) ─────────────────────────────────────
 x-logging: &default-logging
@@ -804,3 +810,36 @@ services:
       resources:
         limits:
           memory: 256M
+
+  neo4j:
+    image: neo4j:5.20.0-community
+    container_name: stayflexi-neo4j
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - stayflexi-backend
+      - stayflexi-frontend
+    ports:
+      - "7474:7474" # HTTP Browser Console
+      - "7687:7687" # Bolt Protocol Interface
+    volumes:
+      - neo4j_data:/data
+      - neo4j_import:/import
+      - neo4j_plugins:/plugins
+    environment:
+      NEO4J_AUTH: "neo4j/stayflexi-dev-pass"
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_memory_heap_initial__size: "512m"
+      NEO4J_dbms_memory_heap_max__size: "1g"
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474/ || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
