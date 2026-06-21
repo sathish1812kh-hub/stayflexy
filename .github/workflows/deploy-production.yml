@@ -3,7 +3,7 @@ name: Deploy to Production
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'  # semver tags only: v2.0.0, v2.1.0, etc.
+      - 'v[0-9]+.[0-9]+.[0-9]+' # semver tags only: v2.0.0, v2.1.0, etc.
   workflow_dispatch:
     inputs:
       image_tag:
@@ -42,7 +42,7 @@ jobs:
     name: Build & Push — ${{ matrix.service }}
     runs-on: ubuntu-latest
     needs: resolve-tag
-    if: ${{ inputs.service == '' || inputs.service == matrix.service }}
+    if: ${{ secrets.KUBECONFIG_PRODUCTION != '' && (inputs.service == '' || inputs.service == matrix.service) }}
     permissions:
       contents: read
       packages: write
@@ -103,6 +103,7 @@ jobs:
     name: Run Database Migrations
     runs-on: ubuntu-latest
     needs: [resolve-tag, build-and-push]
+    if: ${{ secrets.KUBECONFIG_PRODUCTION != '' }}
     environment: production
     steps:
       - uses: actions/checkout@v4
@@ -137,9 +138,10 @@ jobs:
     name: Deploy — ${{ matrix.service }}
     runs-on: ubuntu-latest
     needs: [resolve-tag, build-and-push, migrate]
+    if: ${{ secrets.KUBECONFIG_PRODUCTION != '' }}
     environment: production
     strategy:
-      max-parallel: 3   # rolling: deploy 3 services at a time
+      max-parallel: 3 # rolling: deploy 3 services at a time
       matrix:
         service:
           - auth-service
@@ -190,6 +192,7 @@ jobs:
     name: Post-Deploy Health Check
     runs-on: ubuntu-latest
     needs: deploy
+    if: ${{ secrets.KUBECONFIG_PRODUCTION != '' }}
     environment: production
     steps:
       - uses: actions/checkout@v4
@@ -232,7 +235,7 @@ jobs:
     name: Rollback on Failure
     runs-on: ubuntu-latest
     needs: [deploy, verify]
-    if: failure()
+    if: ${{ failure() && secrets.KUBECONFIG_PRODUCTION != '' }}
     environment: production
     steps:
       - name: Configure kubectl
