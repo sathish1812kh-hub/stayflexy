@@ -4,8 +4,8 @@ This file acts as the single-file project snapshot loaded at the beginning of ev
 
 ---
 
-- **Project Commit**: `2df860d846d58b56c2fb00f5d9ca7d148a7024db`
-- **Generated**: `2026-06-21T17:59:39Z`
+- **Project Commit**: `ef9d046a2bd5b4ce3c0ae8a1f7206e4779d6e3f8`
+- **Generated**: `2026-06-21T18:00:57Z`
 - **Current Release**: `v5.2.0-certified`
 - **Current Sprint**: `Sprint 26 - Automated Governance & Recovery Ingestion`
 - **Current Task**: `TSK-00130 - Integrate Production Pre-Commit Hooks & Schedulers`
