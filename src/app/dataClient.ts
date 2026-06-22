@@ -303,6 +303,52 @@ const DEFAULT_ROOMS: Room[] = [
   }
 ]
 
+function checkClientPermission(action: string) {
+  if (typeof window === 'undefined') return;
+  const role = localStorage.getItem('sf_user_role');
+  if (!role) {
+    throw new Error("Unauthorized: No session token or role found.");
+  }
+  if (role === 'SUPER_ADMIN') return;
+  
+  const permissionMap: Record<string, string[]> = {
+    'ORG_ADMIN': [
+      'hotel:create', 'hotel:read', 'hotel:update', 'hotel:delete',
+      'room:create', 'room:read', 'room:update', 'room:delete',
+      'booking:create', 'booking:read', 'booking:update', 'booking:cancel', 'booking:approve',
+      'payment:create', 'payment:read', 'payment:refund',
+      'inventory:read', 'inventory:update', 'inventory:block',
+      'rate_plan:create', 'rate_plan:read', 'rate_plan:update', 'rate_plan:delete',
+    ],
+    'HOTEL_MANAGER': [
+      'hotel:read', 'hotel:update',
+      'room:create', 'room:read', 'room:update', 'room:delete',
+      'booking:create', 'booking:read', 'booking:update', 'booking:cancel', 'booking:approve',
+      'payment:read',
+      'inventory:read', 'inventory:update', 'inventory:block',
+      'rate_plan:create', 'rate_plan:read', 'rate_plan:update', 'rate_plan:delete',
+    ],
+    'FRONT_DESK': [
+      'room:read',
+      'booking:create', 'booking:read', 'booking:update', 'booking:cancel',
+      'payment:create', 'payment:read',
+      'inventory:read',
+    ],
+    'HOUSEKEEPING': [
+      'room:read',
+    ],
+    'ACCOUNTANT': [
+      'booking:read',
+      'payment:read',
+    ],
+  };
+
+  const allowedActions = permissionMap[role] || [];
+  if (!allowedActions.includes(action)) {
+    throw new Error(`Forbidden: Role "${role}" does not have permission for "${action}".`);
+  }
+}
+
 class StayflexiDataClient {
   private hotels: Hotel[] = [...DEFAULT_HOTELS]
   private roomTypes: RoomType[] = [...DEFAULT_ROOM_TYPES]
@@ -385,6 +431,7 @@ class StayflexiDataClient {
     }
 
     // Local Mock Fallback
+    checkClientPermission('hotel:create');
     const newHotel: Hotel = {
       ...hotel,
       id: `h-${Math.random().toString(36).substr(2, 9)}`,
@@ -474,6 +521,7 @@ class StayflexiDataClient {
     }
 
     // Local Mock Fallback
+    checkClientPermission('room:create');
     const newRt: RoomType = {
       ...roomType,
       id: `rt-${Math.random().toString(36).substr(2, 9)}`,
@@ -547,6 +595,7 @@ class StayflexiDataClient {
     }
 
     // Local Mock Fallback
+    checkClientPermission('room:create');
     const newRoom: Room = {
       ...room,
       id: `r-${Math.random().toString(36).substr(2, 9)}`,
@@ -590,6 +639,7 @@ class StayflexiDataClient {
     }
 
     // Local Mock Fallback
+    checkClientPermission('room:update');
     const index = this.rooms.findIndex((r) => r.id === roomId)
     if (index === -1) return null
     const target = this.rooms[index]!
@@ -857,6 +907,7 @@ class StayflexiDataClient {
     }
 
     // Local Mock Fallback
+    checkClientPermission('booking:create');
     const id = `res-${Math.random().toString(36).substr(2, 9)}`
     const roomRate = args.baseRate || this.roomTypes.find(rt => rt.id === args.roomTypeId)?.basePrice || 150.00
     const start = new Date(args.checkIn)
@@ -1047,6 +1098,7 @@ class StayflexiDataClient {
     }
 
     // Local Mock Fallback for offline environments
+    checkClientPermission('booking:create');
     const id = `res-${Math.random().toString(36).substr(2, 9)}`
     const roomRate = args.baseRate || 45.00 // base micro hourly rate
     const start = new Date(args.startTime)
@@ -1143,6 +1195,7 @@ class StayflexiDataClient {
     }
 
     // Local Sync Fallback
+    checkClientPermission('booking:update');
     if (typeof window !== 'undefined') {
       const savedRes = localStorage.getItem('sf_reservations')
       if (savedRes) {
@@ -1168,6 +1221,7 @@ class StayflexiDataClient {
       return true
     }
 
+    checkClientPermission('booking:update');
     if (typeof window !== 'undefined') {
       const savedRes = localStorage.getItem('sf_reservations')
       if (savedRes) {

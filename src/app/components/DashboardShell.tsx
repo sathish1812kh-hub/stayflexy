@@ -28,6 +28,28 @@ import {
   ChevronRight,
   LayoutGrid
 } from 'lucide-react'
+
+function hasTabAccess(role: string | null, tab: string): boolean {
+  if (!role) return false;
+  if (role === 'SUPER_ADMIN') return true;
+  if (role === 'ORG_ADMIN') {
+    return !['console', 'monitoring'].includes(tab);
+  }
+  if (role === 'HOTEL_MANAGER' || role === 'Manager') {
+    return ['dashboard', 'hotels', 'room-types', 'rooms', 'inventory', 'bookings', 'more-apps'].includes(tab);
+  }
+  if (role === 'FRONT_DESK' || role === 'Front Desk') {
+    return ['dashboard', 'rooms', 'bookings', 'more-apps'].includes(tab);
+  }
+  if (role === 'HOUSEKEEPING') {
+    return ['dashboard', 'rooms', 'more-apps'].includes(tab);
+  }
+  if (role === 'ACCOUNTANT') {
+    return ['dashboard', 'bookings', 'more-apps'].includes(tab);
+  }
+  return false;
+}
+
 interface DashboardShellProps {
   children: React.ReactNode
   activeTab: 'dashboard' | 'hotels' | 'room-types' | 'rooms' | 'inventory' | 'console' | 'bookings' | 'billing' | 'users' | 'workflows' | 'monitoring' | 'more-apps'
@@ -86,6 +108,12 @@ export default function DashboardShell({
       setUserRole(roleMapping[role] || role)
     } else {
       setUserRole(isLocalBypass ? 'Super Admin' : '')
+    }
+
+    const actualRole = role || (isLocalBypass ? 'SUPER_ADMIN' : null);
+    if (actualRole && !hasTabAccess(actualRole, activeTab)) {
+      window.location.href = '/';
+      return;
     }
 
     setIsAuthorized(true)
@@ -237,89 +265,113 @@ export default function DashboardShell({
         </div>
         
         <nav className="nav-links" style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-          <Link href="/">
-            <div className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Dashboard" : undefined}>
-              <BarChart3 className="nav-item-icon" />
-              {!isCollapsed && <span>Dashboard</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'dashboard') && (
+            <Link href="/">
+              <div className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Dashboard" : undefined}>
+                <BarChart3 className="nav-item-icon" />
+                {!isCollapsed && <span>Dashboard</span>}
+              </div>
+            </Link>
+          )}
           
-          <Link href="/hotels">
-            <div className={`nav-item ${activeTab === 'hotels' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Properties" : undefined}>
-              <HotelIcon className="nav-item-icon" />
-              {!isCollapsed && <span>Properties</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'hotels') && (
+            <Link href="/hotels">
+              <div className={`nav-item ${activeTab === 'hotels' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Properties" : undefined}>
+                <HotelIcon className="nav-item-icon" />
+                {!isCollapsed && <span>Properties</span>}
+              </div>
+            </Link>
+          )}
           
-          <Link href="/room-types">
-            <div className={`nav-item ${activeTab === 'room-types' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Room Types" : undefined}>
-              <BedDouble className="nav-item-icon" />
-              {!isCollapsed && <span>Room Types</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'room-types') && (
+            <Link href="/room-types">
+              <div className={`nav-item ${activeTab === 'room-types' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Room Types" : undefined}>
+                <BedDouble className="nav-item-icon" />
+                {!isCollapsed && <span>Room Types</span>}
+              </div>
+            </Link>
+          )}
           
-          <Link href="/rooms">
-            <div className={`nav-item ${activeTab === 'rooms' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Rooms Grid" : undefined}>
-              <KeyRound className="nav-item-icon" />
-              {!isCollapsed && <span>Rooms Grid</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'rooms') && (
+            <Link href="/rooms">
+              <div className={`nav-item ${activeTab === 'rooms' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Rooms Grid" : undefined}>
+                <KeyRound className="nav-item-icon" />
+                {!isCollapsed && <span>Rooms Grid</span>}
+              </div>
+            </Link>
+          )}
 
-          <Link href={"/inventory" as any}>
-            <div className={`nav-item ${activeTab === 'inventory' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Rates & Inventory" : undefined}>
-              <Layers className="nav-item-icon" />
-              {!isCollapsed && <span>Rates & Inventory</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'inventory') && (
+            <Link href={"/inventory" as any}>
+              <div className={`nav-item ${activeTab === 'inventory' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Rates & Inventory" : undefined}>
+                <Layers className="nav-item-icon" />
+                {!isCollapsed && <span>Rates & Inventory</span>}
+              </div>
+            </Link>
+          )}
 
-          <Link href={"/bookings" as any}>
-            <div className={`nav-item ${activeTab === 'bookings' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Bookings Gantt" : undefined}>
-              <Calendar className="nav-item-icon" />
-              {!isCollapsed && <span>Bookings Gantt</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'bookings') && (
+            <Link href={"/bookings" as any}>
+              <div className={`nav-item ${activeTab === 'bookings' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Bookings Gantt" : undefined}>
+                <Calendar className="nav-item-icon" />
+                {!isCollapsed && <span>Bookings Gantt</span>}
+              </div>
+            </Link>
+          )}
 
-          <Link href={"/billing" as any}>
-            <div className={`nav-item ${activeTab === 'billing' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Billing & Upgrade" : undefined}>
-              <CreditCard className="nav-item-icon" />
-              {!isCollapsed && <span>Billing & Upgrade</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'billing') && (
+            <Link href={"/billing" as any}>
+              <div className={`nav-item ${activeTab === 'billing' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Billing & Upgrade" : undefined}>
+                <CreditCard className="nav-item-icon" />
+                {!isCollapsed && <span>Billing & Upgrade</span>}
+              </div>
+            </Link>
+          )}
 
-          <Link href={"/settings/users" as any}>
-            <div className={`nav-item ${activeTab === 'users' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Staff RBAC" : undefined}>
-              <Users className="nav-item-icon" />
-              {!isCollapsed && <span>Staff RBAC</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'users') && (
+            <Link href={"/settings/users" as any}>
+              <div className={`nav-item ${activeTab === 'users' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Staff RBAC" : undefined}>
+                <Users className="nav-item-icon" />
+                {!isCollapsed && <span>Staff RBAC</span>}
+              </div>
+            </Link>
+          )}
 
-          <Link href={"/workflows" as any}>
-            <div className={`nav-item ${activeTab === 'workflows' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Workflows Builder" : undefined}>
-              <GitFork className="nav-item-icon" />
-              {!isCollapsed && <span>Workflows Builder</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'workflows') && (
+            <Link href={"/workflows" as any}>
+              <div className={`nav-item ${activeTab === 'workflows' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Workflows Builder" : undefined}>
+                <GitFork className="nav-item-icon" />
+                {!isCollapsed && <span>Workflows Builder</span>}
+              </div>
+            </Link>
+          )}
 
-          <Link href={"/monitoring" as any}>
-            <div className={`nav-item ${activeTab === 'monitoring' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Chaos Telemetry" : undefined}>
-              <Activity className="nav-item-icon" />
-              {!isCollapsed && <span>Chaos Telemetry</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'monitoring') && (
+            <Link href={"/monitoring" as any}>
+              <div className={`nav-item ${activeTab === 'monitoring' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Chaos Telemetry" : undefined}>
+                <Activity className="nav-item-icon" />
+                {!isCollapsed && <span>Chaos Telemetry</span>}
+              </div>
+            </Link>
+          )}
           
-          <Link href={"/more-apps" as any}>
-            <div className={`nav-item ${activeTab === 'more-apps' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "More Apps" : undefined}>
-              <LayoutGrid className="nav-item-icon" />
-              {!isCollapsed && <span>More Apps</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'more-apps') && (
+            <Link href={"/more-apps" as any}>
+              <div className={`nav-item ${activeTab === 'more-apps' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "More Apps" : undefined}>
+                <LayoutGrid className="nav-item-icon" />
+                {!isCollapsed && <span>More Apps</span>}
+              </div>
+            </Link>
+          )}
           
-          <Link href={"/console" as any}>
-            <div className={`nav-item ${activeTab === 'console' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Architecture Console" : undefined}>
-              <Terminal className="nav-item-icon" />
-              {!isCollapsed && <span>Architecture Console</span>}
-            </div>
-          </Link>
+          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'console') && (
+            <Link href={"/console" as any}>
+              <div className={`nav-item ${activeTab === 'console' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Architecture Console" : undefined}>
+                <Terminal className="nav-item-icon" />
+                {!isCollapsed && <span>Architecture Console</span>}
+              </div>
+            </Link>
+          )}
         </nav>
         
         {/* Profile Footer */}

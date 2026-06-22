@@ -1613,9 +1613,9 @@
     "video": []
   },
   "total_files": 1604,
-  "total_words": 510160,
+  "total_words": 510547,
   "needs_graph": true,
-  "warning": "Large corpus: 1604 files \u00b7 ~510,160 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder, or use --no-semantic to run AST-only.",
+  "warning": "Large corpus: 1604 files \u00b7 ~510,547 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder, or use --no-semantic to run AST-only.",
   "skipped_sensitive": [
     "C:\\Stayflexi\\.env",
     "C:\\Stayflexi\\.env.docker",
