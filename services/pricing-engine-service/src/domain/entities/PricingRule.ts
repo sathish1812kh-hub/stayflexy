@@ -89,7 +89,9 @@ export class PricingRule {
   }
 
   isApplicableToDate(date: Date): boolean {
-    if (!this.isActive) return false
+    if (this.props.status !== 'ACTIVE') return false
+    if (date < this.props.activeFrom) return false
+    if (this.props.activeTo && date > this.props.activeTo) return false
     const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
     const dow = days[date.getDay()] as string
     if (this.props.applicableDays.length > 0 && !this.props.applicableDays.includes(dow)) {

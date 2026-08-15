@@ -1,25 +1,24 @@
 import { PricingCalculator } from '../../engine/PricingCalculator'
 import type { PricingRule } from '../../domain/entities/PricingRule'
 
-const makeMockRule = (overrides: Partial<ReturnType<PricingRule['toJSON']>> = {}): PricingRule => {
+const makeMockRule = (overrides: Record<string, any> = {}): PricingRule => {
   const props = {
     id: 'rule-1',
     organizationId: 'org-1',
     hotelId: 'hotel-1',
     roomTypeId: null,
-    name: 'Test Rule',
-    description: null,
+    ruleName: 'Test Rule',
     priority: 10,
-    startDate: new Date('2026-01-01'),
-    endDate: new Date('2026-12-31'),
-    pricingStrategy: 'PERCENTAGE' as const,
+    activeFrom: new Date('2026-01-01'),
+    activeTo: new Date('2026-12-31'),
+    pricingStrategy: 'PERCENTAGE_ADJUSTMENT' as const,
     adjustmentType: 'INCREASE' as const,
     adjustmentValue: 10,
     minimumPrice: null,
     maximumPrice: null,
+    applicableDays: [],
+    applicableSeasons: [],
     status: 'ACTIVE' as const,
-    appliesTo: null,
-    conditions: null,
     createdById: 'user-1',
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -34,8 +33,9 @@ const makeMockRule = (overrides: Partial<ReturnType<PricingRule['toJSON']>> = {}
     adjustmentType: props.adjustmentType,
     pricingStrategy: props.pricingStrategy,
     adjustmentValue: props.adjustmentValue,
-    isApplicableToDate: (date: Date) => date >= props.startDate && date <= props.endDate,
-    toJSON: () => props,
+    isApplicableToDate: (date: Date) =>
+      date >= props.activeFrom && (!props.activeTo || date <= props.activeTo),
+    toJSON: () => props as any,
     belongsToOrganization: (orgId: string) => orgId === props.organizationId,
     status: props.status,
   } as unknown as PricingRule
