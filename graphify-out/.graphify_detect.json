@@ -28,7 +28,6 @@
       "C:\\Stayflexi\\.bkit\\state\\pdca-status.json",
       "C:\\Stayflexi\\.claude\\settings.local.json",
       "C:\\Stayflexi\\.gemini\\settings.json",
-      "C:\\Stayflexi\\.husky\\pre-push",
       "C:\\Stayflexi\\.husky\\_\\applypatch-msg",
       "C:\\Stayflexi\\.husky\\_\\commit-msg",
       "C:\\Stayflexi\\.husky\\_\\h",
@@ -1672,10 +1671,10 @@
     "image": [],
     "video": []
   },
-  "total_files": 1664,
-  "total_words": 619491,
+  "total_files": 1663,
+  "total_words": 619423,
   "needs_graph": true,
-  "warning": "Large corpus: 1664 files \u00b7 ~619,491 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder, or use --no-semantic to run AST-only.",
+  "warning": "Large corpus: 1663 files \u00b7 ~619,423 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder, or use --no-semantic to run AST-only.",
   "skipped_sensitive": [
     "C:\\Stayflexi\\.env",
     "C:\\Stayflexi\\.env.docker",
