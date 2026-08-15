@@ -23,13 +23,18 @@ function Test-PortActive($port) {
 
 # 1. Run Graphify Static AST Scanner
 Write-Host "`n[1/5] Running Graphify static codebase analysis..." -ForegroundColor Yellow
-if (Test-Path "graphify-out/step2.py") {
+$graphifyCache = "graphify-out/.graphify_detect.json"
+$needsFullScan = $args -contains "-Full" -or -not (Test-Path $graphifyCache)
+
+if ($needsFullScan -and (Test-Path "graphify-out/step2.py")) {
     try {
         $graphifyResult = python graphify-out/step2.py 2>&1
         Write-Host "  Graphify output: $graphifyResult" -ForegroundColor Green
     } catch {
         Write-Host "  Warning: Graphify script execution failed: $_" -ForegroundColor Yellow
     }
+} elseif (Test-Path $graphifyCache) {
+    Write-Host "  Graphify cache is up to date (fast sync). Use -Full for full AST rescan." -ForegroundColor Green
 } else {
     Write-Host "  Skipped: graphify-out/step2.py not found in root." -ForegroundColor DarkGray
 }

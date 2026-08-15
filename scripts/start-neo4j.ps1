@@ -25,10 +25,13 @@ if (Test-PortActive 7687) {
 }
 
 # Dedicated JDK 21 Runtime
-$jdk21 = "C:\Stayflexi\.tools\jdk-21"
-if (Test-Path $jdk21) {
-    $env:JAVA_HOME = $jdk21
-    $env:PATH = "$jdk21\bin;$env:PATH"
+$zuluJdk = "C:\Users\Sathish\.Neo4jDesktop2\Cache\runtime\zulu21.50.19-ca-jre21.0.11-win_x64"
+if (Test-Path $zuluJdk) {
+    $env:JAVA_HOME = $zuluJdk
+    $env:PATH = "$zuluJdk\bin;$env:PATH"
+} elseif (Test-Path "C:\Stayflexi\.tools\jdk-21") {
+    $env:JAVA_HOME = "C:\Stayflexi\.tools\jdk-21"
+    $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
 }
 
 # Standalone Community Edition Path
@@ -39,7 +42,8 @@ if (Test-Path $neo4jBin) {
     Write-Host "  Starting native Neo4j Community server from $communityHome using OpenJDK 21..." -ForegroundColor Yellow
     
     # Start via background process
-    Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "`"$neo4jBin`"", "start" -WindowStyle Hidden
+    $startCmd = "`$env:JAVA_HOME = '$env:JAVA_HOME'; `$env:PATH = '$env:JAVA_HOME\bin;' + `$env:PATH; & '$neo4jBin' console"
+    Start-Process -FilePath "powershell.exe" -ArgumentList "-WindowStyle", "Hidden", "-ExecutionPolicy", "Bypass", "-Command", $startCmd
     
     # Wait for port 7687 to become active
     $retries = 30
