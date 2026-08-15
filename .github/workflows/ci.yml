@@ -49,5 +49,6 @@ jobs:
       - name: Production Build Check
         run: npm run build
         env:
-          NODE_ENV: production
           NEXT_TELEMETRY_DISABLED: 1
+          DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/stayflexi_dev?schema=public'
+          JWT_SECRET: 'ci-build-dummy-jwt-secret-key-32-chars'
