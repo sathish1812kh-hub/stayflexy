@@ -319,32 +319,39 @@ def create_presentation():
     p_m.font.color.rgb = COLOR_WHITE
 
     # -------------------------------------------------------------
-    # SLIDES 8–11: Graph Triad Tool Deep Dives (BEFORE Phases)
+    # SLIDES 8–12: 4-Layer Intelligence Tool Deep Dives
     # -------------------------------------------------------------
-    graph_triad_tools = [
-        ("Graphify Deep Dive: Role, Use Case, Why & How", "Graph Triad Tools (1/4)", "🔮 Graphify (AST Code Mapping)",
+    graph_intelligence_tools = [
+        ("Codegraph Deep Dive: Role, Use Case, Why & How", "Intelligence Layer (1/5)", "⚡ Codegraph (AST Code & Blast Radius)",
+         "ROLE: Sub-Millisecond Code Symbol, AST Call Path & Blast-Radius Engine.\n\n"
+         "PRIMARY USE CASE: Instant lookup of functions, classes, callers, dynamic dispatch, and covering unit test files.\n\n"
+         "WHY WE USE IT: Reading files manually wastes tokens and risks blind refactoring. Codegraph gives callers before editing.\n\n"
+         "HOW WE USE IT: Real-time file-watching daemon updates 48MB SQLite index (.codegraph/codegraph.db) in ~1s -> codegraph_explore.",
+         "Query: codegraph_explore 'PricingCalculator computeNightlyRate' -> Returns verbatim source, 3 callers in ComputeDynamicRate.ts, and linked unit test suite (PricingCalculator.test.ts) in 30ms.", COLOR_CYAN),
+
+        ("Graphify Deep Dive: Role, Use Case, Why & How", "Intelligence Layer (2/5)", "🔮 Graphify (Monorepo Corpus Analysis)",
          "ROLE: Codebase Knowledge Extractor, AST Analyzer & GraphRAG Engine.\n\n"
-         "PRIMARY USE CASE: Converts 1,450+ raw TypeScript files into structured AST nodes & 500+ communities.\n\n"
-         "WHY WE USE IT: LLM prompts cannot ingest full codebase files without losing caller/callee links or blowing token budgets.\n\n"
+         "PRIMARY USE CASE: Converts 1,651 raw files (617k words) into structured AST communities & god-node reports.\n\n"
+         "WHY WE USE IT: Monorepo modularity audits require global file clustering and circular dependency detection.\n\n"
          "HOW WE USE IT: Tree-sitter AST parsing -> Louvain community clustering -> Ontology Studio -> BFS/DFS GraphRAG search.",
-         "Parsed C:\\Stayflexi: 9,154 nodes, 16,835 edges. Identified God Nodes (handleRouteError - 187 edges, Logger). Querying graphify query 'auth flow' returns multi-hop caller paths across microservices.", COLOR_CYAN),
+         "Parsed C:\\Stayflexi: 9,154 nodes, 16,835 edges. Identified God Nodes (handleRouteError - 187 edges, Logger). Querying graphify query 'auth flow' returns multi-hop caller paths across microservices.", COLOR_PURPLE),
         
-        ("Neo4j Deep Dive: Role, Use Case, Why & How", "Graph Triad Tools (2/4)", "🌐 Neo4j Graph Database Engine",
-         "ROLE: Structural Reality & Graph Database Engine (Physical Network Topology).\n\n"
-         "PRIMARY USE CASE: Serves as the structural source of truth for microservices, endpoints, repos, and DB tables.\n\n"
-         "WHY WE USE IT: Relational DBs cannot query multi-hop dependency chains efficiently to calculate blast radius before code edits.\n\n"
-         "HOW WE USE IT: Property graph (Service, Endpoint, Repository, Table) with Cypher queries, Cosine similarity checks, & auto-repair.",
-         "Executing Cypher: MATCH (e:Endpoint {route:'/api/v1/auth/login'})-[:USES]->(r:Repository)-[:QUERIES]->(t:DatabaseTable) RETURN e, r, t. Automatically flags queries missing organizationId with SecurityRisk.", COLOR_PURPLE),
+        ("Neo4j Deep Dive: Role, Use Case, Why & How", "Intelligence Layer (3/5)", "🌐 Neo4j Graph Database Engine",
+         "ROLE: Structural Reality & Network Topology Engine (12 Services & Sagas).\n\n"
+         "PRIMARY USE CASE: Serves as the structural source of truth for 12 microservices, 27 API routes, 10 Kafka topics, and releases.\n\n"
+         "WHY WE USE IT: Relational DBs cannot query multi-hop dependency chains efficiently to calculate architecture blast radius.\n\n"
+         "HOW WE USE IT: Native Zero-Docker Community 5.26 (Port 7687, Zulu JDK 21) with Cypher queries & MCP integration.",
+         "Executing Cypher: MATCH (s:Microservice)-[:PUBLISHES_EVENT]->(t:KafkaTopic)<-[:SUBSCRIBES_EVENT]-(c:Microservice) RETURN s, t, c. Verifies complete saga choreography for booking creation.", COLOR_EMERALD),
         
-        ("Graphiti Deep Dive: Role, Use Case, Why & How", "Graph Triad Tools (3/4)", "🧠 Graphiti Temporal Memory",
+        ("Graphiti Deep Dive: Role, Use Case, Why & How", "Intelligence Layer (4/5)", "🧠 Graphiti Temporal Memory",
          "ROLE: Dynamic Temporal Episodic Memory Engine (Context Memory Pack).\n\n"
          "PRIMARY USE CASE: Stores long-term decision rationale, ADRs, historical trade-offs, and feature evolution across session restarts.\n\n"
          "WHY WE USE IT: LLM chat sessions are stateless; prompt history is erased when a session ends. Prevents repeating past mistakes.\n\n"
          "HOW WE USE IT: Serializes decision episodes into structured memory packs loaded JIT during Phase 0 session boot.",
-         "Retrieves decision rationale for PR #284 (customerType field). Reminds LLM that customerType was intentionally made nullable to prevent migration downtime across 5,000 hotel tenants.", COLOR_EMERALD)
+         "Retrieves decision rationale for PR #284 (customerType field). Reminds LLM that customerType was intentionally made nullable to prevent migration downtime across 5,000 hotel tenants.", COLOR_AMBER)
     ]
 
-    for title, cat, tool_title, tool_text, tool_ex, color in graph_triad_tools:
+    for title, cat, tool_title, tool_text, tool_ex, color in graph_intelligence_tools:
         slide = prs.slides.add_slide(blank_slide_layout)
         set_slide_background(slide)
         add_header(slide, title, cat)
@@ -383,16 +390,16 @@ def create_presentation():
         p_b2.font.size = Pt(12)
         p_b2.font.color.rgb = COLOR_MUTED
 
-    # Slide 11: Graph Triad Matrix Comparison
-    slide11 = prs.slides.add_slide(blank_slide_layout)
-    set_slide_background(slide11)
-    add_header(slide11, "Graph Triad Matrix: Comparative Role Breakdown", "Graph Triad Tools (4/4)")
+    # Slide 12: 4-Layer Intelligence Matrix Comparison
+    slide12 = prs.slides.add_slide(blank_slide_layout)
+    set_slide_background(slide12)
+    add_header(slide12, "4-Layer Intelligence Matrix: Comparative Role Breakdown", "Intelligence Layer (5/5)")
 
-    rows_cnt = 4
-    table_shape = slide11.shapes.add_table(rows_cnt, 5, Inches(0.8), Inches(1.5), Inches(11.7), Inches(5.3))
+    rows_cnt = 5
+    table_shape = slide12.shapes.add_table(rows_cnt, 5, Inches(0.8), Inches(1.5), Inches(11.7), Inches(5.3))
     table = table_shape.table
-    table.columns[0].width = Inches(2.2)
-    table.columns[1].width = Inches(3.0)
+    table.columns[0].width = Inches(2.0)
+    table.columns[1].width = Inches(3.2)
     table.columns[2].width = Inches(2.2)
     table.columns[3].width = Inches(2.3)
     table.columns[4].width = Inches(2.0)
@@ -409,8 +416,9 @@ def create_presentation():
         p.font.color.rgb = COLOR_CYAN
 
     matrix_rows = [
-        ("Graphify", "Codebase Knowledge Extractor & GraphRAG", "TypeScript AST files", "Ontology Studio + JSON", "BFS / DFS GraphRAG CLI"),
-        ("Neo4j", "Structural Reality & Network Topology Engine", "AST Nodes, Repos, Tables", "Property Graph Database", "Cypher Query Language"),
+        ("Codegraph", "Sub-Millisecond Code AST & Blast Radius", "TypeScript AST symbols", ".codegraph/codegraph.db (48MB)", "codegraph_explore MCP"),
+        ("Graphify", "Codebase Knowledge Extractor & GraphRAG", "1,651 Monorepo files", "Ontology Studio + JSON", "BFS / DFS GraphRAG CLI"),
+        ("Neo4j", "Structural Topology & Distributed Sagas", "12 Services, APIs, Kafka", "Native Property Graph (Port 7687)", "Cypher Query Language"),
         ("Graphiti", "Temporal Episodic Decision Memory Engine", "ADRs, PR sign-offs", "Serialized Memory Pack", "Temporal Search API")
     ]
 
@@ -429,84 +437,87 @@ def create_presentation():
     # -------------------------------------------------------------
     # SLIDES 12–24: 4-Card Structural Deep Dives (Phases 0 to 12)
     # -------------------------------------------------------------
+    # -------------------------------------------------------------
+    # SLIDES 13–25: 4-Card Structural Deep Dives (Phases 0 to 12)
+    # -------------------------------------------------------------
     structural_phase_slides = [
         ("Phase 0 Structural Deep Dive: Context Reconstruction", "System Phases (1/13)",
          "💡 WHY THIS PHASE EXISTS:\nChat history is erased across logouts; Phase 0 rebuilds exact operational context from codebase state to eliminate Artificial Intelligence (AI) hallucination.",
-         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Reads 4 double-buffered recovery state files.\n2. Compares Git commit anchor vs git rev-parse HEAD.\n3. Runs git status --porcelain for code drift.\n4. Probes ports 5432, 7687, 6379, 9092; auto-starts Docker.",
-         "🛠️ TOOLS USED & REALTIME USAGE:\nGit CLI (git status --porcelain), Docker Compose, Node TCP Net Socket Probe, File Inspector (view_file).",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nSession boots for TSK-00130. Reads current-state.md, verifies commit 2d4a0f674f, probes Neo4j port 7687, emits Context Recovery Report.", COLOR_CYAN),
+         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Reads 4 double-buffered recovery state files.\n2. Compares Git commit anchor vs git rev-parse HEAD.\n3. Runs git status --porcelain for code drift.\n4. Probes ports 5432, 7687, and Codegraph SQLite database.",
+         "🛠️ TOOLS USED & REALTIME USAGE:\nGit CLI (git status --porcelain), Codegraph AST Checker, Neo4j Bolt Client, File Inspector (view_file).",
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nSession boots for TSK-00132. Reads current-state.md, verifies commit 56a6ed2, probes Neo4j port 7687 & Codegraph SQLite, emits Context Recovery Report.", COLOR_CYAN),
         
-        ("Phase 1 Structural Deep Dive: Discovery & Indexing", "System Phases (2/13)",
-         "💡 WHY THIS PHASE EXISTS:\nMonorepo contains 12 services and 9 packages; Phase 1 prevents blind refactoring by indexing all files, endpoints, and DB schemas.",
-         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Scans monorepo directory trees & package manifests.\n2. Identifies active REST endpoints, Prisma schemas & Kafka topics.\n3. Catalogues feature registries & client dependencies.\n4. Writes technology stack inventory report.",
-         "🛠️ TOOLS USED & REALTIME USAGE:\nRipgrep (grep_search), File System Crawler (list_dir), Glob Pattern Matcher.",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nScans shared-auth, auth-service, and booking-service to locate customer Data Transfer Objects (DTOs), controllers, and Prisma schemas; updates TECHNOLOGY_INVENTORY.md.", COLOR_PURPLE),
+        ("Phase 1 Structural Deep Dive: Discovery & AST Indexing", "System Phases (2/13)",
+         "💡 WHY THIS PHASE EXISTS:\nMonorepo contains 12 services and 9 packages; Phase 1 prevents blind refactoring by indexing all files, AST call paths, endpoints, and DB schemas.",
+         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Queries codegraph_explore for symbol discovery & dynamic flows.\n2. Scans monorepo directory trees & package manifests.\n3. Identifies active REST endpoints, Prisma schemas & Kafka topics.\n4. Writes technology stack inventory & Codegraph AST symbol map.",
+         "🛠️ TOOLS USED & REALTIME USAGE:\nCodegraph AST Index (codegraph_explore), Ripgrep (grep_search), File System Crawler (list_dir).",
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nRuns codegraph_explore 'TokenService' across shared-auth, auth-service, and booking-service; returns exact callers and dynamic dispatch paths in 30ms.", COLOR_PURPLE),
         
         ("Phase 2 Structural Deep Dive: Knowledge & Domain Modeling", "System Phases (3/13)",
-         "💡 WHY THIS PHASE EXISTS:\nRaw code text lacks domain semantic structure; Phase 2 converts source symbols into typed graph entities (Service, Endpoint, Repo, Table).",
-         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Parses Abstract Syntax Trees (AST) using Tree-sitter.\n2. Extracts class definitions, method signatures & types.\n3. Maps DB tables, foreign keys & GraphQL resolvers.\n4. Appends typed node definitions to entity catalogs.",
-         "🛠️ TOOLS USED & REALTIME USAGE:\nTree-sitter AST Parser, TypeScript Compiler API, Node Catalog Builder.",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nModels CustomerProfile AST struct, updateCustomer GraphQL resolver, and Customer Prisma table model; appends typed node definitions to docs/discovery/NODE_CATALOG.md.", COLOR_EMERALD),
+         "💡 WHY THIS PHASE EXISTS:\nRaw code text lacks domain semantic structure; Phase 2 converts source symbols into typed graph entities (Service, Endpoint, Repo, Table, Saga).",
+         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Parses Abstract Syntax Trees (AST) into Codegraph & Tree-sitter.\n2. Extracts class definitions, method signatures, and caller hierarchies.\n3. Maps DB tables, foreign keys & GraphQL resolvers.\n4. Appends typed node definitions to entity catalogs.",
+         "🛠️ TOOLS USED & REALTIME USAGE:\nCodegraph AST Engine (.codegraph/codegraph.db), Tree-sitter Parser, Node Catalog Builder.",
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nModels CustomerProfile AST struct, updateCustomer GraphQL resolver, and Customer Prisma table model; appends typed node definitions to docs/discovery/NODE_CATALOG.md.", COLOR_EMERALD),
         
         ("Phase 3 Structural Deep Dive: Neo4j Graph Foundation", "System Phases (4/13)",
-         "💡 WHY THIS PHASE EXISTS:\nRelational DBs cannot query multi-hop dependency chains efficiently; Neo4j physical property graph enables instant Blast Radius (BR) calculation.",
-         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Ingests typed AST nodes & directed edges into Neo4j.\n2. Enforces Cypher uniqueness constraints & index keys.\n3. Runs Cosine similarity checks (≥0.85) for duplicate nodes.\n4. Validates graph health & node freshness timestamps.",
-         "🛠️ TOOLS USED & REALTIME USAGE:\nGraphify AST Extractor, Cypher Query Runner, Neo4j Bolt Client (Port 7687).",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nIngests 9,154 AST nodes and 16,835 dependency edges; connects CustomerProfile node to 14 endpoint nodes in Neo4j database on port 7687.", COLOR_AMBER),
+         "💡 WHY THIS PHASE EXISTS:\nRelational DBs cannot query multi-hop dependency chains efficiently; Neo4j physical property graph enables instant distributed system Topology Traversal.",
+         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Ingests 83 typed topology nodes & 194 directed edges into Neo4j.\n2. Enforces Cypher uniqueness constraints & release linkage.\n3. Maps 12 microservices, 10 Kafka topics & 27 API routes.\n4. Validates graph health & node freshness timestamps.",
+         "🛠️ TOOLS USED & REALTIME USAGE:\nNative Neo4j Community 5.26 (Port 7687, Zulu JDK 21), Cypher Query Runner, Neo4j MCP Client.",
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nIngests 83 nodes and 194 relationships; connects CustomerProfile node to 14 endpoint nodes and Kafka topic stayflexi.booking.created in Neo4j database on port 7687.", COLOR_AMBER),
         
         ("Phase 4 Structural Deep Dive: Graphiti Temporal Rationale Memory", "System Phases (5/13)",
          "💡 WHY THIS PHASE EXISTS:\nStandard DBs store current code state but lose historical design trade-off rationale; Phase 4 records decision episodes so AI never undoes Architectural Decision Records (ADRs).",
          "⚙️ WHAT HAPPENS IN DETAIL:\n1. Captures Architectural Decision Records (ADRs) & PR trade-offs.\n2. Serializes decision episodes into dynamic memory packs.\n3. Links episodes to target task IDs & AST nodes.\n4. Loads memory packs JIT during Phase 0 session boot.",
          "🛠️ TOOLS USED & REALTIME USAGE:\nGraphiti Memory Engine API, Episode Serializer, Temporal Search API.",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nSerializes ADR episode explaining WHY customerType is made nullable (prevents DB downtime across 5,000 hotel tenants); saves memory pack linked to task TSK-00130.", COLOR_PURPLE),
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nSerializes ADR episode explaining WHY customerType is made nullable (prevents DB downtime across 5,000 hotel tenants); saves memory pack linked to task TSK-00132.", COLOR_PURPLE),
         
         ("Phase 5 Structural Deep Dive: GraphQL Supergraph Synchronization", "System Phases (6/13)",
          "💡 WHY THIS PHASE EXISTS:\n12 microservices expose federated subgraphs; Phase 5 prevents breaking client queries by verifying code-first schema compilation & supergraph rules.",
          "⚙️ WHAT HAPPENS IN DETAIL:\n1. Compiles Pothos code-first schemas across microservices.\n2. Validates @key, @provides & @requires directives.\n3. Runs Apollo Router schema composition for supergraph.\n4. Checks for breaking field omissions or type mismatches.",
          "🛠️ TOOLS USED & REALTIME USAGE:\nPothos Schema Builder, Apollo Router CLI (Port 8080), GraphQL Schema Linter.",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nExtends Pothos Customer entity in auth-service; verifies federated Customer entity resolution cleanly builds across Apollo Router; updates supergraph.graphql.", COLOR_EMERALD),
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nExtends Pothos Customer entity in auth-service; verifies federated Customer entity resolution cleanly builds across Apollo Router; updates supergraph.graphql.", COLOR_EMERALD),
         
         ("Phase 6 Structural Deep Dive: Browser & User Journey Intelligence", "System Phases (7/13)",
          "💡 WHY THIS PHASE EXISTS:\nBackend code edits can cause silent visual bugs or layout breakage on User Interface (UI); Phase 6 validates real browser rendering & Document Object Model (DOM) trees.",
          "⚙️ WHAT HAPPENS IN DETAIL:\n1. Launches headless Playwright browser instance.\n2. Executes guest checkout user flows on /bookings.\n3. Captures DOM tree snapshots & visual element bounds.\n4. Performs pixel-level visual regression diff analysis.",
          "🛠️ TOOLS USED & REALTIME USAGE:\nHeadless Playwright, Puppeteer Engine, Visual Regression Diff Engine.",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nPlaywright script executes guest checkout flow on /bookings; verifies corporate customerType badge renders correctly without visual layout distortion; saves DOM diff artifacts.", COLOR_CYAN),
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nPlaywright script executes guest checkout flow on /bookings; verifies corporate customerType badge renders correctly without visual layout distortion; saves DOM diff artifacts.", COLOR_CYAN),
         
-        ("Phase 7 Structural Deep Dive: Impact Analysis & Blast Radius Traversal", "System Phases (8/13)",
-         "💡 WHY THIS PHASE EXISTS:\nModifying a shared package or auth helper can break dozens of endpoints; Phase 7 calculates exact Blast Radius (BR) BEFORE writing code.",
-         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Receives target file / symbol modification request.\n2. Executes multi-hop Cypher graph traversals in Neo4j.\n3. Identifies all dependent services, endpoints & DB tables.\n4. Generates structural Blast Radius (BR) impact score.",
-         "🛠️ TOOLS USED & REALTIME USAGE:\nNeo4j Cypher Traversal Engine, Graphify Blast Radius Assessor.",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nCypher traversal traces modification to TokenService payload; finds 14 dependent endpoints and 3 microservices (shared-auth, auth-service, booking-service) affected.", COLOR_AMBER),
+        ("Phase 7 Structural Deep Dive: Codegraph Blast Radius & Impact Analysis", "System Phases (8/13)",
+         "💡 WHY THIS PHASE EXISTS:\nModifying a shared package or auth helper can break dozens of endpoints; Phase 7 calculates exact symbol Blast Radius (BR) and links covering test suites BEFORE writing code.",
+         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Executes codegraph_explore on target symbols to find all callers.\n2. Traverses multi-hop Cypher relationships across 12 microservices in Neo4j.\n3. Auto-detects covering unit test files for the target symbols.\n4. Generates Blast-Radius Impact Report & test target list.",
+         "🛠️ TOOLS USED & REALTIME USAGE:\nCodegraph AST Engine (codegraph_explore), Neo4j Cypher Traversal Engine, Graphify Blast Assessor.",
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nCodegraph exploration traces modification to TokenService payload; finds 14 dependent callers and auto-links TokenService.test.ts & auth.e2e.test.ts for validation.", COLOR_AMBER),
         
         ("Phase 8 Structural Deep Dive: Telemetry & Runtime Intelligence", "System Phases (9/13)",
          "💡 WHY THIS PHASE EXISTS:\nStatic code analysis cannot detect runtime latency degradation or memory leaks; Phase 8 inspects live OpenTelemetry (OTEL) traces and Prometheus metrics.",
          "⚙️ WHAT HAPPENS IN DETAIL:\n1. Scrapes Prometheus metrics from /metrics endpoints.\n2. Collects OpenTelemetry (OTEL) distributed trace spans.\n3. Evaluates p95/p99 query latencies and error rates.\n4. Feeds latency metrics into Performance Risk (PR) vector.",
          "🛠️ TOOLS USED & REALTIME USAGE:\nOpenTelemetry (OTEL) SDK, Prometheus Scraper (/metrics), Jaeger Client.",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nScrapes /metrics endpoint; detects 45ms DB query latency on customer profile lookups; feeds latency metrics into Performance Risk (PR) vector for risk scoring.", COLOR_PURPLE),
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nScrapes /metrics endpoint; detects 45ms DB query latency on customer profile lookups; feeds latency metrics into Performance Risk (PR) vector for risk scoring.", COLOR_PURPLE),
         
         ("Phase 9 Structural Deep Dive: Consequence Simulation & Risk Scoring", "System Phases (10/13)",
          "💡 WHY THIS PHASE EXISTS:\nChanges must be objectively categorized by risk before execution; Phase 9 evaluates 5 risk vectors to calculate Composite Risk Score (CRS).",
          "⚙️ WHAT HAPPENS IN DETAIL:\n1. Evaluates Topology Risk (TR), Blast Radius (BR), Security Risk (SR), Performance Risk (PR), Complexity Risk (CR).\n2. Computes formula: CRS = (0.25 TR + 0.25 BR + 0.20 SR + 0.15 PR + 0.15 CR) * 10.0.\n3. Categorizes change: LOW (<30), MEDIUM (30-59), HIGH (60-84), CRITICAL (≥85).\n4. Dictates required approval gates (human sign-off).",
          "🛠️ TOOLS USED & REALTIME USAGE:\nComposite Risk Score (CRS) Engine, High-Concurrency Race Simulator.",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nEvaluates auth payload and schema changes -> calculates Composite Risk Score (CRS = 68 HIGH RISK) -> flags requirement for explicit human architect sign-off before proceeding.", COLOR_CYAN),
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nEvaluates auth payload and schema changes -> calculates Composite Risk Score (CRS = 68 HIGH RISK) -> flags requirement for explicit human architect sign-off before proceeding.", COLOR_CYAN),
         
-        ("Phase 10 Structural Deep Dive: Governance & Risk Policy Enforcement", "System Phases (11/13)",
-         "💡 WHY THIS PHASE EXISTS:\nEnforces organizational compliance, input sanitization, and pre-commit shields to prevent unapproved or unsafe code from reaching production.",
-         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Evaluates review gates based on Composite Risk Score (CRS) risk classification.\n2. Enforces Zod payload sanitization at Express middleware.\n3. Runs Husky pre-commit hooks for linting & type checks.\n4. Logs approval signatures in audit log files.",
-         "🛠️ TOOLS USED & REALTIME USAGE:\nGovernance Rule Evaluator, Zod Schema Sanitizer, Husky Pre-commit Hooks.",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nEnforces Zod string enum sanitization for customerType; verifies human architect sign-off approval signature; blocks dirty commits via Husky.", COLOR_EMERALD),
+        ("Phase 10 Structural Deep Dive: Governance & Coordinated Execution", "System Phases (11/13)",
+         "💡 WHY THIS PHASE EXISTS:\nEnforces organizational compliance, input sanitization, and pre-commit shields to execute coordinated multi-package refactoring safely.",
+         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Executes coordinated edits across packages with caller awareness.\n2. Runs targeted unit tests auto-linked by Codegraph.\n3. Enforces Zod payload sanitization at Express middleware.\n4. Runs Husky pre-commit hooks for linting & type checks.",
+         "🛠️ TOOLS USED & REALTIME USAGE:\nCodegraph Test Linker, Governance Rule Evaluator, Zod Schema Sanitizer, Husky Pre-commit Hooks.",
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nExecutes coordinated edits across shared-auth and auth-service; runs TokenService.test.ts; enforces Zod string enum sanitization for customerType; passes Husky.", COLOR_EMERALD),
         
-        ("Phase 11 Structural Deep Dive: Triple-DB Synchronization & Invariants", "System Phases (12/13)",
-         "💡 WHY THIS PHASE EXISTS:\nPrevents database drift across system layers; guarantees code edits are instantly mirrored in Neo4j graph, Graphiti memory & GraphQL schemas.",
-         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Validates invariant: Neo4j ≡ Codebase ∧ Graphiti ≡ Neo4j ∧ GraphQL ≡ Codebase.\n2. Re-indexes AST node records for modified controllers.\n3. Updates Graphiti memory episode node pointers.\n4. Halts completion gates if graph drift is detected.",
-         "🛠️ TOOLS USED & REALTIME USAGE:\nTriple-Database Sync Checker, AST Re-indexer, Cosine Similarity Engine.",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nRe-indexes modified controller nodes in Neo4j; updates Graphiti memory node references; verifies 100% triple-database sync alignment before final sign-off.", COLOR_PURPLE),
+        ("Phase 11 Structural Deep Dive: Multi-Engine Synchronization & Invariants", "System Phases (12/13)",
+         "💡 WHY THIS PHASE EXISTS:\nPrevents database drift across system layers; guarantees code edits are instantly mirrored in Neo4j graph, Codegraph AST, Graphiti memory & GraphQL schemas.",
+         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Validates invariant: Neo4j ≡ Codebase ∧ Codegraph ≡ Codebase ∧ GraphQL ≡ Codebase.\n2. Re-indexes AST node records for modified controllers in Codegraph.\n3. Updates Neo4j microservice topology and Kafka event edges.\n4. Halts completion gates if graph drift is detected in sync-task.ps1.",
+         "🛠️ TOOLS USED & REALTIME USAGE:\nscripts/sync-graph.ps1 (<8s gate), Codegraph AST Watcher, Neo4j Bolt Client (Port 7687).",
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nRuns scripts/sync-graph.ps1; verifies Postgres, Neo4j, and Codegraph report ONLINE; confirms zero drift across 83 nodes and 194 relationships in <8s.", COLOR_PURPLE),
         
-        ("Phase 12 Structural Deep Dive: Session Persistence & Completion Sign-Off", "System Phases (13/13)",
+        ("Phase 12 Structural Deep Dive: Session Persistence & Release Sign-Off", "System Phases (13/13)",
          "💡 WHY THIS PHASE EXISTS:\nGuarantees 100% deterministic session recovery for future session restarts by persisting state snapshots and anchoring Git commit hashes.",
-         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Double-buffers updated task status into current-state.md.\n2. Embeds new Git commit hash anchor (2d4a0f674f...).\n3. Signs transaction record in decision-log.md.\n4. Finalizes task lifecycle; system ready for next boot!",
-         "🛠️ TOOLS USED & REALTIME USAGE:\nDouble-Buffer File Serializer, Git Commit Manager, Transaction Signer.",
-         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00130):\nWrites task completion snapshot for TSK-00130 to current-state.md; embeds new Git commit hash 2d4a0f674f...; signs transaction in decision-log.md.", COLOR_CYAN)
+         "⚙️ WHAT HAPPENS IN DETAIL:\n1. Double-buffers updated task status into current-state.md.\n2. Embeds new Git commit hash anchor (56a6ed2...).\n3. Signs transaction record in decision-log.md.\n4. Updates release tag v6.9.0-certified; system ready for next boot!",
+         "🛠️ TOOLS USED & REALTIME USAGE:\nDouble-Buffer File Serializer, Git Commit & Tag Manager, Transaction Signer.",
+         "🎯 REAL-TIME TASK WALKTHROUGH (TSK-00132):\nWrites task completion snapshot for TSK-00132 to current-state.md; embeds Git commit hash 56a6ed2...; updates release tag v6.9.0-certified.", COLOR_CYAN)
     ]
 
     for title, cat, why_text, what_text, how_text, task_text, color in structural_phase_slides:
@@ -533,13 +544,13 @@ def create_presentation():
             p.font.color.rgb = c_color
 
     # -------------------------------------------------------------
-    # SLIDE 25: REALTIME TASK SCENARIO: Pass-Through Flow
+    # SLIDE 26: REALTIME TASK SCENARIO: Pass-Through Flow
     # -------------------------------------------------------------
-    slide25 = prs.slides.add_slide(blank_slide_layout)
-    set_slide_background(slide25)
-    add_header(slide25, "REALTIME TASK SCENARIO: Pass-Through Lifecycle Flow", "Realtime Task Scenario")
+    slide26 = prs.slides.add_slide(blank_slide_layout)
+    set_slide_background(slide26)
+    add_header(slide26, "REALTIME TASK SCENARIO: Pass-Through Lifecycle Flow", "Realtime Task Scenario")
 
-    scen_box = slide25.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(11.7), Inches(5.3))
+    scen_box = slide26.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(11.7), Inches(5.3))
     scen_box.fill.solid()
     scen_box.fill.fore_color.rgb = COLOR_CARD
     tf_sc = scen_box.text_frame
@@ -554,11 +565,13 @@ def create_presentation():
 
     scen_text = (
         "Developer Request: Expose customerType in corporate customer profiles across shared-auth, auth-service, and booking-service.\n\n"
-        "1. 🔮 Graphify Phase:\n"
-        "   AST scans code structure -> identifies TokenService as God Node -> maps 14 dependent endpoints and 3 microservice communities.\n\n"
-        "2. 🌐 Neo4j Phase:\n"
-        "   Runs Cypher impact query -> computes Composite Risk Score (CRS = 68 HIGH RISK) -> triggers architect review gate -> validates Neo4j == Codebase sync invariant.\n\n"
-        "3. 🧠 Graphiti Phase:\n"
+        "1. ⚡ Codegraph Phase:\n"
+        "   Runs codegraph_explore on TokenService -> returns 14 dependent callers and links TokenService.test.ts unit test suite in 30ms.\n\n"
+        "2. 🔮 Graphify Phase:\n"
+        "   AST scans code structure -> maps 14 dependent endpoints and 3 microservice communities.\n\n"
+        "3. 🌐 Neo4j Phase:\n"
+        "   Runs Cypher impact query -> validates microservice topology & Kafka topic stayflexi.booking.created -> validates Neo4j == Codebase.\n\n"
+        "4. 🧠 Graphiti Phase:\n"
         "   Queries prior decision memory -> records new ADR episode for nullable customerType -> serializes memory pack so future chat sessions retain full rationale."
     )
     p_st = tf_sc.add_paragraph()
@@ -622,19 +635,19 @@ def create_presentation():
                     p.font.bold = True
 
     # -------------------------------------------------------------
-    # SLIDE 28: Summary & Deliverables Overview
+    # SLIDE 29: Summary & Deliverables Overview
     # -------------------------------------------------------------
-    slide28 = prs.slides.add_slide(blank_slide_layout)
-    set_slide_background(slide28)
-    add_header(slide28, "Summary & Deliverables Overview", "Resources")
+    slide29 = prs.slides.add_slide(blank_slide_layout)
+    set_slide_background(slide29)
+    add_header(slide29, "Summary & Deliverables Overview", "Resources")
 
-    s28 = slide28.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.5), Inches(11.7), Inches(5.2))
-    s28.fill.solid()
-    s28.fill.fore_color.rgb = COLOR_CARD
-    tf28 = s28.text_frame
-    tf28.word_wrap = True
+    s29 = slide29.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.5), Inches(11.7), Inches(5.2))
+    s29.fill.solid()
+    s29.fill.fore_color.rgb = COLOR_CARD
+    tf29 = s29.text_frame
+    tf29.word_wrap = True
 
-    p = tf28.paragraphs[0]
+    p = tf29.paragraphs[0]
     p.text = "🎉 STAYFLEXI AUTONOMOUS ENGINEERING DELIVERABLES"
     p.font.size = Pt(16)
     p.font.bold = True
@@ -644,13 +657,13 @@ def create_presentation():
     deliv_text = (
         "1. Interactive HTML Presentation Web App:\n"
         "   Path: stayflexi_engineering_presentation.html\n"
-        "   Single-file dark-mode web app featuring KaTeX formulas, 28-slide selector, and arrow navigation.\n\n"
+        "   Single-file dark-mode web app featuring KaTeX formulas, 29-slide selector, and arrow navigation.\n\n"
         "2. Native PowerPoint Widescreen Deck (.pptx):\n"
         "   Path: stayflexi_engineering_presentation_v9.pptx\n"
-        "   Native 28-slide PowerPoint deck formatted with dark-mode styling, structured data tables, and widescreen layout.\n\n"
+        "   Native 29-slide PowerPoint deck formatted with dark-mode styling, structured data tables, and widescreen layout.\n\n"
         "Generated by Stayflexi Autonomous Orchestrator • Version v6.9.0-certified (4-Layer Intelligence Matrix)"
     )
-    p_dt = tf28.add_paragraph()
+    p_dt = tf29.add_paragraph()
     p_dt.text = deliv_text
     p_dt.font.size = Pt(13)
     p_dt.font.color.rgb = COLOR_WHITE

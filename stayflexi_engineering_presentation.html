@@ -372,27 +372,28 @@
                 <option value="4">5. Git Commit Anchors & State Registry</option>
                 <option value="5">6. Context Preservation & Git Backup</option>
                 <option value="6">7. Just-In-Time (JIT) Phase Loading</option>
-                <option value="7">8. Graphify Deep Dive: Role, Use Case & How</option>
-                <option value="8">9. Neo4j Deep Dive: Role, Use Case & How</option>
-                <option value="9">10. Graphiti Deep Dive: Role, Use Case & How</option>
-                <option value="10">11. Graph Triad Matrix Comparison</option>
-                <option value="11">12. Phase 0 Deep Dive: Context Reconstruction</option>
-                <option value="12">13. Phase 1 Deep Dive: Discovery & Indexing</option>
-                <option value="13">14. Phase 2 Deep Dive: Knowledge Modeling</option>
-                <option value="14">15. Phase 3 Deep Dive: Neo4j Graph Foundation</option>
-                <option value="15">16. Phase 4 Deep Dive: Graphiti Temporal Memory</option>
-                <option value="16">17. Phase 5 Deep Dive: GraphQL Supergraph Sync</option>
-                <option value="17">18. Phase 6 Deep Dive: Browser Intelligence</option>
-                <option value="18">19. Phase 7 Deep Dive: Impact Analysis</option>
-                <option value="19">20. Phase 8 Deep Dive: Telemetry & Runtime</option>
-                <option value="20">21. Phase 9 Deep Dive: Consequence Simulation</option>
-                <option value="21">22. Phase 10 Deep Dive: Governance Policies</option>
-                <option value="22">23. Phase 11 Deep Dive: Triple-DB Sync</option>
-                <option value="23">24. Phase 12 Deep Dive: Session Persistence</option>
-                <option value="24">25. REALTIME TASK SCENARIO: Pass-Through Flow</option>
-                <option value="25">26. Data & Messaging Stack</option>
-                <option value="26">27. QA, Observability & Governance Stack</option>
-                <option value="27">28. Summary & Deliverables Overview</option>
+                <option value="7">8. Codegraph Deep Dive: Role, Use Case & How</option>
+                <option value="8">9. Graphify Deep Dive: Role, Use Case & How</option>
+                <option value="9">10. Neo4j Deep Dive: Role, Use Case & How</option>
+                <option value="10">11. Graphiti Deep Dive: Role, Use Case & How</option>
+                <option value="11">12. 4-Layer Intelligence Matrix Comparison</option>
+                <option value="12">13. Phase 0 Deep Dive: Context Reconstruction</option>
+                <option value="13">14. Phase 1 Deep Dive: Discovery & AST Indexing</option>
+                <option value="14">15. Phase 2 Deep Dive: Knowledge Modeling</option>
+                <option value="15">16. Phase 3 Deep Dive: Neo4j Graph Foundation</option>
+                <option value="16">17. Phase 4 Deep Dive: Graphiti Temporal Memory</option>
+                <option value="17">18. Phase 5 Deep Dive: GraphQL Supergraph Sync</option>
+                <option value="18">19. Phase 6 Deep Dive: Browser Intelligence</option>
+                <option value="19">20. Phase 7 Deep Dive: Blast Radius & Impact</option>
+                <option value="20">21. Phase 8 Deep Dive: Telemetry & Runtime</option>
+                <option value="21">22. Phase 9 Deep Dive: Consequence Simulation</option>
+                <option value="22">23. Phase 10 Deep Dive: Governance Policies</option>
+                <option value="23">24. Phase 11 Deep Dive: Multi-Engine Sync</option>
+                <option value="24">25. Phase 12 Deep Dive: Session Persistence</option>
+                <option value="25">26. REALTIME TASK SCENARIO: Pass-Through Flow</option>
+                <option value="26">27. Data & Messaging Stack</option>
+                <option value="27">28. QA, Observability & Governance Stack</option>
+                <option value="28">29. Summary & Deliverables Overview</option>
             </select>
             <button class="nav-btn" onclick="prevSlide()">❮ Prev</button>
             <button class="nav-btn" onclick="nextSlide()">Next ❯</button>
@@ -417,7 +418,10 @@
                         <div style="margin-top: 1.2rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
                             <span class="tag tag-cyan">12 Microservices</span>
                             <span class="tag tag-purple">13 System Phases</span>
-                            <span class="tag tag-emerald">Graph Triad (Graphify, Neo4j, Graphiti)</span>
+                            <span class="tag tag-emerald">4-Layer Intelligence (Codegraph, Graphify, Neo4j, Graphiti)</span>
+                            <span class="tag tag-amber">v6.9.0-certified</span>
+                        </div>
+                    </div>
                             <span class="tag tag-rose">15+ Engineering Tools</span>
                         </div>
                     </div>
@@ -719,11 +723,53 @@
             </div>
         </div>
 
-        <!-- SLIDE 8: Graphify Tool Introduction BEFORE Phases -->
+        <!-- SLIDE 8: Codegraph Tool Deep Dive -->
         <div class="slide" id="slide-7">
             <div class="slide-header">
+                <div class="slide-title">Codegraph Deep Dive: Role, Use Case, Why & How</div>
+                <div class="slide-category">Intelligence Layer (1/5)</div>
+            </div>
+            <div class="slide-body">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">⚡ Core Architectural Role & Primary Use Case</div>
+                        <div class="card-body">
+                            <strong>Role:</strong> Sub-Millisecond Code Symbol, AST Call Path & Blast-Radius Engine.<br><br>
+                            <strong>Primary Use Case:</strong> Performs instant, index-free lookups of functions, classes, interfaces, callers, dynamic dispatch (React callbacks, saga flows), and covering unit test files directly from a 48 MB local SQLite AST index (<code>.codegraph/codegraph.db</code>).
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">❓ WHY We Use Codegraph in the Platform</div>
+                        <div class="card-body">
+                            Reading raw files sequentially wastes up to 80% of LLM token budgets and risks blind refactoring when modifying shared packages. Codegraph provides the complete caller hierarchy and blast radius in <strong>1 single sub-millisecond query (<code>codegraph_explore</code>)</strong> before any code change is attempted.
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top: 0.5rem;">
+                    <div class="card">
+                        <div class="card-header">⚙️ HOW We Use It (Step-by-Step Technical Mechanics)</div>
+                        <div class="card-body" style="font-size: 0.83rem;">
+                            1. Real-time background daemon (<code>.codegraph/daemon.pid</code>) watches file changes.<br>
+                            2. Incrementally parses modified TypeScript/JavaScript ASTs into SQLite tables in ~1s.<br>
+                            3. AI executes <code>codegraph_explore &lt;symbol_or_path&gt;</code> to retrieve callers and test suites.<br>
+                            4. Mandated by Phase 0 & Phase 7 Boot Protocols prior to code refactoring.
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">⚡ Real-Time Operational Example (Stayflexi Monorepo)</div>
+                        <div class="card-body" style="font-size: 0.83rem;">
+                            Querying <code>codegraph_explore "PricingCalculator computeNightlyRate"</code> returns verbatim source lines, 3 callers across <code>booking-service</code> and <code>ComputeDynamicRate.ts</code>, and auto-links the target unit test suite (<code>PricingCalculator.test.ts</code>) in <strong>30ms</strong> without reading raw repository files.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: Graphify Tool Introduction BEFORE Phases -->
+        <div class="slide" id="slide-8">
+            <div class="slide-header">
                 <div class="slide-title">Graphify Deep Dive: Role, Use Case, Why & How</div>
-                <div class="slide-category">Graph Triad Tools (1/4)</div>
+                <div class="slide-category">Intelligence Layer (2/5)</div>
             </div>
             <div class="slide-body">
                 <div class="grid-2">
@@ -731,13 +777,13 @@
                         <div class="card-header">🔮 Core Architectural Role & Primary Use Case</div>
                         <div class="card-body">
                             <strong>Role:</strong> Codebase Knowledge Extractor, Abstract Syntax Tree (AST) Analyzer & Graph-Augmented Generation (GraphRAG) Engine.<br><br>
-                            <strong>Primary Use Case:</strong> Scans and converts 1,450+ raw TypeScript/JavaScript source files into structured AST nodes and 500+ modular code communities; enables instant multi-hop caller path searches without reading full raw code files.
+                            <strong>Primary Use Case:</strong> Scans and converts 1,651 raw TypeScript/JavaScript source files (617,000+ words) into structured AST nodes and modular code communities; enables macro-architecture audits and god-node detection.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">❓ WHY We Use Graphify in the Platform</div>
                         <div class="card-body">
-                            Large Language Model (LLM) prompt contexts cannot read 1,450+ monorepo source files simultaneously without exceeding token memory limits or losing cross-file caller/callee link visibility. Graphify builds a lightweight static code graph with explicit confidence tags (<code>EXTRACTED</code>, <code>INFERRED</code>, <code>AMBIGUOUS</code>).
+                            Monorepo modularity audits require global file clustering and circular dependency detection. Graphify builds a comprehensive static code graph with explicit confidence tags (<code>EXTRACTED</code>, <code>INFERRED</code>, <code>AMBIGUOUS</code>) to guard macro architectural boundaries.
                         </div>
                     </div>
                 </div>
@@ -761,11 +807,11 @@
             </div>
         </div>
 
-        <!-- SLIDE 9: Neo4j Tool Introduction BEFORE Phases -->
-        <div class="slide" id="slide-8">
+        <!-- SLIDE 10: Neo4j Tool Introduction BEFORE Phases -->
+        <div class="slide" id="slide-9">
             <div class="slide-header">
                 <div class="slide-title">Neo4j Deep Dive: Role, Use Case, Why & How</div>
-                <div class="slide-category">Graph Triad Tools (2/4)</div>
+                <div class="slide-category">Intelligence Layer (3/5)</div>
             </div>
             <div class="slide-body">
                 <div class="grid-2">
@@ -773,13 +819,13 @@
                         <div class="card-header">🌐 Core Architectural Role & Primary Use Case</div>
                         <div class="card-body">
                             <strong>Role:</strong> Structural Reality & Graph Database (DB) Engine (Physical Network Topology).<br><br>
-                            <strong>Primary Use Case:</strong> Serves as the structural source of truth for microservices, Application Programming Interface (API) endpoints, repositories, and database tables connected by directed relationship edges.
+                            <strong>Primary Use Case:</strong> Serves as the structural source of truth for 12 microservices, 27 API routes, 10 Kafka event topics, database tables, and saga choreographies connected by directed Cypher relationships.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">❓ WHY We Use Neo4j in the Platform</div>
                         <div class="card-body">
-                            Relational databases and flat files cannot query multi-hop dependency chains efficiently. Neo4j executes Cypher graph traversals to calculate exact Blast Radius (BR) before code edits, detects orphan nodes, and enforces schema sanity invariants ($\text{Neo4j} \equiv \text{Codebase}$).
+                            Relational databases and flat files cannot query multi-hop dependency chains efficiently. Neo4j executes Cypher graph traversals to calculate exact service-level Blast Radius before code edits, detects orphan nodes, and enforces schema sanity invariants ($\text{Neo4j} \equiv \text{Codebase}$).
                         </div>
                     </div>
                 </div>
@@ -787,32 +833,30 @@
                     <div class="card">
                         <div class="card-header">⚙️ HOW We Use It (Step-by-Step Technical Mechanics)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            1. Stores property graph nodes (<code>Service</code>, <code>Endpoint</code>, <code>Repository</code>, <code>DatabaseTable</code>).<br>
-                            2. Enforces Cosine similarity fuzzy duplicate checks ($\ge 0.85$).<br>
-                            3. Auto-repairs graph on file deletion (cascading cleanup).<br>
-                            4. Runs Cypher traversals for risk calculation.
+                            1. Stores 83 property graph nodes (<code>Microservice</code>, <code>KafkaTopic</code>, <code>ApiRoute</code>, <code>DomainEntity</code>).<br>
+                            2. Maps 194 directed edges (<code>DEPENDS_ON</code>, <code>PUBLISHES_EVENT</code>, <code>SUBSCRIBES_EVENT</code>).<br>
+                            3. Runs Native Zero-Docker Community 5.26 on Port 7687 using Zulu JDK 21.<br>
+                            4. Runs Cypher traversals for saga validation and architecture health.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">⚡ Real-Time Operational Example (Stayflexi Monorepo)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             Running Cypher query:
-                            <pre style="font-size: 0.72rem; margin-top: 0.2rem;">MATCH (e:Endpoint {route:'/api/v1/auth/login'})
--[:USES]->(r:Repository)
--[:QUERIES]->(t:DatabaseTable)
-RETURN e, r, t</pre>
-                            Automatically flags repository queries missing <code>organizationId</code> with a Security Risk (SR) tag.
+                            <pre style="font-size: 0.72rem; margin-top: 0.2rem;">MATCH (s:Microservice)-[:PUBLISHES_EVENT]->(t:KafkaTopic)<-[:SUBSCRIBES_EVENT]-(c:Microservice)
+RETURN s.name, t.name, c.name</pre>
+                            Verifies complete saga choreography for <code>stayflexi.booking.created</code> across booking, payment, and inventory services.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 10: Graphiti Tool Introduction BEFORE Phases -->
-        <div class="slide" id="slide-9">
+        <!-- SLIDE 11: Graphiti Tool Introduction BEFORE Phases -->
+        <div class="slide" id="slide-10">
             <div class="slide-header">
                 <div class="slide-title">Graphiti Deep Dive: Role, Use Case, Why & How</div>
-                <div class="slide-category">Graph Triad Tools (3/4)</div>
+                <div class="slide-category">Intelligence Layer (4/5)</div>
             </div>
             <div class="slide-body">
                 <div class="grid-2">
@@ -850,11 +894,11 @@ RETURN e, r, t</pre>
             </div>
         </div>
 
-        <!-- SLIDE 11: Graph Triad Matrix BEFORE Phases -->
-        <div class="slide" id="slide-10">
+        <!-- SLIDE 12: 4-Layer Intelligence Matrix BEFORE Phases -->
+        <div class="slide" id="slide-11">
             <div class="slide-header">
-                <div class="slide-title">Graph Triad Matrix: Comparative Role & Function Breakdown</div>
-                <div class="slide-category">Graph Triad Tools (4/4)</div>
+                <div class="slide-title">4-Layer Intelligence Matrix: Comparative Role & Function Breakdown</div>
+                <div class="slide-category">Intelligence Layer (5/5)</div>
             </div>
             <div class="slide-body">
                 <table class="data-table">
@@ -870,9 +914,17 @@ RETURN e, r, t</pre>
                     </thead>
                     <tbody>
                         <tr>
+                            <td><span class="tool-name">⚡ Codegraph</span></td>
+                            <td>Sub-Millisecond Code AST & Blast-Radius Engine</td>
+                            <td>TypeScript AST Code Symbols & Call Paths</td>
+                            <td>Verbatim Line Ranges & Test Links</td>
+                            <td><code>codegraph_explore</code> MCP Tool</td>
+                            <td>SQLite Database (<code>.codegraph/codegraph.db</code>, 48MB)</td>
+                        </tr>
+                        <tr>
                             <td><span class="tool-name">🔮 Graphify</span></td>
                             <td>Codebase Knowledge Extractor & GraphRAG</td>
-                            <td>TypeScript / JS AST source files</td>
+                            <td>1,651 Monorepo source files (617k words)</td>
                             <td>Ontology Studio + GraphRAG JSON</td>
                             <td>BFS / DFS GraphRAG CLI</td>
                             <td>Local Graph JSON (`.graphify/`)</td>
@@ -880,10 +932,10 @@ RETURN e, r, t</pre>
                         <tr>
                             <td><span class="tool-name">🌐 Neo4j</span></td>
                             <td>Structural Reality & Network Topology Engine</td>
-                            <td>AST Nodes, Endpoints, Repos, DB Tables</td>
-                            <td>Property Graph Database</td>
+                            <td>12 Services, 27 APIs, 10 Kafka Topics</td>
+                            <td>83 Nodes & 194 Rel Property Graph</td>
                             <td>Cypher Query Language</td>
-                            <td>Neo4j Graph Database (Port 7687)</td>
+                            <td>Native Neo4j Community 5.26 (Port 7687)</td>
                         </tr>
                         <tr>
                             <td><span class="tool-name">🧠 Graphiti</span></td>
@@ -896,13 +948,13 @@ RETURN e, r, t</pre>
                     </tbody>
                 </table>
                 <div class="example-box-purple" style="margin-top: 1rem;">
-                    <strong>Triple-Database Synchronization Invariant:</strong> The orchestrator enforces that $\text{Neo4j} \equiv \text{Codebase} \land \text{Graphiti} \equiv \text{Neo4j} \land \text{GraphQL} \equiv \text{Codebase}$. Any drift automatically halts task completion gates.
+                    <strong>Multi-Engine Synchronization Invariant:</strong> The orchestrator enforces that $\text{Neo4j} \equiv \text{Codebase} \land \text{Codegraph} \equiv \text{Codebase} \land \text{Graphiti} \equiv \text{Neo4j} \land \text{GraphQL} \equiv \text{Codebase}$. Any drift automatically halts task completion gates.
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 12: Phase 0 Deep Dive -->
-        <div class="slide" id="slide-11">
+        <!-- SLIDE 13: Phase 0 Deep Dive -->
+        <div class="slide" id="slide-12">
             <div class="slide-header">
                 <div class="slide-title">Phase 0 Structural Deep Dive: Context Reconstruction</div>
                 <div class="slide-category">System Phases (1/13)</div>
@@ -912,16 +964,16 @@ RETURN e, r, t</pre>
                     <div class="card">
                         <div class="card-header">💡 WHY This Phase Exists</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Chat prompt history is ephemeral and completely lost across session restarts. Phase 0 eliminates AI hallucination by rebuilding exact operational context directly from codebase reality and double-buffered markdown state files before touching any code.
+                            Chat prompt history is ephemeral and completely lost across session restarts. Phase 0 eliminates AI hallucination by rebuilding exact operational context directly from codebase reality, double-buffered state files, and the local Codegraph AST database before touching any code.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">⚙️ WHAT Happens in Detail</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            1. Reads 4 double-buffered recovery state files (<code>current-state.md</code>, <code>project-context.md</code>, <code>active-tasks.md</code>, <code>decision-log.md</code>).<br>
+                            1. Reads 4 double-buffered recovery state files (<code>current-state.md</code>, <code>active-tasks.md</code>, etc.).<br>
                             2. Compares embedded Git commit hash anchor against <code>git rev-parse HEAD</code>.<br>
                             3. Runs <code>git status --porcelain</code> to detect local uncommitted code drift.<br>
-                            4. Probes ports 5432 (PostgreSQL Database), 7687 (Neo4j Graph Database), 6379 (Redis Cache), 9092 (Apache Kafka Message Bus); auto-starts Docker containers if down.
+                            4. Probes ports 5432 (Postgres), 7687 (Native Neo4j Community 5.26), and verifies <code>.codegraph/codegraph.db</code> AST database.
                         </div>
                     </div>
                 </div>
@@ -931,25 +983,25 @@ RETURN e, r, t</pre>
                         <div class="card-body" style="font-size: 0.83rem;">
                             <strong>Invoked Tools & Usage:</strong><br>
                             • <code>Git CLI</code>: Executing <code>git status --porcelain</code> and <code>git rev-parse HEAD</code> for commit hash validation.<br>
-                            • <code>Docker Compose</code>: Running <code>docker compose up -d neo4j postgres redis kafka</code> if ports are inactive.<br>
-                            • <code>Node TCP Net Socket Probe</code>: Probing localhost ports 5432, 7687, 6379, and 9092.<br>
+                            • <code>Codegraph AST Verifier</code>: Validating SQLite database integrity at <code>.codegraph/codegraph.db</code> (48MB).<br>
+                            • <code>Neo4j Bolt Socket Probe</code>: Probing localhost port 7687 (Native Zulu JDK 21 launcher).<br>
                             • <code>File Inspector (view_file)</code>: Reading double-buffered state files in <code>docs/discovery/</code>.
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Session boots for task <code>TSK-00130</code> (exposing corporate <code>customerType</code> field). Phase 0 reads <code>current-state.md</code>, confirms active commit <code>2d4a0f674f...</code>, probes Neo4j port 7687, verifies zero unrecorded drift, and emits Context Recovery Report.
+                            Session boots for task <code>TSK-00132</code> (4-layer intelligence matrix & v6.9.0 release). Phase 0 reads <code>current-state.md</code>, confirms active commit <code>56a6ed2...</code>, probes Neo4j port 7687 & Codegraph SQLite, verifies zero unrecorded drift, and emits Context Recovery Report.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 13: Phase 1 Deep Dive -->
-        <div class="slide" id="slide-12">
+        <!-- SLIDE 14: Phase 1 Deep Dive -->
+        <div class="slide" id="slide-13">
             <div class="slide-header">
-                <div class="slide-title">Phase 1 Structural Deep Dive: Discovery & Indexing</div>
+                <div class="slide-title">Phase 1 Structural Deep Dive: Discovery & AST Indexing</div>
                 <div class="slide-category">System Phases (2/13)</div>
             </div>
             <div class="slide-body">
@@ -957,16 +1009,16 @@ RETURN e, r, t</pre>
                     <div class="card">
                         <div class="card-header">💡 WHY This Phase Exists</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            The monorepo contains 12 microservices and 9 shared packages. Phase 1 prevents blind refactoring and context blindness by indexing all controllers, services, repositories, and API DTOs into an inventory catalog before edits begin.
+                            The monorepo contains 12 microservices and 9 shared packages. Phase 1 prevents blind refactoring and context blindness by indexing all controllers, AST call paths, repositories, and API DTOs into an inventory catalog before edits begin.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">⚙️ WHAT Happens in Detail</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            1. Scans monorepo directory trees and package manifests.<br>
-                            2. Identifies active REST endpoints, Prisma schemas, and Kafka topics.<br>
-                            3. Catalogues feature registries and cross-service client dependencies.<br>
-                            4. Writes technology stack inventory report.
+                            1. Queries <code>codegraph_explore</code> for sub-millisecond symbol discovery and dynamic dispatch flows.<br>
+                            2. Scans monorepo directory trees and package manifests.<br>
+                            3. Identifies active REST endpoints, Prisma schemas, and Kafka topics.<br>
+                            4. Writes technology stack inventory and Codegraph AST symbol map.
                         </div>
                     </div>
                 </div>
@@ -975,23 +1027,23 @@ RETURN e, r, t</pre>
                         <div class="card-header">🛠️ Tools Used in This Phase & Realtime Usage</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             <strong>Invoked Tools & Usage:</strong><br>
+                            • <code>Codegraph AST Explorer (codegraph_explore)</code>: Sub-millisecond AST symbol lookup across 28 packages.<br>
                             • <code>Ripgrep (grep_search)</code>: Searching file patterns across 12 microservices.<br>
-                            • <code>File System Crawler (list_dir)</code>: Listing active service directories under <code>src/services/</code>.<br>
-                            • <code>Glob Matcher</code>: Filtering target files matching <code>*.controller.ts</code>, <code>*.service.ts</code>, and <code>schema.prisma</code>.
+                            • <code>File System Crawler (list_dir)</code>: Listing active service directories under <code>src/services/</code>.
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Request to expose <code>customerType</code> field. Phase 1 scans <code>shared-auth</code>, <code>auth-service</code>, and <code>booking-service</code> to locate all customer Data Transfer Objects (DTOs), controllers, and Prisma schemas; updates <code>TECHNOLOGY_INVENTORY.md</code>.
+                            Runs <code>codegraph_explore "TokenService"</code> across <code>shared-auth</code>, <code>auth-service</code>, and <code>booking-service</code>; returns exact callers, dynamic dispatch paths, and Prisma models in <strong>30ms</strong>; updates <code>TECHNOLOGY_INVENTORY.md</code>.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 14: Phase 2 Deep Dive -->
-        <div class="slide" id="slide-13">
+        <!-- SLIDE 15: Phase 2 Deep Dive -->
+        <div class="slide" id="slide-14">
             <div class="slide-header">
                 <div class="slide-title">Phase 2 Structural Deep Dive: Knowledge & Domain Modeling</div>
                 <div class="slide-category">System Phases (3/13)</div>
@@ -1001,14 +1053,14 @@ RETURN e, r, t</pre>
                     <div class="card">
                         <div class="card-header">💡 WHY This Phase Exists</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Raw text code files lack semantic domain understanding. Phase 2 converts source code symbols into typed graph entities (<code>Service</code>, <code>Endpoint</code>, <code>Repository</code>, <code>DatabaseTable</code>) with strict schema properties.
+                            Raw text code files lack semantic domain understanding. Phase 2 converts source code symbols into typed graph entities (<code>Service</code>, <code>Endpoint</code>, <code>Repository</code>, <code>DatabaseTable</code>, <code>Saga</code>) with strict schema properties.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">⚙️ WHAT Happens in Detail</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            1. Parses Abstract Syntax Trees (AST) using Tree-sitter.<br>
-                            2. Extracts class definitions, method signatures, and annotations.<br>
+                            1. Parses Abstract Syntax Trees (AST) into Codegraph SQLite database.<br>
+                            2. Extracts class definitions, method signatures, caller hierarchies, and annotations.<br>
                             3. Maps database tables, foreign keys, and GraphQL resolver models.<br>
                             4. Appends typed node definitions to entity catalogs.
                         </div>
@@ -1019,13 +1071,13 @@ RETURN e, r, t</pre>
                         <div class="card-header">🛠️ Tools Used in This Phase & Realtime Usage</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             <strong>Invoked Tools & Usage:</strong><br>
-                            • <code>Tree-sitter AST Parser</code>: Parsing TypeScript syntax nodes into Abstract Syntax Tree (AST) representations.<br>
+                            • <code>Codegraph AST Engine (.codegraph/codegraph.db)</code>: Parsing TypeScript syntax nodes into SQLite AST symbols.<br>
                             • <code>TypeScript Compiler API</code>: Extracting interface definitions and return type annotations.<br>
                             • <code>Node Catalog Builder</code>: Formatting typed entities for insertion into <code>docs/discovery/NODE_CATALOG.md</code>.
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             Models <code>CustomerProfile</code> AST struct, <code>updateCustomer</code> GraphQL resolver, and <code>Customer</code> Prisma table model; appends typed node definitions to <code>docs/discovery/NODE_CATALOG.md</code>.
                         </div>
@@ -1034,8 +1086,8 @@ RETURN e, r, t</pre>
             </div>
         </div>
 
-        <!-- SLIDE 15: Phase 3 Deep Dive -->
-        <div class="slide" id="slide-14">
+        <!-- SLIDE 16: Phase 3 Deep Dive -->
+        <div class="slide" id="slide-15">
             <div class="slide-header">
                 <div class="slide-title">Phase 3 Structural Deep Dive: Neo4j Graph Foundation</div>
                 <div class="slide-category">System Phases (4/13)</div>
@@ -1045,15 +1097,15 @@ RETURN e, r, t</pre>
                     <div class="card">
                         <div class="card-header">💡 WHY This Phase Exists</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Flat text files and relational databases cannot execute multi-hop dependency traversals efficiently. Phase 3 builds the physical network topology graph in Neo4j to compute exact Blast Radius (BR).
+                            Flat text files and relational databases cannot execute multi-hop dependency traversals efficiently. Phase 3 builds the physical network topology graph in Neo4j to compute exact distributed system Blast Radius.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">⚙️ WHAT Happens in Detail</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            1. Ingests typed AST nodes and directed relationship edges into Neo4j.<br>
-                            2. Enforces Cypher uniqueness constraints and index keys.<br>
-                            3. Runs Cosine similarity checks ($\ge 0.85$) to detect duplicate nodes.<br>
+                            1. Ingests 83 typed topology nodes and 194 directed relationship edges into Neo4j.<br>
+                            2. Enforces Cypher uniqueness constraints and release linkage.<br>
+                            3. Maps 12 microservices, 10 Kafka event topics, 27 API routes, and 2 Sagas.<br>
                             4. Validates graph health and node freshness timestamps (<code>extractedAt</code>).
                         </div>
                     </div>
@@ -1063,23 +1115,23 @@ RETURN e, r, t</pre>
                         <div class="card-header">🛠️ Tools Used in This Phase & Realtime Usage</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             <strong>Invoked Tools & Usage:</strong><br>
-                            • <code>Graphify AST Extractor</code>: Transforming local AST trees into property graph payload format.<br>
+                            • <code>Native Neo4j Community 5.26</code>: Running on localhost port 7687 using Zulu JDK 21.<br>
                             • <code>Cypher Runner</code>: Executing Cypher <code>MERGE</code> and <code>CREATE CONSTRAINT</code> queries.<br>
-                            • <code>Neo4j Bolt Client (Port 7687)</code>: Connecting directly to Neo4j graph database on port 7687.
+                            • <code>Neo4j MCP Tool (read/write_neo4j_cypher)</code>: Executing graph traversals directly from the agent.
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Ingests 9,154 AST nodes and 16,835 dependency edges; connects <code>CustomerProfile</code> node to 14 endpoint nodes in Neo4j database on port 7687.
+                            Ingests 83 nodes and 194 relationships; connects <code>CustomerProfile</code> node to 14 endpoint nodes and Kafka topic <code>stayflexi.booking.created</code> in Neo4j database on port 7687.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 16: Phase 4 Deep Dive -->
-        <div class="slide" id="slide-15">
+        <!-- SLIDE 17: Phase 4 Deep Dive -->
+        <div class="slide" id="slide-16">
             <div class="slide-header">
                 <div class="slide-title">Phase 4 Structural Deep Dive: Graphiti Temporal Rationale Memory</div>
                 <div class="slide-category">System Phases (5/13)</div>
@@ -1113,17 +1165,17 @@ RETURN e, r, t</pre>
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Serializes ADR episode explaining WHY <code>customerType</code> field is made nullable (prevents database migration downtime across 5,000 hotel tenants); saves memory pack linked to task <code>TSK-00130</code>.
+                            Serializes ADR episode explaining WHY <code>customerType</code> field is made nullable (prevents database migration downtime across 5,000 hotel tenants); saves memory pack linked to task <code>TSK-00132</code>.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 17: Phase 5 Deep Dive -->
-        <div class="slide" id="slide-16">
+        <!-- SLIDE 18: Phase 5 Deep Dive -->
+        <div class="slide" id="slide-17">
             <div class="slide-header">
                 <div class="slide-title">Phase 5 Structural Deep Dive: GraphQL Supergraph Synchronization</div>
                 <div class="slide-category">System Phases (6/13)</div>
@@ -1157,7 +1209,7 @@ RETURN e, r, t</pre>
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             Extends Pothos <code>Customer</code> entity in <code>auth-service</code>; verifies federated entity resolution cleanly builds across Apollo Router; updates federated schema artifact <code>supergraph.graphql</code>.
                         </div>
@@ -1166,8 +1218,8 @@ RETURN e, r, t</pre>
             </div>
         </div>
 
-        <!-- SLIDE 18: Phase 6 Deep Dive -->
-        <div class="slide" id="slide-17">
+        <!-- SLIDE 19: Phase 6 Deep Dive -->
+        <div class="slide" id="slide-18">
             <div class="slide-header">
                 <div class="slide-title">Phase 6 Structural Deep Dive: Browser & User Journey Intelligence</div>
                 <div class="slide-category">System Phases (7/13)</div>
@@ -1198,10 +1250,7 @@ RETURN e, r, t</pre>
                             • <code>Headless Playwright</code>: Executing automated headless browser test scripts.<br>
                             • <code>Puppeteer Engine</code>: Extracting raw Document Object Model (DOM) snapshots.<br>
                             • <code>Visual Regression Diff Engine</code>: Comparing pixel-by-pixel rendering diffs against baseline screenshots.
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             Playwright script executes guest checkout flow on <code>/bookings</code>; verifies corporate <code>customerType</code> badge renders correctly without visual layout distortion; saves DOM diff artifacts.
                         </div>
@@ -1210,10 +1259,10 @@ RETURN e, r, t</pre>
             </div>
         </div>
 
-        <!-- SLIDE 19: Phase 7 Deep Dive -->
-        <div class="slide" id="slide-18">
+        <!-- SLIDE 20: Phase 7 Deep Dive -->
+        <div class="slide" id="slide-19">
             <div class="slide-header">
-                <div class="slide-title">Phase 7 Structural Deep Dive: Impact Analysis & Blast Radius Traversal</div>
+                <div class="slide-title">Phase 7 Structural Deep Dive: Codegraph Blast Radius & Impact Analysis</div>
                 <div class="slide-category">System Phases (8/13)</div>
             </div>
             <div class="slide-body">
@@ -1221,16 +1270,16 @@ RETURN e, r, t</pre>
                     <div class="card">
                         <div class="card-header">💡 WHY This Phase Exists</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Modifying a shared package or auth helper can break dozens of downstream endpoints. Phase 7 calculates the exact Blast Radius (BR) BEFORE writing code.
+                            Modifying a shared package or auth helper can break dozens of downstream endpoints. Phase 7 calculates exact symbol Blast Radius (BR) and auto-detects covering unit test suites BEFORE writing code.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">⚙️ WHAT Happens in Detail</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            1. Receives target file / symbol modification request.<br>
-                            2. Executes multi-hop Cypher graph traversals in Neo4j.<br>
-                            3. Identifies all dependent services, endpoints, and database tables.<br>
-                            4. Generates structural Blast Radius (BR) impact score.
+                            1. Executes <code>codegraph_explore</code> on target symbols to discover all caller hierarchies.<br>
+                            2. Traverses multi-hop Cypher graph relationships across 12 microservices in Neo4j.<br>
+                            3. Auto-detects covering unit test files for the target symbols.<br>
+                            4. Generates structural Blast Radius (BR) impact score and test execution list.
                         </div>
                     </div>
                 </div>
@@ -1239,22 +1288,23 @@ RETURN e, r, t</pre>
                         <div class="card-header">🛠️ Tools Used in This Phase & Realtime Usage</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             <strong>Invoked Tools & Usage:</strong><br>
-                            • <code>Neo4j Cypher Traversal Engine</code>: Executing multi-hop graph queries: <code>MATCH (target)-[*1..4]->(downstream) RETURN downstream</code>.<br>
-                            • <code>Graphify Blast Radius Assessor</code>: Calculating structural Blast Radius (BR) impact scores across microservices.
+                            • <code>Codegraph AST Engine (codegraph_explore)</code>: Querying caller trees and linked unit test suites in sub-milliseconds.<br>
+                            • <code>Neo4j Cypher Traversal Engine</code>: Executing multi-hop graph queries across microservice boundaries.<br>
+                            • <code>Graphify Blast Radius Assessor</code>: Calculating structural Blast Radius (BR) impact scores across monorepo packages.
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Cypher traversal traces modification to <code>TokenService</code> payload; finds 14 dependent endpoints and 3 microservices (<code>shared-auth</code>, <code>auth-service</code>, <code>booking-service</code>) affected; outputs Impact Analysis Report.
+                            Codegraph exploration traces modification to <code>TokenService</code> payload; finds 14 dependent callers across 3 microservices and auto-links <code>TokenService.test.ts</code> & <code>auth.e2e.test.ts</code> for validation; outputs Impact Analysis Report.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 20: Phase 8 Deep Dive -->
-        <div class="slide" id="slide-19">
+        <!-- SLIDE 21: Phase 8 Deep Dive -->
+        <div class="slide" id="slide-20">
             <div class="slide-header">
                 <div class="slide-title">Phase 8 Structural Deep Dive: Telemetry & Runtime Intelligence</div>
                 <div class="slide-category">System Phases (9/13)</div>
@@ -1288,7 +1338,7 @@ RETURN e, r, t</pre>
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             Scrapes <code>/metrics</code> endpoint; detects 45ms database query latency on customer profile lookups; feeds latency metrics into Performance Risk (PR) vector for risk scoring.
                         </div>
@@ -1297,8 +1347,8 @@ RETURN e, r, t</pre>
             </div>
         </div>
 
-        <!-- SLIDE 21: Phase 9 Deep Dive -->
-        <div class="slide" id="slide-20">
+        <!-- SLIDE 22: Phase 9 Deep Dive -->
+        <div class="slide" id="slide-21">
             <div class="slide-header">
                 <div class="slide-title">Phase 9 Structural Deep Dive: Consequence Simulation & Risk Scoring</div>
                 <div class="slide-category">System Phases (10/13)</div>
@@ -1331,7 +1381,7 @@ RETURN e, r, t</pre>
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             Evaluates auth payload and schema changes $\rightarrow$ calculates Composite Risk Score (CRS = 68 HIGH RISK) $\rightarrow$ flags requirement for explicit human architect sign-off before proceeding.
                         </div>
@@ -1340,10 +1390,10 @@ RETURN e, r, t</pre>
             </div>
         </div>
 
-        <!-- SLIDE 22: Phase 10 Deep Dive -->
-        <div class="slide" id="slide-21">
+        <!-- SLIDE 23: Phase 10 Deep Dive -->
+        <div class="slide" id="slide-22">
             <div class="slide-header">
-                <div class="slide-title">Phase 10 Structural Deep Dive: Governance & Risk Policy Enforcement</div>
+                <div class="slide-title">Phase 10 Structural Deep Dive: Governance & Coordinated Execution</div>
                 <div class="slide-category">System Phases (11/13)</div>
             </div>
             <div class="slide-body">
@@ -1351,16 +1401,16 @@ RETURN e, r, t</pre>
                     <div class="card">
                         <div class="card-header">💡 WHY This Phase Exists</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Enforces organizational compliance, input sanitization, and pre-commit shields to prevent unapproved or unsafe code from reaching production.
+                            Enforces organizational compliance, input sanitization, and pre-commit shields to execute coordinated multi-package refactoring safely.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">⚙️ WHAT Happens in Detail</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            1. Evaluates mandatory review gates based on Composite Risk Score (CRS) risk classification.<br>
-                            2. Enforces Zod input payload sanitization at Express middleware boundaries.<br>
-                            3. Runs Husky pre-commit hooks for linting and type checks.<br>
-                            4. Logs approval signatures in audit log files.
+                            1. Executes coordinated edits across packages with caller awareness.<br>
+                            2. Runs targeted unit tests auto-linked by Codegraph.<br>
+                            3. Enforces Zod input payload sanitization at Express middleware boundaries.<br>
+                            4. Runs Husky pre-commit hooks for linting and type checks.
                         </div>
                     </div>
                 </div>
@@ -1369,25 +1419,25 @@ RETURN e, r, t</pre>
                         <div class="card-header">🛠️ Tools Used in This Phase & Realtime Usage</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             <strong>Invoked Tools & Usage:</strong><br>
-                            • <code>Governance Rule Evaluator</code>: Checking rule compliance in <code>docs/discovery/V5.2-Orchestrator.md</code>.<br>
+                            • <code>Codegraph Test Linker</code>: Running target unit tests identified during Phase 7.<br>
                             • <code>Zod Schema Sanitizer</code>: Sanitizing request body strings at API Gateway boundaries via <code>wrapZod</code> middleware.<br>
                             • <code>Husky Pre-commit Hooks</code>: Blocking uncommitted or failing commits via <code>.husky/pre-commit</code>.
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Enforces Zod string enum sanitization for <code>customerType</code>; verifies human architect sign-off approval signature; blocks dirty commits via Husky.
+                            Executes coordinated edits across <code>shared-auth</code> and <code>auth-service</code>; runs <code>TokenService.test.ts</code>; enforces Zod string enum sanitization for <code>customerType</code>; passes Husky.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 23: Phase 11 Deep Dive -->
-        <div class="slide" id="slide-22">
+        <!-- SLIDE 24: Phase 11 Deep Dive -->
+        <div class="slide" id="slide-23">
             <div class="slide-header">
-                <div class="slide-title">Phase 11 Structural Deep Dive: Triple-DB Synchronization & Invariants</div>
+                <div class="slide-title">Phase 11 Structural Deep Dive: Multi-Engine Synchronization & Invariants</div>
                 <div class="slide-category">System Phases (12/13)</div>
             </div>
             <div class="slide-body">
@@ -1395,16 +1445,16 @@ RETURN e, r, t</pre>
                     <div class="card">
                         <div class="card-header">💡 WHY This Phase Exists</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Prevents database drift across system layers. Guarantees that code edits are instantly mirrored in Neo4j graph nodes, Graphiti temporal memory, and GraphQL schemas.
+                            Prevents database drift across system layers. Guarantees that code edits are instantly mirrored in Neo4j graph nodes, Codegraph AST database, Graphiti temporal memory, and GraphQL schemas.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">⚙️ WHAT Happens in Detail</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            1. Validates invariant: $\text{Neo4j} \equiv \text{Codebase} \land \text{Graphiti} \equiv \text{Neo4j} \land \text{GraphQL} \equiv \text{Codebase}$.<br>
-                            2. Re-indexes AST node records for modified controllers.<br>
-                            3. Updates Graphiti memory episode node pointers.<br>
-                            4. Halts completion gates if any graph drift is detected.
+                            1. Validates invariant: $\text{Neo4j} \equiv \text{Codebase} \land \text{Codegraph} \equiv \text{Codebase} \land \text{GraphQL} \equiv \text{Codebase}$.<br>
+                            2. Re-indexes AST node records for modified controllers in Codegraph.<br>
+                            3. Updates Neo4j microservice topology and Kafka event edges.<br>
+                            4. Halts completion gates if any graph drift is detected in <code>sync-task.ps1</code>.
                         </div>
                     </div>
                 </div>
@@ -1413,25 +1463,25 @@ RETURN e, r, t</pre>
                         <div class="card-header">🛠️ Tools Used in This Phase & Realtime Usage</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             <strong>Invoked Tools & Usage:</strong><br>
-                            • <code>Triple-Database Sync Checker</code>: Verifying mathematical equality invariant across Neo4j, Graphiti, and GraphQL schemas.<br>
-                            • <code>AST Re-indexer</code>: Re-parsing modified controllers and updating Neo4j graph nodes.<br>
-                            • <code>Cosine Similarity Engine</code>: Calculating similarity vectors between modified code symbols and graph node properties.
+                            • <code>Task Sync Gate (scripts/sync-graph.ps1)</code>: Running fast (<8s) compliance check verifying Postgres, Neo4j, and Codegraph.<br>
+                            • <code>Codegraph AST Watcher</code>: Re-indexing modified files into SQLite tables.<br>
+                            • <code>Neo4j Bolt Client</code>: Synchronizing active Git commit node and microservice relationships.
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Re-indexes modified controller nodes in Neo4j; updates Graphiti memory node references; verifies 100% triple-database sync alignment before final sign-off.
+                            Runs <code>scripts/sync-graph.ps1</code>; verifies Postgres, Neo4j, and Codegraph report ONLINE; confirms zero drift across 83 nodes and 194 relationships in <strong><8s</strong>.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 24: Phase 12 Deep Dive -->
-        <div class="slide" id="slide-23">
+        <!-- SLIDE 25: Phase 12 Deep Dive -->
+        <div class="slide" id="slide-24">
             <div class="slide-header">
-                <div class="slide-title">Phase 12 Structural Deep Dive: Session Persistence & Completion Sign-Off</div>
+                <div class="slide-title">Phase 12 Structural Deep Dive: Session Persistence & Release Sign-Off</div>
                 <div class="slide-category">System Phases (13/13)</div>
             </div>
             <div class="slide-body">
@@ -1446,9 +1496,9 @@ RETURN e, r, t</pre>
                         <div class="card-header">⚙️ WHAT Happens in Detail</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             1. Double-buffers updated task status into <code>current-state.md</code>.<br>
-                            2. Embeds new Git commit hash anchor (<code>2d4a0f674f...</code>).<br>
+                            2. Embeds new Git commit hash anchor (<code>56a6ed2...</code>).<br>
                             3. Signs transaction record in <code>decision-log.md</code>.<br>
-                            4. Finalizes task lifecycle; system ready for next session boot!
+                            4. Updates release tag <code>v6.9.0-certified</code>; system ready for next session boot!
                         </div>
                     </div>
                 </div>
@@ -1458,22 +1508,22 @@ RETURN e, r, t</pre>
                         <div class="card-body" style="font-size: 0.83rem;">
                             <strong>Invoked Tools & Usage:</strong><br>
                             • <code>Double-Buffer File Serializer</code>: Writing updated state snapshots to <code>docs/discovery/current-state.md</code>.<br>
-                            • <code>Git Commit Manager</code>: Capturing new HEAD commit hash and embedding it into recovery files.<br>
+                            • <code>Git Commit & Tag Manager</code>: Capturing new HEAD commit hash and updating release tag <code>v6.9.0</code>.<br>
                             • <code>Transaction Signer</code>: Signing task completion entry in <code>docs/discovery/decision-log.md</code>.
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00130)</div>
+                        <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Writes task completion snapshot for <code>TSK-00130</code> to <code>current-state.md</code>; embeds new Git commit hash <code>2d4a0f674f...</code>; signs transaction in <code>decision-log.md</code>.
+                            Writes task completion snapshot for <code>TSK-00132</code> to <code>current-state.md</code>; embeds Git commit hash <code>56a6ed2...</code>; updates release tag <code>v6.9.0-certified</code>.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 25 -->
-        <div class="slide" id="slide-24">
+        <!-- SLIDE 26 -->
+        <div class="slide" id="slide-25">
             <div class="slide-header">
                 <div class="slide-title">REALTIME TASK SCENARIO: Pass-Through Lifecycle Flow</div>
                 <div class="slide-category">Realtime Task Scenario</div>
@@ -1485,34 +1535,42 @@ RETURN e, r, t</pre>
                         Developer requests adding a new <code>customerType</code> field to corporate customer profiles across <code>shared-auth</code>, <code>auth-service</code>, and <code>booking-service</code>.
                     </div>
                 </div>
-                <div class="grid-3" style="margin-top: 0.5rem;">
+                <div class="grid-2" style="margin-top: 0.5rem;">
                     <div class="card">
-                        <div class="card-header">🔮 Step 1: Graphify Phase</div>
+                        <div class="card-header">⚡ Step 1: Codegraph Phase</div>
+                        <div class="card-body" style="font-size: 0.82rem;">
+                            Runs <code>codegraph_explore "TokenService"</code> $\rightarrow$ returns 14 dependent callers and auto-links <code>TokenService.test.ts</code> unit test suite in <strong>30ms</strong>.
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">🔮 Step 2: Graphify Phase</div>
                         <div class="card-body" style="font-size: 0.82rem;">
                             AST scans code structure $\rightarrow$ identifies <code>TokenService</code> as God Node $\rightarrow$ maps 14 dependent endpoints and 3 microservice communities affected by the auth payload edit.
                         </div>
                     </div>
+                </div>
+                <div class="grid-2" style="margin-top: 0.5rem;">
                     <div class="card">
-                        <div class="card-header">🌐 Step 2: Neo4j Phase</div>
+                        <div class="card-header">🌐 Step 3: Neo4j Phase</div>
                         <div class="card-body" style="font-size: 0.82rem;">
                             Runs Cypher impact query $\rightarrow$ computes Composite Risk Score (CRS = 68 HIGH RISK) $\rightarrow$ triggers architect review gate $\rightarrow$ validates <code>Neo4j == Codebase</code> sync invariant.
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header">🧠 Step 3: Graphiti Phase</div>
+                        <div class="card-header">🧠 Step 4: Graphiti Phase</div>
                         <div class="card-body" style="font-size: 0.82rem;">
                             Queries prior decision memory $\rightarrow$ records new ADR episode for nullable <code>customerType</code> $\rightarrow$ serializes memory pack so future chat sessions retain full rationale.
                         </div>
                     </div>
                 </div>
                 <div class="example-box-purple">
-                    <strong>System Result:</strong> All 3 graph engines operate synchronously: Graphify maps AST code relationships, Neo4j scores blast radius risk, and Graphiti preserves design rationale for future sessions.
+                    <strong>System Result:</strong> All 4 graph engines operate synchronously: Codegraph links callers & tests, Graphify maps modular communities, Neo4j scores topology risk, and Graphiti preserves design rationale.
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 26 -->
-        <div class="slide" id="slide-25">
+        <!-- SLIDE 27 -->
+        <div class="slide" id="slide-26">
             <div class="slide-header">
                 <div class="slide-title">Data & Messaging Stack (PostgreSQL, Redis, Apache Kafka, Prisma ORM)</div>
                 <div class="slide-category">Infrastructure Stack (1/2)</div>
@@ -1549,16 +1607,19 @@ RETURN e, r, t</pre>
                         <tr>
                             <td><span class="tool-name">💎 Prisma 6.8 ORM</span></td>
                             <td>Data Access Layer</td>
-                            <td>Consolidates 16 Prisma schemas under <code>src/database/prisma/schema</code> into one client.</td>
-                            <td>Generates strict TypeScript types for all DB repository queries.</td>
+                            <td>Consolidates 16 Prisma schemas across 12 services into a single typed client.</td>
+                            <td>Generates strict TypeScript types for all repository queries with zero SQL injection risk.</td>
                         </tr>
                     </tbody>
                 </table>
+                <div class="example-box-emerald" style="margin-top: 1rem;">
+                    <strong>Database Invariant:</strong> All relational entities use strict UUID foreign keys with automatic cascade deletion and organization multi-tenancy enforcement.
+                </div>
             </div>
         </div>
 
-        <!-- SLIDE 27 -->
-        <div class="slide" id="slide-26">
+        <!-- SLIDE 28 -->
+        <div class="slide" id="slide-27">
             <div class="slide-header">
                 <div class="slide-title">QA, Observability & Governance Stack</div>
                 <div class="slide-category">Infrastructure Stack (2/2)</div>
@@ -1577,43 +1638,46 @@ RETURN e, r, t</pre>
                         <tr>
                             <td><span class="tool-name">🎭 Playwright & Puppeteer</span></td>
                             <td>Browser Automation</td>
-                            <td>User journey discovery, DOM snapshotting, visual regression diffs.</td>
-                            <td>Automated execution of guest checkout flows on <code>/bookings</code>.</td>
+                            <td>Automated user journey discovery, DOM snapshotting, and visual diffs.</td>
+                            <td>Execution of guest checkout flows on <code>/bookings</code> during Phase 6.</td>
                         </tr>
                         <tr>
-                            <td><span class="tool-name">📊 OpenTelemetry (OTEL)</span></td>
+                            <td><span class="tool-name">📊 OpenTelemetry</span></td>
                             <td>Observability SDK</td>
-                            <td>Instruments HTTP/DB calls, exposes Prometheus metrics at <code>/metrics</code>.</td>
-                            <td>Scraping query latency metrics to calculate Performance Risk (PR) vector.</td>
+                            <td>Instruments HTTP and DB calls; exposes Prometheus metrics at <code>/metrics</code>.</td>
+                            <td>Scraping query latency metrics to calculate Performance Risk (PR).</td>
                         </tr>
                         <tr>
                             <td><span class="tool-name">🛡️ Zod</span></td>
                             <td>Runtime Validation</td>
-                            <td>Input payload sanitization at Express middleware boundaries via <code>wrapZod</code>.</td>
-                            <td>Sanitizing incoming JSON payloads at the API Gateway.</td>
+                            <td>Input payload sanitization at Express middleware boundaries (<code>wrapZod</code>).</td>
+                            <td>Sanitizing incoming JSON request bodies at API Gateway.</td>
                         </tr>
                         <tr>
                             <td><span class="tool-name">🧪 Jest & Supertest</span></td>
                             <td>Automated Testing</td>
-                            <td>Unit test suites, mock repository tests, and HTTP endpoint contract tests.</td>
-                            <td>Running concurrency tests to verify lock race behavior.</td>
+                            <td>Unit test suites and HTTP endpoint contract integration tests.</td>
+                            <td>Running concurrency tests to verify room booking lock race behavior.</td>
                         </tr>
                         <tr>
                             <td><span class="tool-name">🐶 Husky & Pre-commit</span></td>
                             <td>Git Governance</td>
-                            <td>Pre-commit hooks for linting, type checks, and schema sync validation.</td>
+                            <td>Pre-commit hooks enforcing linting, type checks, and schema sync.</td>
                             <td>Blocking uncommitted git commits prior to local commit creation.</td>
                         </tr>
                     </tbody>
                 </table>
+                <div class="example-box-cyan" style="margin-top: 1rem;">
+                    <strong>Quality Shield:</strong> Pre-commit hooks run in <strong><8 seconds</strong>, ensuring developer agility while maintaining 100% production-ready standards.
+                </div>
             </div>
         </div>
 
-        <!-- SLIDE 28 -->
-        <div class="slide" id="slide-27">
+        <!-- SLIDE 29 -->
+        <div class="slide" id="slide-28">
             <div class="slide-header">
                 <div class="slide-title">Summary & Deliverables Overview</div>
-                <div class="slide-category">Conclusion & Resources</div>
+                <div class="slide-category">Resources & Verification</div>
             </div>
             <div class="slide-body">
                 <div class="grid-3" style="margin-top: 0.2rem;">
@@ -1626,16 +1690,16 @@ RETURN e, r, t</pre>
                     </div>
                     <div class="card" style="text-align: center; padding: 1.5rem;">
                         <div style="font-size: 2rem; margin-bottom: 0.3rem;">⚡</div>
-                        <div class="card-header" style="justify-content: center;">JIT Selective Loading</div>
+                        <div class="card-header" style="justify-content: center;">4-Layer Intelligence</div>
                         <div class="card-body" style="font-size: 0.82rem;">
-                            Dynamic phase loading optimizes LLM context tokens, triggering heavy phases only on demand.
+                            Codegraph (AST), Graphify (Corpus), Neo4j (Topology), and Graphiti (Temporal Memory) operate synchronously.
                         </div>
                     </div>
                     <div class="card" style="text-align: center; padding: 1.5rem;">
                         <div style="font-size: 2rem; margin-bottom: 0.3rem;">🎯</div>
                         <div class="card-header" style="justify-content: center;">Zero-Drift Sync</div>
                         <div class="card-body" style="font-size: 0.82rem;">
-                            Completion gates guarantee that Neo4j, Graphiti memory, and GraphQL schemas are 100% in sync.
+                            Completion gates guarantee that Neo4j, Codegraph, and GraphQL schemas are 100% synchronized in <8s.
                         </div>
                     </div>
                 </div>
@@ -1644,14 +1708,14 @@ RETURN e, r, t</pre>
                         <div class="card-header">🌐 Interactive Presentation Web App</div>
                         <div class="card-body" style="font-size: 0.82rem;">
                             <strong>File Path:</strong> <code>stayflexi_engineering_presentation.html</code><br>
-                            Single-file dark-mode web app featuring KaTeX formula rendering, 28-slide selector, and keyboard controls.
+                            Single-file dark-mode web app featuring KaTeX formula rendering, 29-slide selector, and keyboard controls.
                         </div>
                     </div>
                     <div class="card" style="border-left: 4px solid var(--accent-purple);">
                         <div class="card-header">📊 PowerPoint Widescreen Deck (.pptx)</div>
                         <div class="card-body" style="font-size: 0.82rem;">
                             <strong>File Path:</strong> <code>stayflexi_engineering_presentation_v9.pptx</code><br>
-                            Native 28-slide PowerPoint deck formatted with dark-mode styling, structured data tables, and widescreen layout.
+                            Native 29-slide PowerPoint deck formatted with dark-mode styling, structured data tables, and widescreen layout.
                         </div>
                     </div>
                 </div>
@@ -1665,7 +1729,7 @@ RETURN e, r, t</pre>
         <div class="key-hint">
             <span>Use <span class="key-kbd">←</span> <span class="key-kbd">→</span> keys or buttons to navigate</span>
         </div>
-        <div id="slideCounter">Slide 1 of 28</div>
+        <div id="slideCounter">Slide 1 of 29</div>
     </footer>
 
     <script>
