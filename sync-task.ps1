@@ -61,6 +61,13 @@ if ($neo4jActive) {
     Write-Host "  Neo4j Bolt (Port 7687): OFFLINE (Run scripts/start-neo4j.ps1)" -ForegroundColor Yellow
 }
 
+$codegraphActive = Test-Path ".codegraph/codegraph.db"
+if ($codegraphActive) {
+    Write-Host "  Codegraph AST Index   : ONLINE (.codegraph/codegraph.db)" -ForegroundColor Green
+} else {
+    Write-Host "  Codegraph AST Index   : NOT FOUND" -ForegroundColor Yellow
+}
+
 # 3. Synchronize current-state.md Commit Hash (Phase 12)
 Write-Host "`n[3/5] Synchronizing current-state.md with active Git commit..." -ForegroundColor Yellow
 try {
@@ -114,5 +121,6 @@ Write-Host "  Sync Status  : SUCCESSFUL" -ForegroundColor Green
 Write-Host "  Active Commit: $currentCommit" -ForegroundColor Green
 Write-Host "  Postgres     : $(if ($postgresActive) { 'ONLINE' } else { 'OFFLINE' })" -ForegroundColor $(if ($postgresActive) { 'Green' } else { 'Red' })
 Write-Host "  Neo4j        : $(if ($neo4jActive) { 'ONLINE' } else { 'OFFLINE' })" -ForegroundColor $(if ($neo4jActive) { 'Green' } else { 'Yellow' })
+Write-Host "  Codegraph    : $(if ($codegraphActive) { 'ONLINE' } else { 'OFFLINE' })" -ForegroundColor $(if ($codegraphActive) { 'Green' } else { 'Yellow' })
 Write-Host "---------------------------------------------------" -ForegroundColor Cyan
 Write-Host "Sync completed. Ready to push." -ForegroundColor Green

@@ -14,12 +14,14 @@ Before executing any developer task, you must establish context using the follow
 4.  **Read tasks**: Open and read [docs/discovery/active-tasks.md](file:///C:/Stayflexi/docs/discovery/active-tasks.md) to inspect dependency conditions.
 5.  **Confirm rules**: Reference the rulebook [docs/discovery/V5.2-Orchestrator.md](file:///C:/Stayflexi/docs/discovery/V5.2-Orchestrator.md).
 6.  **Summarize & Prompt**: Output a short "Context Recovery Report" (Active Task, Git Status, Identified Risks) and request user confirmation before making any code modifications.
+7.  **Codegraph Exploration First**: Before modifying or refactoring any code symbols, use `codegraph_explore` to inspect callers, dynamic dispatch paths, and covering unit tests.
 
 ---
 
 ## Core Operational Constraints
 
 - **Stateless Boot**: Never assume previous chat context or session history exists.
+- **Pre-Edit Blast-Radius Verification**: Never modify shared interfaces, entities, or utilities without verifying the caller blast radius in Codegraph first.
 - **No Untracked Changes**: Any code modifications must update the [current-state.md](file:///C:/Stayflexi/docs/discovery/current-state.md) status before completion.
-- **Synchronized State**: Neo4j, Graphiti, and GraphQL schema validation must compile without errors before code is pushed.
+- **Synchronized State**: Neo4j, Codegraph, Graphiti, and GraphQL schema validation must compile without errors before code is pushed.
 - **Mandatory Neo4j Update**: At the end of every task, Neo4j must be updated and synchronized before completion.
