@@ -37,7 +37,7 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
     openai: false,
     groq: false,
     anthropic: false,
-    kimi: false
+    kimi: false,
   })
 
   const refreshSavedKeysStatus = () => {
@@ -45,11 +45,13 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
       const active = localStorage.getItem('sf_chat_active_model') || 'gemini'
       setActiveModel(active)
       setSavedKeysStatus({
-        gemini: !!(localStorage.getItem('sf_api_key_gemini') || localStorage.getItem('sf_gemini_api_key')),
+        gemini: !!(
+          localStorage.getItem('sf_api_key_gemini') || localStorage.getItem('sf_gemini_api_key')
+        ),
         openai: !!localStorage.getItem('sf_api_key_openai'),
         groq: !!localStorage.getItem('sf_api_key_groq'),
         anthropic: !!localStorage.getItem('sf_api_key_anthropic'),
-        kimi: !!localStorage.getItem('sf_api_key_kimi')
+        kimi: !!localStorage.getItem('sf_api_key_kimi'),
       })
     }
   }
@@ -78,7 +80,10 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
     if (typeof window !== 'undefined') {
       let key = ''
       if (selectedModelForConfig === 'gemini') {
-        key = localStorage.getItem('sf_api_key_gemini') || localStorage.getItem('sf_gemini_api_key') || ''
+        key =
+          localStorage.getItem('sf_api_key_gemini') ||
+          localStorage.getItem('sf_gemini_api_key') ||
+          ''
       } else {
         key = localStorage.getItem(`sf_api_key_${selectedModelForConfig}`) || ''
       }
@@ -117,14 +122,14 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
         {
           id: 'init-msg',
           role: 'ASSISTANT',
-          content: bookingId 
+          content: bookingId
             ? 'Hello! I am your Flexi AI Concierge. I can assist you with your flexible hourly stay bookings, room upgrades, ordering food, or revealing your smart key lock code. How can I help you today?'
             : 'Hello! I am Flexi AI, your Stayflexi Operations & BI Assistant. I can assist you with operational commands (e.g. blocking/unblocking rooms) or querying real-time analytics like revenue reports. How can I help you today?',
           suggestedActions: bookingId
             ? ['Hourly Stays', 'Upgrade Room', 'Food Menu', 'Smart Key']
             : ['Revenue Report', 'Block Room 103', 'Occupancy Analytics', 'Show Rooms Grid'],
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ])
     }
     setHasLoaded(true)
@@ -164,13 +169,21 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
     if (bookingId) {
       // Guest mode
       if (action === 'upgrade_room') {
-        window.dispatchEvent(new CustomEvent('flexi-guest-ai-command', { detail: { action: 'upgrade_room' } }))
+        window.dispatchEvent(
+          new CustomEvent('flexi-guest-ai-command', { detail: { action: 'upgrade_room' } }),
+        )
       } else if (action === 'order_food') {
-        window.dispatchEvent(new CustomEvent('flexi-guest-ai-command', { detail: { action: 'order_food' } }))
+        window.dispatchEvent(
+          new CustomEvent('flexi-guest-ai-command', { detail: { action: 'order_food' } }),
+        )
       } else if (action === 'reveal_key') {
-        window.dispatchEvent(new CustomEvent('flexi-guest-ai-command', { detail: { action: 'reveal_key' } }))
+        window.dispatchEvent(
+          new CustomEvent('flexi-guest-ai-command', { detail: { action: 'reveal_key' } }),
+        )
       } else if (action === 'checkout') {
-        window.dispatchEvent(new CustomEvent('flexi-guest-ai-command', { detail: { action: 'checkout' } }))
+        window.dispatchEvent(
+          new CustomEvent('flexi-guest-ai-command', { detail: { action: 'checkout' } }),
+        )
       }
     } else {
       // Staff PMS mode
@@ -178,19 +191,34 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
         const roomNum = payload.roomNumber || '103'
         try {
           const todayStr = new Date().toISOString().split('T')[0] || ''
-          const hotelId = (typeof window !== 'undefined' ? localStorage.getItem('sf_selected_hotel') : null) || 'h1-resort-goa'
-          const res = await dataClient.blockInventory(hotelId, 'rt-executive', todayStr, todayStr, 'Blocked by Flexi AI Operations')
+          const hotelId =
+            (typeof window !== 'undefined' ? localStorage.getItem('sf_selected_hotel') : null) ||
+            'h1-resort-goa'
+          const res = await dataClient.blockInventory(
+            hotelId,
+            'rt-executive',
+            todayStr,
+            todayStr,
+            'Blocked by Flexi AI Operations',
+          )
           if (res?.success) {
             if (roomNum === '103') {
-              await dataClient.updateRoomStatus('r-103', 'BLOCKED', 'Blocked by Flexi AI Operations')
+              await dataClient.updateRoomStatus(
+                'r-103',
+                'BLOCKED',
+                'Blocked by Flexi AI Operations',
+              )
             }
             window.dispatchEvent(new CustomEvent('sf-reload-inventory'))
-            setMessages(prev => [...prev, {
-              id: `action-confirm-${Math.random().toString(36).substr(2, 9)}`,
-              role: 'ASSISTANT',
-              content: `🛠️ **Operation Committed**: Room ${roomNum} inventory has been successfully blocked on the grid.`,
-              timestamp: new Date()
-            }])
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: `action-confirm-${Math.random().toString(36).substr(2, 9)}`,
+                role: 'ASSISTANT',
+                content: `🛠️ **Operation Committed**: Room ${roomNum} inventory has been successfully blocked on the grid.`,
+                timestamp: new Date(),
+              },
+            ])
             if (window.location.pathname !== '/inventory') {
               setTimeout(() => {
                 router.push('/inventory')
@@ -210,9 +238,14 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
         if (window.location.pathname !== '/more-apps') {
           router.push(`/more-apps?app=${appName}&reviewId=${payload.reviewId || 'rev-1'}`)
         } else {
-          window.dispatchEvent(new CustomEvent('flexi-staff-ai-command', { 
-            detail: { action: 'navigate_app', payload: { app: appName, reviewId: payload.reviewId || 'rev-1' } } 
-          }))
+          window.dispatchEvent(
+            new CustomEvent('flexi-staff-ai-command', {
+              detail: {
+                action: 'navigate_app',
+                payload: { app: appName, reviewId: payload.reviewId || 'rev-1' },
+              },
+            }),
+          )
         }
       }
     }
@@ -225,10 +258,10 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
       id: `msg-${Math.random().toString(36).substr(2, 9)}`,
       role: 'USER',
       content: text,
-      timestamp: new Date()
+      timestamp: new Date(),
     }
 
-    setMessages(prev => [...prev, userMsg])
+    setMessages((prev) => [...prev, userMsg])
     setInputValue('')
     setIsLoading(true)
 
@@ -242,18 +275,34 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
         setTimeout(async () => {
           try {
             const todayStr = new Date().toISOString().split('T')[0] || ''
-            const hotelId = (typeof window !== 'undefined' ? localStorage.getItem('sf_selected_hotel') : null) || 'h1-resort-goa'
-            const res = await dataClient.blockInventory(hotelId, 'rt-executive', todayStr, todayStr, 'Blocked by Flexi AI Operations')
+            const hotelId =
+              (typeof window !== 'undefined' ? localStorage.getItem('sf_selected_hotel') : null) ||
+              'h1-resort-goa'
+            const res = await dataClient.blockInventory(
+              hotelId,
+              'rt-executive',
+              todayStr,
+              todayStr,
+              'Blocked by Flexi AI Operations',
+            )
             if (res?.success) {
-              await dataClient.updateRoomStatus('r-103', 'BLOCKED', 'Blocked by Flexi AI Operations')
+              await dataClient.updateRoomStatus(
+                'r-103',
+                'BLOCKED',
+                'Blocked by Flexi AI Operations',
+              )
               window.dispatchEvent(new CustomEvent('sf-reload-inventory'))
-              setMessages(prev => [...prev, {
-                id: `msg-${Math.random().toString(36).substr(2, 9)}`,
-                role: 'ASSISTANT',
-                content: "I have successfully blocked Room 103 on the inventory grid for today. The calendar has refreshed immediately.",
-                suggestedActions: ["Show Rooms Grid", "Occupancy Analytics"],
-                timestamp: new Date()
-              }])
+              setMessages((prev) => [
+                ...prev,
+                {
+                  id: `msg-${Math.random().toString(36).substr(2, 9)}`,
+                  role: 'ASSISTANT',
+                  content:
+                    'I have successfully blocked Room 103 on the inventory grid for today. The calendar has refreshed immediately.',
+                  suggestedActions: ['Show Rooms Grid', 'Occupancy Analytics'],
+                  timestamp: new Date(),
+                },
+              ])
               setIsLoading(false)
               if (window.location.pathname !== '/inventory') {
                 setTimeout(() => {
@@ -269,27 +318,38 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
       } else if (msg.includes('show rooms grid') || msg.includes('rooms grid')) {
         localIntercepted = true
         setTimeout(() => {
-          setMessages(prev => [...prev, {
-            id: `msg-${Math.random().toString(36).substr(2, 9)}`,
-            role: 'ASSISTANT',
-            content: "Redirecting to the room availability grid...",
-            timestamp: new Date()
-          }])
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Math.random().toString(36).substr(2, 9)}`,
+              role: 'ASSISTANT',
+              content: 'Redirecting to the room availability grid...',
+              timestamp: new Date(),
+            },
+          ])
           setIsLoading(false)
           setTimeout(() => {
             router.push('/inventory')
           }, 3500)
         }, 1200)
-      } else if (msg.includes('revenue report') || msg.includes('revenue') || msg.includes('sales')) {
+      } else if (
+        msg.includes('revenue report') ||
+        msg.includes('revenue') ||
+        msg.includes('sales')
+      ) {
         localIntercepted = true
         setTimeout(() => {
-          setMessages(prev => [...prev, {
-            id: `msg-${Math.random().toString(36).substr(2, 9)}`,
-            role: 'ASSISTANT',
-            content: "Navigating to the Financial Analytics Console. Total May 2026 revenue is $24,850.00.",
-            suggestedActions: ["Occupancy Analytics", "Show Rooms Grid"],
-            timestamp: new Date()
-          }])
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Math.random().toString(36).substr(2, 9)}`,
+              role: 'ASSISTANT',
+              content:
+                'Navigating to the Financial Analytics Console. Total May 2026 revenue is $24,850.00.',
+              suggestedActions: ['Occupancy Analytics', 'Show Rooms Grid'],
+              timestamp: new Date(),
+            },
+          ])
           setIsLoading(false)
           setTimeout(() => {
             router.push('/console')
@@ -298,12 +358,15 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
       } else if (msg.includes('review') || msg.includes('reply') || msg.includes('ota')) {
         localIntercepted = true
         setTimeout(() => {
-          setMessages(prev => [...prev, {
-            id: `msg-${Math.random().toString(36).substr(2, 9)}`,
-            role: 'ASSISTANT',
-            content: "Navigating to the Guest Reviews portal. AI auto-reply copilot is ready.",
-            timestamp: new Date()
-          }])
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Math.random().toString(36).substr(2, 9)}`,
+              role: 'ASSISTANT',
+              content: 'Navigating to the Guest Reviews portal. AI auto-reply copilot is ready.',
+              timestamp: new Date(),
+            },
+          ])
           setIsLoading(false)
           setTimeout(() => {
             router.push('/more-apps?app=reviews&reviewId=rev-1')
@@ -314,53 +377,81 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
       if (msg.includes('upgrade')) {
         localIntercepted = true
         setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('flexi-guest-ai-command', { detail: { action: 'upgrade_room' } }))
-          setMessages(prev => [...prev, {
-            id: `msg-${Math.random().toString(36).substr(2, 9)}`,
-            role: 'ASSISTANT',
-            content: "I have highlighted the Room Upgrade options on your portal dashboard! Please select a deluxe/executive suite.",
-            suggestedActions: ["Order Food", "Reveal Smart Key"],
-            timestamp: new Date()
-          }])
+          window.dispatchEvent(
+            new CustomEvent('flexi-guest-ai-command', { detail: { action: 'upgrade_room' } }),
+          )
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Math.random().toString(36).substr(2, 9)}`,
+              role: 'ASSISTANT',
+              content:
+                'I have highlighted the Room Upgrade options on your portal dashboard! Please select a deluxe/executive suite.',
+              suggestedActions: ['Order Food', 'Reveal Smart Key'],
+              timestamp: new Date(),
+            },
+          ])
           setIsLoading(false)
         }, 1200)
-      } else if (msg.includes('food') || msg.includes('menu') || msg.includes('room service') || msg.includes('order')) {
+      } else if (
+        msg.includes('food') ||
+        msg.includes('menu') ||
+        msg.includes('room service') ||
+        msg.includes('order')
+      ) {
         localIntercepted = true
         setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('flexi-guest-ai-command', { detail: { action: 'order_food' } }))
-          setMessages(prev => [...prev, {
-            id: `msg-${Math.random().toString(36).substr(2, 9)}`,
-            role: 'ASSISTANT',
-            content: "Order placed: Premium Club Sandwich & Fries has been added to your room bill ledger.",
-            suggestedActions: ["Reveal Smart Key", "View Invoice Folio"],
-            timestamp: new Date()
-          }])
+          window.dispatchEvent(
+            new CustomEvent('flexi-guest-ai-command', { detail: { action: 'order_food' } }),
+          )
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Math.random().toString(36).substr(2, 9)}`,
+              role: 'ASSISTANT',
+              content:
+                'Order placed: Premium Club Sandwich & Fries has been added to your room bill ledger.',
+              suggestedActions: ['Reveal Smart Key', 'View Invoice Folio'],
+              timestamp: new Date(),
+            },
+          ])
           setIsLoading(false)
         }, 1200)
       } else if (msg.includes('key') || msg.includes('lock') || msg.includes('code')) {
         localIntercepted = true
         setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('flexi-guest-ai-command', { detail: { action: 'reveal_key' } }))
-          setMessages(prev => [...prev, {
-            id: `msg-${Math.random().toString(36).substr(2, 9)}`,
-            role: 'ASSISTANT',
-            content: "Smart lock access code revealed! Check the top section of your screen.",
-            suggestedActions: ["View Invoice Folio", "Checkout Room"],
-            timestamp: new Date()
-          }])
+          window.dispatchEvent(
+            new CustomEvent('flexi-guest-ai-command', { detail: { action: 'reveal_key' } }),
+          )
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Math.random().toString(36).substr(2, 9)}`,
+              role: 'ASSISTANT',
+              content: 'Smart lock access code revealed! Check the top section of your screen.',
+              suggestedActions: ['View Invoice Folio', 'Checkout Room'],
+              timestamp: new Date(),
+            },
+          ])
           setIsLoading(false)
         }, 1200)
       } else if (msg.includes('checkout')) {
         localIntercepted = true
         setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('flexi-guest-ai-command', { detail: { action: 'checkout' } }))
-          setMessages(prev => [...prev, {
-            id: `msg-${Math.random().toString(36).substr(2, 9)}`,
-            role: 'ASSISTANT',
-            content: "Self checkout completed successfully! We hope you enjoyed your flexible hour stay.",
-            suggestedActions: ["View Invoice Folio"],
-            timestamp: new Date()
-          }])
+          window.dispatchEvent(
+            new CustomEvent('flexi-guest-ai-command', { detail: { action: 'checkout' } }),
+          )
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Math.random().toString(36).substr(2, 9)}`,
+              role: 'ASSISTANT',
+              content:
+                'Self checkout completed successfully! We hope you enjoyed your flexible hour stay.',
+              suggestedActions: ['View Invoice Folio'],
+              timestamp: new Date(),
+            },
+          ])
           setIsLoading(false)
         }, 1200)
       }
@@ -371,18 +462,20 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
     }
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 800))
+      await new Promise((resolve) => setTimeout(resolve, 800))
       const response = await dataClient.sendFlexiAIChat(bookingId, text)
-      
+
       const assistantMsg: Message = {
         id: `msg-${Math.random().toString(36).substr(2, 9)}`,
         role: 'ASSISTANT',
-        content: response.content || "I'm sorry, I'm having trouble connecting to the subgraphs. Please try again.",
+        content:
+          response.content ||
+          "I'm sorry, I'm having trouble connecting to the subgraphs. Please try again.",
         suggestedActions: response.suggestedActions || [],
-        timestamp: new Date()
+        timestamp: new Date(),
       }
 
-      setMessages(prev => [...prev, assistantMsg])
+      setMessages((prev) => [...prev, assistantMsg])
 
       if (response.action) {
         handleProgrammaticAction(response.action, response.actionPayload)
@@ -391,18 +484,27 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
       const errorMsg: Message = {
         id: `msg-${Math.random().toString(36).substr(2, 9)}`,
         role: 'ASSISTANT',
-        content: "We encountered a network timeout, but offline mode is active. Let me help you from the local cache: you can book flexible hours ($45/hr), order room service, or reveal keys when checking in.",
+        content:
+          'We encountered a network timeout, but offline mode is active. Let me help you from the local cache: you can book flexible hours ($45/hr), order room service, or reveal keys when checking in.',
         suggestedActions: ['View Food Menu', 'Checkout Room'],
-        timestamp: new Date()
+        timestamp: new Date(),
       }
-      setMessages(prev => [...prev, errorMsg])
+      setMessages((prev) => [...prev, errorMsg])
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 1000, fontFamily: 'var(--font-sans)' }}>
+    <div
+      style={{
+        position: 'fixed',
+        bottom: '24px',
+        right: '24px',
+        zIndex: 1000,
+        fontFamily: 'var(--font-sans)',
+      }}
+    >
       {/* Floating Pulse Circle Button */}
       {!isOpen && (
         <button
@@ -419,7 +521,7 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
             cursor: 'pointer',
             boxShadow: '0 0 20px rgba(0, 242, 254, 0.4)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            position: 'relative'
+            position: 'relative',
           }}
           className="hover-glow"
         >
@@ -431,7 +533,7 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
               borderRadius: '50%',
               border: '2px solid rgba(0, 242, 254, 0.5)',
               animation: 'ping 2s infinite',
-              pointerEvents: 'none'
+              pointerEvents: 'none',
             }}
           />
           <Bot style={{ width: '28px', height: '28px', color: '#060913' }} />
@@ -452,18 +554,19 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
             overflow: 'hidden',
             boxShadow: '0 12px 40px rgba(0, 242, 254, 0.15)',
             backdropFilter: 'blur(20px)',
-            animation: 'fadeInUp 0.3s ease-out'
+            animation: 'fadeInUp 0.3s ease-out',
           }}
         >
           {/* Header */}
           <div
             style={{
               padding: '16px',
-              background: 'linear-gradient(to right, rgba(0, 242, 254, 0.08), rgba(79, 172, 254, 0.08))',
+              background:
+                'linear-gradient(to right, rgba(0, 242, 254, 0.08), rgba(79, 172, 254, 0.08))',
               borderBottom: '1px solid var(--border-card)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between'
+              justifyContent: 'space-between',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -475,21 +578,57 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                   borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
                 }}
               >
                 <Sparkles style={{ width: '16px', height: '16px', color: '#060913' }} />
               </div>
               <div>
                 <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#fff', margin: 0 }}>
-                  {bookingId ? "Flexi AI Concierge" : "Flexi AI Operations"}
+                  {bookingId ? 'Flexi AI Concierge' : 'Flexi AI Operations'}
                 </h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
-                  <span style={{ fontSize: '9px', color: '#00f2fe', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
-                    {bookingId ? "Concierge Mode" : "Staff Operations Mode"}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    flexWrap: 'wrap',
+                    marginTop: '2px',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: '9px',
+                      color: '#00f2fe',
+                      fontWeight: 500,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: '4px',
+                        height: '4px',
+                        borderRadius: '50%',
+                        background: '#10b981',
+                        display: 'inline-block',
+                      }}
+                    />
+                    {bookingId ? 'Concierge Mode' : 'Staff Operations Mode'}
                   </span>
-                  <span style={{ fontSize: '8px', color: '#fff', background: 'rgba(0, 242, 254, 0.15)', border: '1px solid rgba(0, 242, 254, 0.3)', padding: '1px 4px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 600 }}>
+                  <span
+                    style={{
+                      fontSize: '8px',
+                      color: '#fff',
+                      background: 'rgba(0, 242, 254, 0.15)',
+                      border: '1px solid rgba(0, 242, 254, 0.3)',
+                      padding: '1px 4px',
+                      borderRadius: '4px',
+                      textTransform: 'uppercase',
+                      fontWeight: 600,
+                    }}
+                  >
                     {activeModel}
                   </span>
                 </div>
@@ -497,7 +636,12 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--text-muted)',
+              }}
             >
               <X style={{ width: '18px', height: '18px' }} />
             </button>
@@ -514,33 +658,53 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                 gap: '12px',
                 overflowY: 'auto',
                 background: 'rgba(6, 9, 19, 0.95)',
-                animation: 'fadeInUp 0.2s ease-out'
+                animation: 'fadeInUp 0.2s ease-out',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px', marginBottom: '4px' }}>
-                <span style={{ color: '#fff', fontSize: '12px', fontWeight: 600 }}>AI Model Settings</span>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderBottom: '1px solid rgba(255,255,255,0.08)',
+                  paddingBottom: '8px',
+                  marginBottom: '4px',
+                }}
+              >
+                <span style={{ color: '#fff', fontSize: '12px', fontWeight: 600 }}>
+                  AI Model Settings
+                </span>
                 <button
                   type="button"
                   onClick={() => setShowConfig(false)}
-                  style={{ background: 'none', border: 'none', color: '#00f2fe', fontSize: '11px', cursor: 'pointer', fontWeight: 500 }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#00f2fe',
+                    fontSize: '11px',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                  }}
                 >
                   Back to Chat
                 </button>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500 }}>SELECT PROVIDER</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500 }}>
+                  SELECT PROVIDER
+                </span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                   {[
                     { id: 'gemini', name: 'Gemini 2.5 Flash', desc: 'Google (Default / Built-in)' },
                     { id: 'openai', name: 'OpenAI GPT-4o', desc: 'GPT-4o API' },
                     { id: 'groq', name: 'Groq Llama 3', desc: 'llama-3.3-70b-versatile' },
                     { id: 'anthropic', name: 'Anthropic Claude', desc: 'Claude 3.5 Sonnet' },
-                    { id: 'kimi', name: 'Kimi Moonshot', desc: 'moonshot-v1-8k' }
+                    { id: 'kimi', name: 'Kimi Moonshot', desc: 'moonshot-v1-8k' },
                   ].map((m) => {
-                    const isSelected = selectedModelForConfig === m.id;
-                    const isActive = activeModel === m.id;
-                    const hasKey = savedKeysStatus[m.id as keyof typeof savedKeysStatus];
+                    const isSelected = selectedModelForConfig === m.id
+                    const isActive = activeModel === m.id
+                    const hasKey = savedKeysStatus[m.id as keyof typeof savedKeysStatus]
                     return (
                       <div
                         key={m.id}
@@ -551,21 +715,42 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                           justifyContent: 'space-between',
                           padding: '8px 10px',
                           borderRadius: '6px',
-                          background: isSelected ? 'rgba(0, 242, 254, 0.08)' : 'rgba(255, 255, 255, 0.02)',
-                          border: isSelected ? '1px solid rgba(0, 242, 254, 0.4)' : '1px solid rgba(255,255,255,0.05)',
+                          background: isSelected
+                            ? 'rgba(0, 242, 254, 0.08)'
+                            : 'rgba(255, 255, 255, 0.02)',
+                          border: isSelected
+                            ? '1px solid rgba(0, 242, 254, 0.4)'
+                            : '1px solid rgba(255,255,255,0.05)',
                           cursor: 'pointer',
-                          transition: 'all 0.15s'
+                          transition: 'all 0.15s',
                         }}
                       >
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                          <span style={{ fontSize: '11px', fontWeight: 600, color: isSelected ? '#00f2fe' : '#fff' }}>
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              color: isSelected ? '#00f2fe' : '#fff',
+                            }}
+                          >
                             {m.name}
                           </span>
-                          <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>{m.desc}</span>
+                          <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>
+                            {m.desc}
+                          </span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                           {isActive && (
-                            <span style={{ background: '#10b981', color: '#060913', fontSize: '8px', fontWeight: 600, padding: '1px 4px', borderRadius: '3px' }}>
+                            <span
+                              style={{
+                                background: '#10b981',
+                                color: '#060913',
+                                fontSize: '8px',
+                                fontWeight: 600,
+                                padding: '1px 4px',
+                                borderRadius: '3px',
+                              }}
+                            >
                               Active
                             </span>
                           )}
@@ -574,21 +759,25 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                               fontSize: '9px',
                               fontWeight: 500,
                               color: hasKey ? '#10b981' : '#9ca3af',
-                              background: hasKey ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                              background: hasKey
+                                ? 'rgba(16, 185, 129, 0.1)'
+                                : 'rgba(255, 255, 255, 0.05)',
                               padding: '1px 4px',
-                              borderRadius: '3px'
+                              borderRadius: '3px',
                             }}
                           >
                             {hasKey ? '✓ Saved' : 'No Key'}
                           </span>
                         </div>
                       </div>
-                    );
+                    )
                   })}
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+              <div
+                style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}
+              >
                 <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500 }}>
                   API KEY FOR {selectedModelForConfig.toUpperCase()}
                 </span>
@@ -596,7 +785,11 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                   type="password"
                   value={tempApiKey}
                   onChange={(e) => setTempApiKey(e.target.value)}
-                  placeholder={selectedModelForConfig === 'gemini' ? 'Optional (uses built-in if empty)' : 'Paste API Key here...'}
+                  placeholder={
+                    selectedModelForConfig === 'gemini'
+                      ? 'Optional (uses built-in if empty)'
+                      : 'Paste API Key here...'
+                  }
                   style={{
                     width: '100%',
                     background: 'rgba(255,255,255,0.03)',
@@ -606,7 +799,7 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                     fontSize: '11px',
                     color: '#fff',
                     outline: 'none',
-                    transition: 'border-color 0.2s'
+                    transition: 'border-color 0.2s',
                   }}
                 />
               </div>
@@ -625,7 +818,7 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                     fontSize: '11px',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s'
+                    transition: 'all 0.2s',
                   }}
                 >
                   Save & Activate
@@ -649,7 +842,7 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                       fontSize: '11px',
                       fontWeight: 500,
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s',
                     }}
                   >
                     Activate Only
@@ -666,66 +859,90 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                 overflowY: 'auto',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px'
+                gap: '12px',
               }}
             >
-              {messages.map(msg => (
+              {messages.map((msg) => (
                 <div
                   key={msg.id}
                   style={{
                     alignSelf: msg.role === 'USER' ? 'flex-end' : 'flex-start',
-                    maxWidth: '85%'
+                    maxWidth: '85%',
                   }}
                 >
                   <div
                     style={{
                       padding: '10px 14px',
-                      borderRadius: msg.role === 'USER' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
-                      background: msg.role === 'USER' ? 'linear-gradient(135deg, #00f2fe, #4facfe)' : 'rgba(255, 255, 255, 0.05)',
+                      borderRadius:
+                        msg.role === 'USER' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+                      background:
+                        msg.role === 'USER'
+                          ? 'linear-gradient(135deg, #00f2fe, #4facfe)'
+                          : 'rgba(255, 255, 255, 0.05)',
                       border: msg.role === 'USER' ? 'none' : '1px solid rgba(255, 255, 255, 0.05)',
                       color: msg.role === 'USER' ? '#060913' : '#e5e7eb',
                       fontSize: '13px',
                       lineHeight: '1.4',
-                      fontWeight: msg.role === 'USER' ? 500 : 400
+                      fontWeight: msg.role === 'USER' ? 500 : 400,
                     }}
                   >
                     {msg.content}
                   </div>
 
                   {/* Suggestions Chips */}
-                  {msg.role === 'ASSISTANT' && msg.suggestedActions && msg.suggestedActions.length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
-                      {msg.suggestedActions.map((action, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleSendMessage(action)}
-                          style={{
-                            background: 'rgba(0, 242, 254, 0.05)',
-                            border: '1px solid rgba(0, 242, 254, 0.2)',
-                            borderRadius: '12px',
-                            padding: '4px 10px',
-                            fontSize: '11px',
-                            color: '#00f2fe',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            fontWeight: 500
-                          }}
-                          className="hover-glow-small"
-                        >
-                          {action}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  {msg.role === 'ASSISTANT' &&
+                    msg.suggestedActions &&
+                    msg.suggestedActions.length > 0 && (
+                      <div
+                        style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}
+                      >
+                        {msg.suggestedActions.map((action, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => handleSendMessage(action)}
+                            style={{
+                              background: 'rgba(0, 242, 254, 0.05)',
+                              border: '1px solid rgba(0, 242, 254, 0.2)',
+                              borderRadius: '12px',
+                              padding: '4px 10px',
+                              fontSize: '11px',
+                              color: '#00f2fe',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              fontWeight: 500,
+                            }}
+                            className="hover-glow-small"
+                          >
+                            {action}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                 </div>
               ))}
 
               {/* Typing Loader */}
               {isLoading && (
-                <div style={{ alignSelf: 'flex-start', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '10px 14px', borderRadius: '12px 12px 12px 2px', display: 'flex', gap: '4px' }}>
-                  <span className="dot" style={{ animationDelay: '0s' }}>.</span>
-                  <span className="dot" style={{ animationDelay: '0.2s' }}>.</span>
-                  <span className="dot" style={{ animationDelay: '0.4s' }}>.</span>
+                <div
+                  style={{
+                    alignSelf: 'flex-start',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    padding: '10px 14px',
+                    borderRadius: '12px 12px 12px 2px',
+                    display: 'flex',
+                    gap: '4px',
+                  }}
+                >
+                  <span className="dot" style={{ animationDelay: '0s' }}>
+                    .
+                  </span>
+                  <span className="dot" style={{ animationDelay: '0.2s' }}>
+                    .
+                  </span>
+                  <span className="dot" style={{ animationDelay: '0.4s' }}>
+                    .
+                  </span>
                 </div>
               )}
 
@@ -745,14 +962,16 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              background: 'rgba(0, 0, 0, 0.2)'
+              background: 'rgba(0, 0, 0, 0.2)',
             }}
           >
             <button
               type="button"
               onClick={() => setShowConfig(!showConfig)}
               style={{
-                background: showConfig ? 'linear-gradient(135deg, #00f2fe, #4facfe)' : 'rgba(255,255,255,0.05)',
+                background: showConfig
+                  ? 'linear-gradient(135deg, #00f2fe, #4facfe)'
+                  : 'rgba(255,255,255,0.05)',
                 border: 'none',
                 width: '32px',
                 height: '32px',
@@ -763,7 +982,7 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                 cursor: 'pointer',
                 color: showConfig ? '#060913' : '#00f2fe',
                 transition: 'all 0.2s',
-                flexShrink: 0
+                flexShrink: 0,
               }}
               title="Configure AI Models & Keys"
             >
@@ -773,7 +992,11 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder={bookingId ? "Ask anything about stay upgrades, menu, keys..." : "Command operations, ask for revenue reports, or block rooms..."}
+              placeholder={
+                bookingId
+                  ? 'Ask anything about stay upgrades, menu, keys...'
+                  : 'Command operations, ask for revenue reports, or block rooms...'
+              }
               style={{
                 flex: 1,
                 background: 'rgba(255,255,255,0.03)',
@@ -783,16 +1006,18 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                 fontSize: '12px',
                 color: '#fff',
                 outline: 'none',
-                transition: 'border-color 0.2s'
+                transition: 'border-color 0.2s',
               }}
-              onFocus={(e) => e.target.style.borderColor = 'rgba(0, 242, 254, 0.4)'}
-              onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.08)'}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(0, 242, 254, 0.4)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(255, 255, 255, 0.08)')}
             />
             <button
               type="submit"
               disabled={!inputValue.trim() || isLoading}
               style={{
-                background: inputValue.trim() ? 'linear-gradient(135deg, #00f2fe, #4facfe)' : 'rgba(255,255,255,0.05)',
+                background: inputValue.trim()
+                  ? 'linear-gradient(135deg, #00f2fe, #4facfe)'
+                  : 'rgba(255,255,255,0.05)',
                 border: 'none',
                 width: '32px',
                 height: '32px',
@@ -802,7 +1027,7 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
                 justifyContent: 'center',
                 cursor: inputValue.trim() ? 'pointer' : 'default',
                 color: inputValue.trim() ? '#060913' : 'var(--text-muted)',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
               }}
             >
               <Send style={{ width: '14px', height: '14px' }} />
@@ -812,7 +1037,7 @@ export default function FlexiAIChatWidget({ bookingId = null }: FlexiAIChatWidge
       )}
 
       {/* Injected Animations */}
-      <style jsx global>{`
+      <style>{`
         @keyframes ping {
           75%, 100% {
             transform: scale(1.6);
