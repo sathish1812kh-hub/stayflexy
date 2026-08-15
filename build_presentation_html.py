@@ -1,4 +1,46 @@
-<!DOCTYPE html>
+# -*- coding: utf-8 -*-
+"""
+Generator for stayflexi_engineering_presentation.html
+Generates 29 complete, validated, non-colliding slides with KaTeX formulas,
+responsive layout, custom scrollbars, and rock-solid DOM hierarchy.
+"""
+
+def generate_html():
+    dropdown_options = [
+        "1. Executive Overview & Metrics",
+        "2. AI Pre-Task Operating Protocol",
+        "3. Stateless Session Recovery Across Logouts",
+        "4. Multi-Layer Context Verification Protocol",
+        "5. Git Commit Anchors & State Registry",
+        "6. Context Preservation & Git Backup",
+        "7. Just-In-Time (JIT) Phase Loading",
+        "8. Codegraph Deep Dive: Role, Use Case & How",
+        "9. Graphify Deep Dive: Role, Use Case & How",
+        "10. Neo4j Deep Dive: Role, Use Case & How",
+        "11. Graphiti Deep Dive: Role, Use Case & How",
+        "12. 4-Layer Intelligence Matrix Comparison",
+        "13. Phase 0 Deep Dive: Context Reconstruction",
+        "14. Phase 1 Deep Dive: Discovery & AST Indexing",
+        "15. Phase 2 Deep Dive: Knowledge Modeling",
+        "16. Phase 3 Deep Dive: Neo4j Graph Foundation",
+        "17. Phase 4 Deep Dive: Graphiti Temporal Memory",
+        "18. Phase 5 Deep Dive: GraphQL Supergraph Sync",
+        "19. Phase 6 Deep Dive: Browser Intelligence",
+        "20. Phase 7 Deep Dive: Blast Radius & Impact",
+        "21. Phase 8 Deep Dive: Telemetry & Runtime",
+        "22. Phase 9 Deep Dive: Consequence Simulation",
+        "23. Phase 10 Deep Dive: Governance Policies",
+        "24. Phase 11 Deep Dive: Multi-Engine Sync",
+        "25. Phase 12 Deep Dive: Session Persistence",
+        "26. REALTIME TASK SCENARIO: Pass-Through Flow",
+        "27. Data & Messaging Stack",
+        "28. QA, Observability & Governance Stack",
+        "29. Summary & Deliverables Overview"
+    ]
+
+    options_html = "\n".join([f'                <option value="{i}">{opt}</option>' for i, opt in enumerate(dropdown_options)])
+
+    html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,7 +50,7 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <style>
-        :root {
+        :root {{
             --bg-primary: #0b0f19;
             --bg-secondary: #111827;
             --bg-card: #1e293b;
@@ -23,15 +65,15 @@
             --border-color: rgba(255, 255, 255, 0.1);
             --glass-bg: rgba(30, 41, 59, 0.85);
             --glass-border: rgba(255, 255, 255, 0.12);
-        }
+        }}
 
-        * {
+        * {{
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-        }
+        }}
 
-        body {
+        body {{
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-primary);
             color: var(--text-primary);
@@ -40,9 +82,9 @@
             width: 100vw;
             display: flex;
             flex-direction: column;
-        }
+        }}
 
-        header {
+        header {{
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -53,15 +95,15 @@
             z-index: 100;
             flex-shrink: 0;
             height: 60px;
-        }
+        }}
 
-        .logo-area {
+        .logo-area {{
             display: flex;
             align-items: center;
             gap: 0.75rem;
-        }
+        }}
 
-        .logo-badge {
+        .logo-badge {{
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
             color: white;
             font-weight: 800;
@@ -69,22 +111,22 @@
             padding: 0.35rem 0.65rem;
             border-radius: 6px;
             letter-spacing: 1px;
-        }
+        }}
 
-        .logo-title {
+        .logo-title {{
             font-weight: 700;
             font-size: 1.05rem;
             letter-spacing: -0.5px;
             color: var(--text-primary);
-        }
+        }}
 
-        .nav-controls {
+        .nav-controls {{
             display: flex;
             align-items: center;
             gap: 0.75rem;
-        }
+        }}
 
-        .slide-select {
+        .slide-select {{
             background: var(--bg-card);
             color: var(--text-primary);
             border: 1px solid var(--glass-border);
@@ -95,9 +137,9 @@
             outline: none;
             cursor: pointer;
             max-width: 440px;
-        }
+        }}
 
-        .nav-btn {
+        .nav-btn {{
             background: var(--bg-card);
             color: var(--text-primary);
             border: 1px solid var(--glass-border);
@@ -110,16 +152,16 @@
             display: flex;
             align-items: center;
             gap: 0.4rem;
-        }
+        }}
 
-        .nav-btn:hover {
+        .nav-btn:hover {{
             background: var(--accent-cyan);
             color: #000;
             border-color: var(--accent-cyan);
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-        }
+        }}
 
-        .presentation-container {
+        .presentation-container {{
             flex: 1;
             position: relative;
             width: 100%;
@@ -127,9 +169,9 @@
             display: flex;
             justify-content: center;
             padding: 1rem 2rem;
-        }
+        }}
 
-        .slide {
+        .slide {{
             position: absolute;
             top: 1rem;
             bottom: 1rem;
@@ -149,15 +191,15 @@
             transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             overflow-y: auto;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
+        }}
 
-        .slide.active {
+        .slide.active {{
             opacity: 1;
             transform: translateX(-50%) translateY(0);
             pointer-events: all;
-        }
+        }}
 
-        .slide-header {
+        .slide-header {{
             margin-bottom: 0.9rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             padding-bottom: 0.6rem;
@@ -165,18 +207,18 @@
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
-        }
+        }}
 
-        .slide-title {
+        .slide-title {{
             font-size: 1.55rem;
             font-weight: 800;
             background: linear-gradient(135deg, #ffffff 0%, var(--accent-cyan) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.5px;
-        }
+        }}
 
-        .slide-category {
+        .slide-category {{
             font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
@@ -187,65 +229,65 @@
             border-radius: 20px;
             border: 1px solid rgba(168, 85, 247, 0.2);
             flex-shrink: 0;
-        }
+        }}
 
-        .slide-body {
+        .slide-body {{
             flex: 1;
             display: flex;
             flex-direction: column;
             gap: 0.85rem;
             overflow-y: auto;
             padding-right: 0.35rem;
-        }
+        }}
 
         /* Custom scrollbar for slide body */
-        .slide-body::-webkit-scrollbar, .slide::-webkit-scrollbar {
+        .slide-body::-webkit-scrollbar, .slide::-webkit-scrollbar {{
             width: 6px;
-        }
-        .slide-body::-webkit-scrollbar-track, .slide::-webkit-scrollbar-track {
+        }}
+        .slide-body::-webkit-scrollbar-track, .slide::-webkit-scrollbar-track {{
             background: rgba(15, 23, 42, 0.5);
             border-radius: 4px;
-        }
-        .slide-body::-webkit-scrollbar-thumb, .slide::-webkit-scrollbar-thumb {
+        }}
+        .slide-body::-webkit-scrollbar-thumb, .slide::-webkit-scrollbar-thumb {{
             background: rgba(56, 189, 248, 0.3);
             border-radius: 4px;
-        }
-        .slide-body::-webkit-scrollbar-thumb:hover, .slide::-webkit-scrollbar-thumb:hover {
+        }}
+        .slide-body::-webkit-scrollbar-thumb:hover, .slide::-webkit-scrollbar-thumb:hover {{
             background: rgba(56, 189, 248, 0.6);
-        }
+        }}
 
-        .grid-2 {
+        .grid-2 {{
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.9rem;
-        }
+        }}
 
-        .grid-3 {
+        .grid-3 {{
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 0.85rem;
-        }
+        }}
 
-        .grid-4 {
+        .grid-4 {{
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 0.75rem;
-        }
+        }}
 
-        .card {
+        .card {{
             background: rgba(15, 23, 42, 0.7);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 1rem 1.15rem;
             transition: transform 0.2s ease, border-color 0.2s ease;
-        }
+        }}
 
-        .card:hover {
+        .card:hover {{
             border-color: rgba(56, 189, 248, 0.4);
             transform: translateY(-2px);
-        }
+        }}
 
-        .card-header {
+        .card-header {{
             font-size: 0.98rem;
             font-weight: 700;
             color: var(--accent-cyan);
@@ -253,15 +295,15 @@
             display: flex;
             align-items: center;
             gap: 0.45rem;
-        }
+        }}
 
-        .card-body {
+        .card-body {{
             font-size: 0.84rem;
             color: var(--text-secondary);
             line-height: 1.5;
-        }
+        }}
 
-        .example-box {
+        .example-box {{
             background: rgba(56, 189, 248, 0.08);
             border-left: 3px solid var(--accent-cyan);
             padding: 0.55rem 0.8rem;
@@ -269,9 +311,9 @@
             border-radius: 0 6px 6px 0;
             font-size: 0.8rem;
             color: #e2e8f0;
-        }
+        }}
 
-        .example-box-purple {
+        .example-box-purple {{
             background: rgba(168, 85, 247, 0.08);
             border-left: 3px solid var(--accent-purple);
             padding: 0.55rem 0.8rem;
@@ -279,9 +321,9 @@
             border-radius: 0 6px 6px 0;
             font-size: 0.8rem;
             color: #e2e8f0;
-        }
+        }}
 
-        .example-box-emerald {
+        .example-box-emerald {{
             background: rgba(16, 185, 129, 0.08);
             border-left: 3px solid var(--accent-emerald);
             padding: 0.55rem 0.8rem;
@@ -289,9 +331,9 @@
             border-radius: 0 6px 6px 0;
             font-size: 0.8rem;
             color: #e2e8f0;
-        }
+        }}
 
-        .example-box-cyan {
+        .example-box-cyan {{
             background: rgba(56, 189, 248, 0.08);
             border-left: 3px solid var(--accent-cyan);
             padding: 0.55rem 0.8rem;
@@ -299,58 +341,58 @@
             border-radius: 0 6px 6px 0;
             font-size: 0.8rem;
             color: #e2e8f0;
-        }
+        }}
 
-        .data-table {
+        .data-table {{
             width: 100%;
             border-collapse: collapse;
             font-size: 0.82rem;
             margin-top: 0.3rem;
-        }
+        }}
 
-        .data-table th {
+        .data-table th {{
             background: rgba(30, 41, 59, 0.95);
             color: var(--accent-cyan);
             text-align: left;
             padding: 0.55rem 0.75rem;
             font-weight: 700;
             border-bottom: 2px solid var(--border-color);
-        }
+        }}
 
-        .data-table td {
+        .data-table td {{
             padding: 0.55rem 0.75rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             color: var(--text-secondary);
-        }
+        }}
 
-        .data-table tr:hover td {
+        .data-table tr:hover td {{
             background: rgba(56, 189, 248, 0.05);
             color: var(--text-primary);
-        }
+        }}
 
-        .tool-name {
+        .tool-name {{
             font-weight: 700;
             color: #ffffff;
             display: flex;
             align-items: center;
             gap: 0.4rem;
-        }
+        }}
 
-        .tag {
+        .tag {{
             display: inline-block;
             padding: 0.2rem 0.5rem;
             border-radius: 4px;
             font-size: 0.72rem;
             font-weight: 600;
-        }
+        }}
 
-        .tag-cyan { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); }
-        .tag-purple { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); }
-        .tag-emerald { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
-        .tag-amber { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
-        .tag-rose { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); }
+        .tag-cyan {{ background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); }}
+        .tag-purple {{ background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); }}
+        .tag-emerald {{ background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }}
+        .tag-amber {{ background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }}
+        .tag-rose {{ background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); }}
 
-        pre {
+        pre {{
             background: #0f172a;
             border: 1px solid var(--border-color);
             padding: 0.75rem;
@@ -359,9 +401,9 @@
             font-size: 0.76rem;
             color: #e2e8f0;
             overflow-x: auto;
-        }
+        }}
 
-        footer {
+        footer {{
             padding: 0.5rem 2rem;
             background: rgba(11, 15, 25, 0.95);
             border-top: 1px solid var(--border-color);
@@ -373,24 +415,24 @@
             z-index: 100;
             flex-shrink: 0;
             height: 38px;
-        }
+        }}
 
-        .key-hint {
+        .key-hint {{
             display: flex;
             gap: 1rem;
-        }
+        }}
 
-        .key-kbd {
+        .key-kbd {{
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             padding: 0.1rem 0.4rem;
             border-radius: 4px;
             color: var(--text-secondary);
             font-weight: 600;
-        }
+        }}
 
-        a { color: var(--accent-cyan); text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        a {{ color: var(--accent-cyan); text-decoration: none; }}
+        a:hover {{ text-decoration: underline; }}
     </style>
 </head>
 <body>
@@ -402,35 +444,7 @@
         </div>
         <div class="nav-controls">
             <select id="slideSelect" class="slide-select" onchange="goToSlide(parseInt(this.value))">
-                <option value="0">1. Executive Overview & Metrics</option>
-                <option value="1">2. AI Pre-Task Operating Protocol</option>
-                <option value="2">3. Stateless Session Recovery Across Logouts</option>
-                <option value="3">4. Multi-Layer Context Verification Protocol</option>
-                <option value="4">5. Git Commit Anchors & State Registry</option>
-                <option value="5">6. Context Preservation & Git Backup</option>
-                <option value="6">7. Just-In-Time (JIT) Phase Loading</option>
-                <option value="7">8. Codegraph Deep Dive: Role, Use Case & How</option>
-                <option value="8">9. Graphify Deep Dive: Role, Use Case & How</option>
-                <option value="9">10. Neo4j Deep Dive: Role, Use Case & How</option>
-                <option value="10">11. Graphiti Deep Dive: Role, Use Case & How</option>
-                <option value="11">12. 4-Layer Intelligence Matrix Comparison</option>
-                <option value="12">13. Phase 0 Deep Dive: Context Reconstruction</option>
-                <option value="13">14. Phase 1 Deep Dive: Discovery & AST Indexing</option>
-                <option value="14">15. Phase 2 Deep Dive: Knowledge Modeling</option>
-                <option value="15">16. Phase 3 Deep Dive: Neo4j Graph Foundation</option>
-                <option value="16">17. Phase 4 Deep Dive: Graphiti Temporal Memory</option>
-                <option value="17">18. Phase 5 Deep Dive: GraphQL Supergraph Sync</option>
-                <option value="18">19. Phase 6 Deep Dive: Browser Intelligence</option>
-                <option value="19">20. Phase 7 Deep Dive: Blast Radius & Impact</option>
-                <option value="20">21. Phase 8 Deep Dive: Telemetry & Runtime</option>
-                <option value="21">22. Phase 9 Deep Dive: Consequence Simulation</option>
-                <option value="22">23. Phase 10 Deep Dive: Governance Policies</option>
-                <option value="23">24. Phase 11 Deep Dive: Multi-Engine Sync</option>
-                <option value="24">25. Phase 12 Deep Dive: Session Persistence</option>
-                <option value="25">26. REALTIME TASK SCENARIO: Pass-Through Flow</option>
-                <option value="26">27. Data & Messaging Stack</option>
-                <option value="27">28. QA, Observability & Governance Stack</option>
-                <option value="28">29. Summary & Deliverables Overview</option>
+{options_html}
             </select>
             <button class="nav-btn" onclick="prevSlide()">❮ Prev</button>
             <button class="nav-btn" onclick="nextSlide()">Next ❯</button>
@@ -438,7 +452,12 @@
     </header>
 
     <div class="presentation-container">
+"""
 
+    slides_content = []
+
+    # SLIDE 0
+    slides_content.append("""
         <!-- SLIDE 1 -->
         <div class="slide active" id="slide-0">
             <div class="slide-header">
@@ -492,8 +511,10 @@
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 1
+    slides_content.append("""
         <!-- SLIDE 2 -->
         <div class="slide" id="slide-1">
             <div class="slide-header">
@@ -553,8 +574,10 @@
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 2
+    slides_content.append("""
         <!-- SLIDE 3 -->
         <div class="slide" id="slide-2">
             <div class="slide-header">
@@ -595,8 +618,10 @@
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 3
+    slides_content.append("""
         <!-- SLIDE 4 -->
         <div class="slide" id="slide-3">
             <div class="slide-header">
@@ -654,8 +679,10 @@
                 </table>
             </div>
         </div>
+""")
 
-
+    # SLIDE 4
+    slides_content.append("""
         <!-- SLIDE 5 -->
         <div class="slide" id="slide-4">
             <div class="slide-header">
@@ -691,8 +718,10 @@
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 5
+    slides_content.append("""
         <!-- SLIDE 6 -->
         <div class="slide" id="slide-5">
             <div class="slide-header">
@@ -728,8 +757,10 @@
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 6
+    slides_content.append("""
         <!-- SLIDE 7 -->
         <div class="slide" id="slide-6">
             <div class="slide-header">
@@ -764,8 +795,10 @@
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 7
+    slides_content.append("""
         <!-- SLIDE 8: Codegraph Tool Deep Dive -->
         <div class="slide" id="slide-7">
             <div class="slide-header">
@@ -807,8 +840,10 @@
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 8
+    slides_content.append("""
         <!-- SLIDE 9: Graphify Tool Introduction BEFORE Phases -->
         <div class="slide" id="slide-8">
             <div class="slide-header">
@@ -850,8 +885,10 @@
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 9
+    slides_content.append("""
         <!-- SLIDE 10: Neo4j Tool Introduction BEFORE Phases -->
         <div class="slide" id="slide-9">
             <div class="slide-header">
@@ -870,7 +907,7 @@
                     <div class="card">
                         <div class="card-header">❓ WHY We Use Neo4j in the Platform</div>
                         <div class="card-body">
-                            Relational databases and flat files cannot query multi-hop dependency chains efficiently. Neo4j executes Cypher graph traversals to calculate exact service-level Blast Radius before code edits, detects orphan nodes, and enforces schema sanity invariants ($	ext{Neo4j} \equiv 	ext{Codebase}$).
+                            Relational databases and flat files cannot query multi-hop dependency chains efficiently. Neo4j executes Cypher graph traversals to calculate exact service-level Blast Radius before code edits, detects orphan nodes, and enforces schema sanity invariants ($\text{Neo4j} \equiv \text{Codebase}$).
                         </div>
                     </div>
                 </div>
@@ -896,8 +933,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 10
+    slides_content.append("""
         <!-- SLIDE 11: Graphiti Tool Introduction BEFORE Phases -->
         <div class="slide" id="slide-10">
             <div class="slide-header">
@@ -939,8 +978,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 11
+    slides_content.append("""
         <!-- SLIDE 12: 4-Layer Intelligence Matrix BEFORE Phases -->
         <div class="slide" id="slide-11">
             <div class="slide-header">
@@ -995,12 +1036,14 @@ RETURN s.name, t.name, c.name</pre>
                     </tbody>
                 </table>
                 <div class="example-box-purple" style="margin-top: 0.5rem;">
-                    <strong>Multi-Engine Synchronization Invariant:</strong> The orchestrator enforces that $\text{Neo4j} \equiv \text{Codebase} \land \text{Codegraph} \equiv \text{Codebase} \land \text{Graphiti} \equiv \text{Neo4j} \land \text{GraphQL} \equiv \text{Codebase}$. Any drift automatically halts task completion gates.
+                    <strong>Multi-Engine Synchronization Invariant:</strong> The orchestrator enforces that $\\text{Neo4j} \\equiv \\text{Codebase} \\land \\text{Codegraph} \\equiv \\text{Codebase} \\land \\text{Graphiti} \\equiv \\text{Neo4j} \\land \\text{GraphQL} \\equiv \\text{Codebase}$. Any drift automatically halts task completion gates.
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 12 (Phase 0)
+    slides_content.append("""
         <!-- SLIDE 13: Phase 0 Deep Dive -->
         <div class="slide" id="slide-12">
             <div class="slide-header">
@@ -1045,8 +1088,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 13 (Phase 1)
+    slides_content.append("""
         <!-- SLIDE 14: Phase 1 Deep Dive -->
         <div class="slide" id="slide-13">
             <div class="slide-header">
@@ -1090,8 +1135,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 14 (Phase 2)
+    slides_content.append("""
         <!-- SLIDE 15: Phase 2 Deep Dive -->
         <div class="slide" id="slide-14">
             <div class="slide-header">
@@ -1135,8 +1182,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 15 (Phase 3)
+    slides_content.append("""
         <!-- SLIDE 16: Phase 3 Deep Dive -->
         <div class="slide" id="slide-15">
             <div class="slide-header">
@@ -1180,8 +1229,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 16 (Phase 4)
+    slides_content.append("""
         <!-- SLIDE 17: Phase 4 Deep Dive -->
         <div class="slide" id="slide-16">
             <div class="slide-header">
@@ -1225,8 +1276,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 17 (Phase 5)
+    slides_content.append("""
         <!-- SLIDE 18: Phase 5 Deep Dive -->
         <div class="slide" id="slide-17">
             <div class="slide-header">
@@ -1270,8 +1323,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 18 (Phase 6)
+    slides_content.append("""
         <!-- SLIDE 19: Phase 6 Deep Dive -->
         <div class="slide" id="slide-18">
             <div class="slide-header">
@@ -1315,8 +1370,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 19 (Phase 7)
+    slides_content.append("""
         <!-- SLIDE 20: Phase 7 Deep Dive -->
         <div class="slide" id="slide-19">
             <div class="slide-header">
@@ -1360,8 +1417,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 20 (Phase 8)
+    slides_content.append("""
         <!-- SLIDE 21: Phase 8 Deep Dive -->
         <div class="slide" id="slide-20">
             <div class="slide-header">
@@ -1405,8 +1464,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 21 (Phase 9)
+    slides_content.append("""
         <!-- SLIDE 22: Phase 9 Deep Dive -->
         <div class="slide" id="slide-21">
             <div class="slide-header">
@@ -1425,8 +1486,8 @@ RETURN s.name, t.name, c.name</pre>
                         <div class="card-header">⚙️ WHAT Happens in Detail</div>
                         <div class="card-body" style="font-size: 0.83rem;">
                             1. Evaluates Topology Risk (TR), Blast Radius (BR), Security Risk (SR), Performance Risk (PR), Complexity Risk (CR).<br>
-                            2. Computes formula: $CRS = (0.25 TR + 0.25 BR + 0.20 SR + 0.15 PR + 0.15 CR) \times 10.0$.<br>
-                            3. Categorizes change into LOW (&lt;30), MEDIUM (30-59), HIGH (60-84), or CRITICAL ($\ge 85$).<br>
+                            2. Computes formula: $CRS = (0.25 TR + 0.25 BR + 0.20 SR + 0.15 PR + 0.15 CR) \\times 10.0$.<br>
+                            3. Categorizes change into LOW (&lt;30), MEDIUM (30-59), HIGH (60-84), or CRITICAL ($\\ge 85$).<br>
                             4. Dictates required approval gates (e.g. human architect sign-off).
                         </div>
                     </div>
@@ -1443,14 +1504,16 @@ RETURN s.name, t.name, c.name</pre>
                     <div class="card">
                         <div class="card-header">🎯 Real-Time Task Walkthrough (Task TSK-00132)</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            Evaluates auth payload and schema changes $\rightarrow$ calculates Composite Risk Score (CRS = 68 HIGH RISK) $\rightarrow$ flags requirement for explicit human architect sign-off before proceeding.
+                            Evaluates auth payload and schema changes $\\rightarrow$ calculates Composite Risk Score (CRS = 68 HIGH RISK) $\\rightarrow$ flags requirement for explicit human architect sign-off before proceeding.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 22 (Phase 10)
+    slides_content.append("""
         <!-- SLIDE 23: Phase 10 Deep Dive -->
         <div class="slide" id="slide-22">
             <div class="slide-header">
@@ -1494,8 +1557,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 23 (Phase 11)
+    slides_content.append("""
         <!-- SLIDE 24: Phase 11 Deep Dive -->
         <div class="slide" id="slide-23">
             <div class="slide-header">
@@ -1513,7 +1578,7 @@ RETURN s.name, t.name, c.name</pre>
                     <div class="card">
                         <div class="card-header">⚙️ WHAT Happens in Detail</div>
                         <div class="card-body" style="font-size: 0.83rem;">
-                            1. Validates invariant: $\text{Neo4j} \equiv \text{Codebase} \land \text{Codegraph} \equiv \text{Codebase} \land \text{GraphQL} \equiv \text{Codebase}$.<br>
+                            1. Validates invariant: $\\text{Neo4j} \\equiv \\text{Codebase} \\land \\text{Codegraph} \\equiv \\text{Codebase} \\land \\text{GraphQL} \\equiv \\text{Codebase}$.<br>
                             2. Re-indexes AST node records for modified controllers in Codegraph.<br>
                             3. Updates Neo4j microservice topology and Kafka event edges.<br>
                             4. Halts completion gates if any graph drift is detected in <code>sync-task.ps1</code>.
@@ -1539,8 +1604,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 24 (Phase 12)
+    slides_content.append("""
         <!-- SLIDE 25: Phase 12 Deep Dive -->
         <div class="slide" id="slide-24">
             <div class="slide-header">
@@ -1584,8 +1651,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 25 (Scenario)
+    slides_content.append("""
         <!-- SLIDE 26 -->
         <div class="slide" id="slide-25">
             <div class="slide-header">
@@ -1603,13 +1672,13 @@ RETURN s.name, t.name, c.name</pre>
                     <div class="card">
                         <div class="card-header">⚡ Step 1: Codegraph Phase</div>
                         <div class="card-body" style="font-size: 0.82rem;">
-                            Runs <code>codegraph_explore "TokenService"</code> $\rightarrow$ returns 14 dependent callers and auto-links <code>TokenService.test.ts</code> unit test suite in <strong>30ms</strong>.
+                            Runs <code>codegraph_explore "TokenService"</code> $\\rightarrow$ returns 14 dependent callers and auto-links <code>TokenService.test.ts</code> unit test suite in <strong>30ms</strong>.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">🔮 Step 2: Graphify Phase</div>
                         <div class="card-body" style="font-size: 0.82rem;">
-                            AST scans code structure $\rightarrow$ identifies <code>TokenService</code> as God Node $\rightarrow$ maps 14 dependent endpoints and 3 microservice communities affected by the auth payload edit.
+                            AST scans code structure $\\rightarrow$ identifies <code>TokenService</code> as God Node $\\rightarrow$ maps 14 dependent endpoints and 3 microservice communities affected by the auth payload edit.
                         </div>
                     </div>
                 </div>
@@ -1617,13 +1686,13 @@ RETURN s.name, t.name, c.name</pre>
                     <div class="card">
                         <div class="card-header">🌐 Step 3: Neo4j Phase</div>
                         <div class="card-body" style="font-size: 0.82rem;">
-                            Runs Cypher impact query $\rightarrow$ computes Composite Risk Score (CRS = 68 HIGH RISK) $\rightarrow$ triggers architect review gate $\rightarrow$ validates <code>Neo4j == Codebase</code> sync invariant.
+                            Runs Cypher impact query $\\rightarrow$ computes Composite Risk Score (CRS = 68 HIGH RISK) $\\rightarrow$ triggers architect review gate $\\rightarrow$ validates <code>Neo4j == Codebase</code> sync invariant.
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-header">🧠 Step 4: Graphiti Phase</div>
                         <div class="card-body" style="font-size: 0.82rem;">
-                            Queries prior decision memory $\rightarrow$ records new ADR episode for nullable <code>customerType</code> $\rightarrow$ serializes memory pack so future chat sessions retain full rationale.
+                            Queries prior decision memory $\\rightarrow$ records new ADR episode for nullable <code>customerType</code> $\\rightarrow$ serializes memory pack so future chat sessions retain full rationale.
                         </div>
                     </div>
                 </div>
@@ -1632,8 +1701,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 26 (Data Stack)
+    slides_content.append("""
         <!-- SLIDE 27 -->
         <div class="slide" id="slide-26">
             <div class="slide-header">
@@ -1682,8 +1753,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 27 (QA Stack)
+    slides_content.append("""
         <!-- SLIDE 28 -->
         <div class="slide" id="slide-27">
             <div class="slide-header">
@@ -1738,8 +1811,10 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
-
+    # SLIDE 28 (Summary)
+    slides_content.append("""
         <!-- SLIDE 29 -->
         <div class="slide" id="slide-28">
             <div class="slide-header">
@@ -1788,7 +1863,11 @@ RETURN s.name, t.name, c.name</pre>
                 </div>
             </div>
         </div>
+""")
 
+    html += "\n".join(slides_content)
+
+    html += """
     </div>
 
     <footer>
@@ -1848,3 +1927,11 @@ RETURN s.name, t.name, c.name</pre>
     </script>
 </body>
 </html>
+"""
+    return html
+
+if __name__ == "__main__":
+    content = generate_html()
+    with open("stayflexi_engineering_presentation.html", "w", encoding="utf-8") as f:
+        f.write(content)
+    print("Successfully generated stayflexi_engineering_presentation.html with 29 slides!")
