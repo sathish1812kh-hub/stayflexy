@@ -471,7 +471,7 @@
                     <div class="card">
                         <div class="card-header">1. Read State File</div>
                         <div class="card-body">
-                            Open and read <code>docs/discovery/current-state.md</code> to locate active task (<code>TSK-00130</code>), Git commit hash, and focus modules.
+                            Open and read <code>docs/discovery/current-state.md</code> to locate active task (<code>TSK-00132</code>), Git commit hash, and focus modules.
                         </div>
                     </div>
                     <div class="card">
@@ -483,7 +483,7 @@
                     <div class="card">
                         <div class="card-header">3. Verify Active Services</div>
                         <div class="card-body">
-                            Probe ports 5432 (PostgreSQL Database), 7687 (Neo4j Graph Database), 6379 (Redis Cache), 9092 (Apache Kafka Message Bus). Auto-start via Docker if down.
+                            Probe ports 5432 (Postgres), 7687 (Native Neo4j Community 5.26), and Codegraph SQLite database. Auto-start via script if down.
                         </div>
                     </div>
                     <div class="card">
@@ -495,7 +495,7 @@
                     <div class="card">
                         <div class="card-header">5. Confirm Rulebook</div>
                         <div class="card-body">
-                            Reference rulebook <code>docs/discovery/V5.2-Orchestrator.md</code> to enforce source-of-truth hierarchy rules.
+                            Reference rulebook <code>docs/discovery/V5.2-Orchestrator.md</code> to enforce 4-layer source-of-truth hierarchy rules.
                         </div>
                     </div>
                     <div class="card">
@@ -503,6 +503,12 @@
                         <div class="card-body">
                             Output a short "Context Recovery Report" (Active Task, Git Status, Identified Risks) and request user confirmation.
                         </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 0.75rem; border-color: var(--accent-cyan);">
+                    <div class="card-header" style="color: var(--accent-cyan);">7. Codegraph Exploration First (Mandatory Pre-Edit Gate)</div>
+                    <div class="card-body">
+                        Before modifying or refactoring any code symbols, execute <code>codegraph_explore</code> to inspect caller hierarchies, dynamic dispatch paths, and covering unit test files across all 28 packages.
                     </div>
                 </div>
             </div>

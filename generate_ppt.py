@@ -65,13 +65,13 @@ def create_presentation():
     p.space_after = Pt(12)
 
     p2 = tf.add_paragraph()
-    p2.text = "Structural Phase Deep Dives (Phases 0-12), Stateless Recovery & Graph Triad Architecture (v9)"
+    p2.text = "Structural Phases (0-12), 4-Layer Intelligence Matrix & Platform v6.9.0 (v9)"
     p2.font.size = Pt(18)
     p2.font.color.rgb = COLOR_WHITE
     p2.space_after = Pt(24)
 
     p3 = tf.add_paragraph()
-    p3.text = "12 Microservices  |  13 System Phases  |  28 Master Presentation Slides"
+    p3.text = "12 Microservices  |  4-Graph Intelligence Layer  |  v6.9.0 Certified Production Release"
     p3.font.size = Pt(14)
     p3.font.color.rgb = COLOR_PURPLE
 
@@ -96,16 +96,17 @@ def create_presentation():
     p.space_after = Pt(12)
 
     steps_text = (
-        "1. Read State File: Inspect docs/discovery/current-state.md (Active Task TSK-00130, commit hash).\n"
+        "1. Read State File: Inspect docs/discovery/current-state.md (Active Task TSK-00132, commit hash).\n"
         "2. Verify Git Status: Run git status --porcelain to detect unrecorded drift or modified files.\n"
-        "3. Verify Active Services: Probe ports 5432 (Postgres), 7687 (Neo4j), 6379 (Redis), 9092 (Kafka). Auto-start if down.\n"
+        "3. Verify Active Services: Probe ports 5432 (Postgres), 7687 (Neo4j), Codegraph SQLite. Auto-start if down.\n"
         "4. Inspect Active Tasks: Open docs/discovery/active-tasks.md to verify dependency conditions.\n"
         "5. Confirm Rulebook: Reference rules in docs/discovery/V5.2-Orchestrator.md for source-of-truth hierarchy.\n"
-        "6. Summarize & Prompt: Output 'Context Recovery Report' and request confirmation prior to modifications."
+        "6. Summarize & Prompt: Output 'Context Recovery Report' and request confirmation prior to modifications.\n"
+        "7. Codegraph Exploration First: Query codegraph_explore to inspect callers, blast radius & tests before edits."
     )
     p_s = tf_b.add_paragraph()
     p_s.text = steps_text
-    p_s.font.size = Pt(13)
+    p_s.font.size = Pt(12)
     p_s.font.color.rgb = COLOR_WHITE
 
     # -------------------------------------------------------------
@@ -131,10 +132,11 @@ def create_presentation():
     st_text = (
         "When a developer starts a completely new session, prompt transcript history is 100% erased.\n"
         "The system DOES NOT rely on chat history. Context is rebuilt deterministically in seconds:\n\n"
-        "• Double-Buffered Markdown State: Phase 0 reads 4 git-tracked recovery files (current-state.md, project-context.md, active-tasks.md, decision-log.md).\n"
-        "• Git Commit Anchors: Current Git commit hash (2d4a0f674f...) anchors exact code state.\n"
-        "• Neo4j AST Graph Sync: Neo4j graph stores AST structure & validates node freshness.\n"
-        "• Graphiti Decision Rationale: Graphiti loads memory packs JIT to restore ADR design rationale (e.g. why columns are nullable).\n\n"
+        "• Double-Buffered Markdown State: Phase 0 reads 4 git-tracked recovery files (current-state.md, active-tasks.md, etc.).\n"
+        "• Git Commit Anchors: Current Git commit hash (56a6ed2...) anchors exact code state.\n"
+        "• Neo4j Topology Sync: Native Neo4j (Port 7687) stores 83 nodes & 194 relationships across 12 microservices.\n"
+        "• Codegraph AST Engine: SQLite database (.codegraph/codegraph.db) provides instant symbol & caller lookups.\n"
+        "• Graphiti Decision Rationale: Graphiti loads memory packs JIT to restore ADR design rationale.\n\n"
         "Result: 100% deterministic session recovery without depending on previous chat logs!"
     )
     p_st_body = tf_st.add_paragraph()
@@ -147,15 +149,15 @@ def create_presentation():
     # -------------------------------------------------------------
     slide4_new = prs.slides.add_slide(blank_slide_layout)
     set_slide_background(slide4_new)
-    add_header(slide4_new, "Multi-Layer Context Verification Protocol (5 Independent Layers)", "Redundant Verification")
+    add_header(slide4_new, "Multi-Layer Context Verification Protocol (6 Independent Layers)", "Redundant Verification")
 
-    rows_cnt = 6
+    rows_cnt = 7
     table_shape = slide4_new.shapes.add_table(rows_cnt, 4, Inches(0.8), Inches(1.5), Inches(11.7), Inches(5.3))
     table = table_shape.table
-    table.columns[0].width = Inches(1.5)
-    table.columns[1].width = Inches(2.8)
-    table.columns[2].width = Inches(4.4)
-    table.columns[3].width = Inches(3.0)
+    table.columns[0].width = Inches(1.3)
+    table.columns[1].width = Inches(2.7)
+    table.columns[2].width = Inches(4.5)
+    table.columns[3].width = Inches(3.2)
 
     headers = ["Layer #", "Verification Method", "Operational Mechanism", "Failure Defense & Self-Healing"]
     for c_idx, h_text in enumerate(headers):
@@ -164,16 +166,17 @@ def create_presentation():
         cell.fill.fore_color.rgb = COLOR_CARD
         p = cell.text_frame.paragraphs[0]
         p.text = h_text
-        p.font.size = Pt(12)
+        p.font.size = Pt(11)
         p.font.bold = True
         p.font.color.rgb = COLOR_CYAN
 
     v_rows = [
         ("Layer 1", "Double-Buffered Markdown State", "Reads current-state.md, project-context.md, active-tasks.md, decision-log.md.", "Detects state mismatch if 1 file is manually corrupted."),
         ("Layer 2", "Git Commit & Porcelain Shield", "Compares commit hash against git rev-parse HEAD & git status --porcelain.", "Detects uncommitted local changes or branch drift immediately."),
-        ("Layer 3", "Neo4j Node Freshness Check", "Compares node extractedAt timestamps vs Git LastModified commit dates.", "If git_modified > extractedAt, marks isStale=true & re-indexes AST."),
-        ("Layer 4", "Graphiti Temporal Rationale", "Queries Graphiti memory for active ADR decisions linked to active task.", "Prevents AI from undoing intentional trade-offs (e.g. nullable customerType)."),
-        ("Layer 5", "Service Health & Schema Probe", "Probes ports 5432, 7687, 6379, 9092 & GraphQL supergraph checksum.", "Auto-starts docker services if ports are down; validates live schema.")
+        ("Layer 3", "Neo4j Node Freshness Check", "Validates 83 nodes, 194 relationships, and Git commit linkage.", "Auto-starts native server via scripts/start-neo4j.ps1 on port 7687."),
+        ("Layer 4", "Codegraph AST Blast-Radius", "Queries .codegraph/codegraph.db for callers and covering unit tests.", "Guards shared packages from broken callers before edits are made."),
+        ("Layer 5", "Graphiti Temporal Rationale", "Queries Graphiti memory for active ADR decisions linked to active task.", "Prevents AI from undoing intentional architectural trade-offs."),
+        ("Layer 6", "Service Health & Schema Probe", "Probes ports 5432, 7687, GraphQL Federation, and fast sync gate.", "Validates live schema and executes sync-graph.ps1 in <8s.")
     ]
 
     for r_idx, r_data in enumerate(v_rows):
@@ -183,7 +186,7 @@ def create_presentation():
             cell.fill.fore_color.rgb = RGBColor(15, 23, 42)
             p = cell.text_frame.paragraphs[0]
             p.text = cell_value
-            p.font.size = Pt(11)
+            p.font.size = Pt(10)
             p.font.color.rgb = COLOR_WHITE if c_idx == 0 else COLOR_MUTED
             if c_idx == 0:
                 p.font.bold = True
@@ -209,15 +212,16 @@ def create_presentation():
     p.space_after = Pt(12)
 
     anchor_text = (
-        "• HEAD Commit Anchor: 2d4a0f674f3df9c... (chore: update current-state commit hash after RBAC implementation)\n"
-        "• Parent Commit Anchor: 802e0bf (feat: enforce role-based access control on frontend tabs)\n"
-        "• Grandparent Commit Anchor: b9938a7 (chore: synchronize current-state commit hash)\n\n"
+        "• Certified Release Tag: v6.9.0 (Release v6.9.0 - Complete Certified Stayflexi Platform)\n"
+        "• Active Commit Anchor: 56a6ed2 (feat: embed Codegraph into specific lifecycle phases of V5.2 Orchestrator)\n"
+        "• Parent Commit Anchor: 6022920 (feat: integrate Codegraph into startup protocol and compliance gate)\n"
+        "• Grandparent Commit Anchor: e18dc6c (feat: implement Turbo CI caching, fast pre-push diffing, and dev commands)\n\n"
         "📂 Double-Buffered State Recovery Files:\n"
-        "  1. docs/discovery/current-state.md — Active Task TSK-00130 & Git Commit Hash Anchor\n"
+        "  1. docs/discovery/current-state.md — Active Task TSK-00132 & Git Commit Hash Anchor\n"
         "  2. docs/discovery/active-tasks.md — Pending Sprint Task Queue & Dependencies\n"
-        "  3. docs/discovery/V5.2-Orchestrator.md — 12 System Phases & Rulebook\n"
-        "  4. GEMINI.md — Mandatory Pre-Task Startup Rules\n\n"
-        "⚡ Verification Command: Phase 0 runs 'git rev-parse HEAD; git status --porcelain; git log -n 3 --oneline'"
+        "  3. docs/discovery/V5.2-Orchestrator.md — 13 System Phases & Multi-Graph Rulebook\n"
+        "  4. GEMINI.md — Mandatory Pre-Task Startup Rules & Codegraph Protocol\n\n"
+        "⚡ Verification Command: Phase 0 runs 'git rev-parse HEAD; git status --porcelain; powershell -File scripts/sync-graph.ps1'"
     )
     p_an_b = tf_an.add_paragraph()
     p_an_b.text = anchor_text
@@ -644,7 +648,7 @@ def create_presentation():
         "2. Native PowerPoint Widescreen Deck (.pptx):\n"
         "   Path: stayflexi_engineering_presentation_v9.pptx\n"
         "   Native 28-slide PowerPoint deck formatted with dark-mode styling, structured data tables, and widescreen layout.\n\n"
-        "Generated by Stayflexi Autonomous Orchestrator • Version v5.2.0-certified"
+        "Generated by Stayflexi Autonomous Orchestrator • Version v6.9.0-certified (4-Layer Intelligence Matrix)"
     )
     p_dt = tf28.add_paragraph()
     p_dt.text = deliv_text
