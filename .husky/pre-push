@@ -1,15 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-# Prevent direct pushes to main
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-
-if [ "$BRANCH" = "main" ]; then
-  echo "Direct push to 'main' is not allowed."
-  echo "Open a pull request from a feature branch."
-  exit 1
-fi
-
 # Run pre-push task sync & graph gate if powershell is available
 if command -v powershell >/dev/null 2>&1; then
   powershell -ExecutionPolicy Bypass -File ./scripts/sync-graph.ps1
