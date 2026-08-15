@@ -12,30 +12,59 @@ import type { Logger } from '@stayflexi/shared-logger'
 
 function makeHotel(status: 'ACTIVE' | 'INACTIVE' = 'ACTIVE'): Hotel {
   return new Hotel({
-    id: 'hotel-1', organizationId: 'org-1', name: 'Grand Palace', slug: 'grand-palace',
-    address: null, city: 'Mumbai', state: null, country: 'IN', postalCode: null,
-    phone: null, email: null, website: null, starRating: null,
-    status, timezone: 'UTC', checkInTime: '14:00', checkOutTime: '11:00',
-    metadata: null, createdById: null, createdAt: new Date(), updatedAt: new Date(), deletedAt: null,
+    id: 'hotel-1',
+    organizationId: 'org-1',
+    name: 'Grand Palace',
+    slug: 'grand-palace',
+    address: null,
+    city: 'Mumbai',
+    state: null,
+    country: 'IN',
+    postalCode: null,
+    phone: null,
+    email: null,
+    website: null,
+    starRating: null,
+    status,
+    timezone: 'UTC',
+    checkInTime: '14:00',
+    checkOutTime: '11:00',
+    metadata: null,
+    createdById: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
   })
 }
 
-function makeRoom(
-  status: Room['status'] = 'AVAILABLE',
-  isActive = true,
-  orgId = 'org-1'
-): Room {
+function makeRoom(status: Room['status'] = 'AVAILABLE', isActive = true, orgId = 'org-1'): Room {
   return new Room({
-    id: 'room-1', hotelId: 'hotel-1', organizationId: orgId, roomTypeId: 'rt-1',
-    roomNumber: '101', floor: 1, status, isActive, notes: null, metadata: null,
-    createdAt: new Date(), updatedAt: new Date(),
-  })
+    id: 'room-1',
+    hotelId: 'hotel-1',
+    organizationId: orgId,
+    roomTypeId: 'rt-1',
+    roomNumber: '101',
+    floor: 1,
+    status,
+    isActive,
+    notes: null,
+    metadata: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  } as any)
 }
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────
 
 function makeHotelRepo(): jest.Mocked<IHotelRepository> {
-  return { findById: jest.fn(), findBySlug: jest.fn(), create: jest.fn(), update: jest.fn(), softDelete: jest.fn(), findMany: jest.fn() }
+  return {
+    findById: jest.fn(),
+    findBySlug: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    softDelete: jest.fn(),
+    findMany: jest.fn(),
+  }
 }
 
 function makeRoomRepo(): jest.Mocked<IRoomRepository> {
@@ -65,7 +94,12 @@ const mockPublisher: IEventPublisher = {
   isConnected: () => false,
 }
 
-const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() } as unknown as Logger
+const mockLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+} as unknown as Logger
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
@@ -92,7 +126,11 @@ describe('UpdateRoomStatus', () => {
 
     expect(roomRepo.updateStatus).toHaveBeenCalledWith('room-1', 'OCCUPIED')
     expect(roomRepo.createStatusAudit).toHaveBeenCalledWith(
-      expect.objectContaining({ fromStatus: 'AVAILABLE', toStatus: 'OCCUPIED', changedBy: 'user-1' })
+      expect.objectContaining({
+        fromStatus: 'AVAILABLE',
+        toStatus: 'OCCUPIED',
+        changedBy: 'user-1',
+      }),
     )
     expect(cache.invalidate).toHaveBeenCalledWith('room-1')
     expect(result.status).toBe('OCCUPIED')
@@ -102,7 +140,7 @@ describe('UpdateRoomStatus', () => {
     roomRepo.findById.mockResolvedValue(null)
 
     await expect(
-      useCase.execute('room-1', { status: 'OCCUPIED' }, 'user-1', 'org-1')
+      useCase.execute('room-1', { status: 'OCCUPIED' }, 'user-1', 'org-1'),
     ).rejects.toThrow(NotFoundError)
   })
 
@@ -110,7 +148,7 @@ describe('UpdateRoomStatus', () => {
     roomRepo.findById.mockResolvedValue(makeRoom('AVAILABLE', true, 'org-1'))
 
     await expect(
-      useCase.execute('room-1', { status: 'OCCUPIED' }, 'user-1', 'org-999')
+      useCase.execute('room-1', { status: 'OCCUPIED' }, 'user-1', 'org-999'),
     ).rejects.toThrow(ForbiddenError)
   })
 
@@ -118,7 +156,7 @@ describe('UpdateRoomStatus', () => {
     roomRepo.findById.mockResolvedValue(makeRoom('AVAILABLE', false))
 
     await expect(
-      useCase.execute('room-1', { status: 'OCCUPIED' }, 'user-1', 'org-1')
+      useCase.execute('room-1', { status: 'OCCUPIED' }, 'user-1', 'org-1'),
     ).rejects.toThrow(ForbiddenError)
   })
 
@@ -127,7 +165,7 @@ describe('UpdateRoomStatus', () => {
     hotelRepo.findById.mockResolvedValue(makeHotel('INACTIVE'))
 
     await expect(
-      useCase.execute('room-1', { status: 'OCCUPIED' }, 'user-1', 'org-1')
+      useCase.execute('room-1', { status: 'OCCUPIED' }, 'user-1', 'org-1'),
     ).rejects.toThrow(ForbiddenError)
   })
 
@@ -137,7 +175,7 @@ describe('UpdateRoomStatus', () => {
     hotelRepo.findById.mockResolvedValue(makeHotel())
 
     await expect(
-      useCase.execute('room-1', { status: 'OCCUPIED' }, 'user-1', 'org-1')
+      useCase.execute('room-1', { status: 'OCCUPIED' }, 'user-1', 'org-1'),
     ).rejects.toThrow(BadRequestError)
   })
 
@@ -150,11 +188,11 @@ describe('UpdateRoomStatus', () => {
       'room-1',
       { status: 'MAINTENANCE', reason: 'Plumbing repair' },
       'user-1',
-      'org-1'
+      'org-1',
     )
 
     expect(roomRepo.createStatusAudit).toHaveBeenCalledWith(
-      expect.objectContaining({ reason: 'Plumbing repair' })
+      expect.objectContaining({ reason: 'Plumbing repair' }),
     )
   })
 
@@ -168,19 +206,25 @@ describe('UpdateRoomStatus', () => {
 
     expect(mockPublisher.publish).toHaveBeenCalledWith(
       'hotel.events',
-      expect.objectContaining({ eventType: 'hotel.room.status_updated' })
+      expect.objectContaining({ eventType: 'hotel.room.status_updated' }),
     )
   })
 
   it('all valid transitions from AVAILABLE work', async () => {
-    const targets: Array<Room['status']> = ['OCCUPIED', 'HOUSEKEEPING', 'MAINTENANCE', 'OUT_OF_ORDER', 'BLOCKED']
+    const targets: Array<Room['status']> = [
+      'OCCUPIED',
+      'HOUSEKEEPING',
+      'MAINTENANCE',
+      'OUT_OF_ORDER',
+      'BLOCKED',
+    ]
     for (const target of targets) {
       roomRepo.findById.mockResolvedValue(makeRoom('AVAILABLE'))
       hotelRepo.findById.mockResolvedValue(makeHotel())
       roomRepo.updateStatus.mockResolvedValue(makeRoom(target))
 
       await expect(
-        useCase.execute('room-1', { status: target }, 'user-1', 'org-1')
+        useCase.execute('room-1', { status: target }, 'user-1', 'org-1'),
       ).resolves.toBeDefined()
     }
   })

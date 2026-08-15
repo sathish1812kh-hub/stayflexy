@@ -142,9 +142,9 @@ export class AnalyticsEventConsumer {
             data: {
               organizationId,
               hotelId: hotelId ?? null,
-              eventType: analyticsType as unknown as EventType,
+              eventType: analyticsType as any,
               externalEventId: eventId,
-              eventData: payload as Prisma.InputJsonValue,
+              eventData: payload as any,
               processedAt: new Date(),
             },
           })

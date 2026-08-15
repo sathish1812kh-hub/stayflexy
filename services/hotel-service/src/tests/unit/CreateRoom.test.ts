@@ -11,47 +11,99 @@ import type { Logger } from '@stayflexi/shared-logger'
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
-function makeHotel(
-  status: 'ACTIVE' | 'INACTIVE' = 'ACTIVE',
-  deletedAt: Date | null = null
-): Hotel {
+function makeHotel(status: 'ACTIVE' | 'INACTIVE' = 'ACTIVE', deletedAt: Date | null = null): Hotel {
   return new Hotel({
-    id: 'hotel-1', organizationId: 'org-1', name: 'Grand Palace', slug: 'grand-palace',
-    address: null, city: 'Mumbai', state: null, country: 'IN', postalCode: null,
-    phone: null, email: null, website: null, starRating: null,
-    status, timezone: 'UTC', checkInTime: '14:00', checkOutTime: '11:00',
-    metadata: null, createdById: null, createdAt: new Date(), updatedAt: new Date(), deletedAt,
+    id: 'hotel-1',
+    organizationId: 'org-1',
+    name: 'Grand Palace',
+    slug: 'grand-palace',
+    address: null,
+    city: 'Mumbai',
+    state: null,
+    country: 'IN',
+    postalCode: null,
+    phone: null,
+    email: null,
+    website: null,
+    starRating: null,
+    status,
+    timezone: 'UTC',
+    checkInTime: '14:00',
+    checkOutTime: '11:00',
+    metadata: null,
+    createdById: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt,
   })
 }
 
 function makeRoomType(hotelId = 'hotel-1', isActive = true): RoomType {
   return new RoomType({
-    id: 'rt-1', hotelId, organizationId: 'org-1',
-    name: 'Standard', description: null, basePrice: 100, maxOccupancy: 2,
-    amenities: null, isActive, createdAt: new Date(), updatedAt: new Date(),
-  })
+    id: 'rt-1',
+    hotelId,
+    organizationId: 'org-1',
+    name: 'Standard',
+    description: null,
+    basePrice: 100,
+    maxOccupancy: 2,
+    amenities: null,
+    isActive,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  } as any)
 }
 
 function makeRoom(): Room {
   return new Room({
-    id: 'room-1', hotelId: 'hotel-1', organizationId: 'org-1', roomTypeId: 'rt-1',
-    roomNumber: '101', floor: 1, status: 'AVAILABLE', isActive: true,
-    notes: null, metadata: null, createdAt: new Date(), updatedAt: new Date(),
-  })
+    id: 'room-1',
+    hotelId: 'hotel-1',
+    organizationId: 'org-1',
+    roomTypeId: 'rt-1',
+    roomNumber: '101',
+    floor: 1,
+    status: 'AVAILABLE',
+    isActive: true,
+    notes: null,
+    metadata: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  } as any)
 }
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────
 
 function makeHotelRepo(): jest.Mocked<IHotelRepository> {
-  return { findById: jest.fn(), findBySlug: jest.fn(), create: jest.fn(), update: jest.fn(), softDelete: jest.fn(), findMany: jest.fn() }
+  return {
+    findById: jest.fn(),
+    findBySlug: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    softDelete: jest.fn(),
+    findMany: jest.fn(),
+  }
 }
 
 function makeRoomTypeRepo(): jest.Mocked<IRoomTypeRepository> {
-  return { findById: jest.fn(), findByHotelAndName: jest.fn(), create: jest.fn(), update: jest.fn(), findMany: jest.fn() }
+  return {
+    findById: jest.fn(),
+    findByHotelAndName: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    findMany: jest.fn(),
+  }
 }
 
 function makeRoomRepo(): jest.Mocked<IRoomRepository> {
-  return { findById: jest.fn(), findByHotelAndNumber: jest.fn(), create: jest.fn(), update: jest.fn(), updateStatus: jest.fn(), findMany: jest.fn(), createStatusAudit: jest.fn() }
+  return {
+    findById: jest.fn(),
+    findByHotelAndNumber: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    updateStatus: jest.fn(),
+    findMany: jest.fn(),
+    createStatusAudit: jest.fn(),
+  }
 }
 
 const mockPublisher: IEventPublisher = {
@@ -61,7 +113,12 @@ const mockPublisher: IEventPublisher = {
   isConnected: () => false,
 }
 
-const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() } as unknown as Logger
+const mockLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+} as unknown as Logger
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
@@ -88,11 +145,11 @@ describe('CreateRoom', () => {
     const result = await useCase.execute(
       { hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101', floor: 1 },
       'org-1',
-      'corr-1'
+      'corr-1',
     )
 
     expect(roomRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({ hotelId: 'hotel-1', roomNumber: '101', organizationId: 'org-1' })
+      expect.objectContaining({ hotelId: 'hotel-1', roomNumber: '101', organizationId: 'org-1' }),
     )
     expect(result.id).toBe('room-1')
   })
@@ -101,7 +158,7 @@ describe('CreateRoom', () => {
     hotelRepo.findById.mockResolvedValue(null)
 
     await expect(
-      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-1')
+      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-1'),
     ).rejects.toThrow(NotFoundError)
   })
 
@@ -109,7 +166,7 @@ describe('CreateRoom', () => {
     hotelRepo.findById.mockResolvedValue(makeHotel())
 
     await expect(
-      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-999')
+      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-999'),
     ).rejects.toThrow(ForbiddenError)
   })
 
@@ -117,7 +174,7 @@ describe('CreateRoom', () => {
     hotelRepo.findById.mockResolvedValue(makeHotel('INACTIVE'))
 
     await expect(
-      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-1')
+      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-1'),
     ).rejects.toThrow(ForbiddenError)
   })
 
@@ -126,7 +183,7 @@ describe('CreateRoom', () => {
     roomTypeRepo.findById.mockResolvedValue(makeRoomType('hotel-1', false))
 
     await expect(
-      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-1')
+      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-1'),
     ).rejects.toThrow(NotFoundError)
   })
 
@@ -135,7 +192,7 @@ describe('CreateRoom', () => {
     roomTypeRepo.findById.mockResolvedValue(makeRoomType('hotel-999'))
 
     await expect(
-      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-1')
+      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-1'),
     ).rejects.toThrow(ForbiddenError)
   })
 
@@ -145,7 +202,7 @@ describe('CreateRoom', () => {
     roomRepo.findByHotelAndNumber.mockResolvedValue(makeRoom())
 
     await expect(
-      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-1')
+      useCase.execute({ hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' }, 'org-1'),
     ).rejects.toThrow(ConflictError)
   })
 
@@ -158,13 +215,13 @@ describe('CreateRoom', () => {
     await useCase.execute(
       { hotelId: 'hotel-1', roomTypeId: 'rt-1', roomNumber: '101' },
       'org-1',
-      'corr-pub'
+      'corr-pub',
     )
     await Promise.resolve()
 
     expect(mockPublisher.publish).toHaveBeenCalledWith(
       'hotel.events',
-      expect.objectContaining({ eventType: 'hotel.room.created' })
+      expect.objectContaining({ eventType: 'hotel.room.created' }),
     )
   })
 })

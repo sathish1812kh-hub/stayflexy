@@ -152,7 +152,9 @@ describe('RetryWorkflow — tenant isolation', () => {
   it('triggers a new execution and returns both IDs on success', async () => {
     const repo = makeRepo()
     repo.findById.mockResolvedValue(makeExecution({ executionStatus: 'FAILED', retryCount: 1 }))
-    repo.incrementRetry.mockResolvedValue(undefined)
+    repo.incrementRetry.mockResolvedValue(
+      makeExecution({ executionStatus: 'FAILED', retryCount: 2 }),
+    )
     const engine = makeEngine()
     engine.trigger.mockResolvedValue('exec-new-123')
     const uc = new RetryWorkflow(repo, engine, makeLogger())
@@ -174,12 +176,24 @@ describe('ConditionEvaluator — edge cases', () => {
   })
 
   it('eq: matches exact string value', () => {
-    expect(evaluator.evaluate([{ field: 'status', operator: 'eq', value: 'CONFIRMED' }], { status: 'CONFIRMED' })).toBe(true)
-    expect(evaluator.evaluate([{ field: 'status', operator: 'eq', value: 'CANCELLED' }], { status: 'CONFIRMED' })).toBe(false)
+    expect(
+      evaluator.evaluate([{ field: 'status', operator: 'eq', value: 'CONFIRMED' }], {
+        status: 'CONFIRMED',
+      }),
+    ).toBe(true)
+    expect(
+      evaluator.evaluate([{ field: 'status', operator: 'eq', value: 'CANCELLED' }], {
+        status: 'CONFIRMED',
+      }),
+    ).toBe(false)
   })
 
   it('ne: returns true when values differ', () => {
-    expect(evaluator.evaluate([{ field: 'status', operator: 'ne', value: 'CANCELLED' }], { status: 'CONFIRMED' })).toBe(true)
+    expect(
+      evaluator.evaluate([{ field: 'status', operator: 'ne', value: 'CANCELLED' }], {
+        status: 'CONFIRMED',
+      }),
+    ).toBe(true)
   })
 
   it('gt/lt/gte/lte: numeric comparisons', () => {
@@ -189,49 +203,91 @@ describe('ConditionEvaluator — edge cases', () => {
     expect(evaluator.evaluate([{ field: 'occupancy', operator: 'lt', value: 90 }], ctx)).toBe(true)
     expect(evaluator.evaluate([{ field: 'occupancy', operator: 'gte', value: 85 }], ctx)).toBe(true)
     expect(evaluator.evaluate([{ field: 'occupancy', operator: 'lte', value: 85 }], ctx)).toBe(true)
-    expect(evaluator.evaluate([{ field: 'occupancy', operator: 'lte', value: 84 }], ctx)).toBe(false)
+    expect(evaluator.evaluate([{ field: 'occupancy', operator: 'lte', value: 84 }], ctx)).toBe(
+      false,
+    )
   })
 
   it('gt returns false when field is not a number', () => {
-    expect(evaluator.evaluate([{ field: 'status', operator: 'gt', value: 50 }], { status: 'CONFIRMED' })).toBe(false)
+    expect(
+      evaluator.evaluate([{ field: 'status', operator: 'gt', value: 50 }], { status: 'CONFIRMED' }),
+    ).toBe(false)
   })
 
   it('contains: substring match', () => {
-    expect(evaluator.evaluate([{ field: 'notes', operator: 'contains', value: 'VIP' }], { notes: 'This is a VIP guest' })).toBe(true)
-    expect(evaluator.evaluate([{ field: 'notes', operator: 'contains', value: 'VIP' }], { notes: 'Regular guest' })).toBe(false)
+    expect(
+      evaluator.evaluate([{ field: 'notes', operator: 'contains', value: 'VIP' }], {
+        notes: 'This is a VIP guest',
+      }),
+    ).toBe(true)
+    expect(
+      evaluator.evaluate([{ field: 'notes', operator: 'contains', value: 'VIP' }], {
+        notes: 'Regular guest',
+      }),
+    ).toBe(false)
   })
 
   it('exists: true when field is present and non-null', () => {
-    expect(evaluator.evaluate([{ field: 'bookingId', operator: 'exists' }], { bookingId: 'b1' })).toBe(true)
-    expect(evaluator.evaluate([{ field: 'bookingId', operator: 'exists' }], { bookingId: null })).toBe(false)
+    expect(
+      evaluator.evaluate([{ field: 'bookingId', operator: 'exists' }], { bookingId: 'b1' }),
+    ).toBe(true)
+    expect(
+      evaluator.evaluate([{ field: 'bookingId', operator: 'exists' }], { bookingId: null }),
+    ).toBe(false)
     expect(evaluator.evaluate([{ field: 'bookingId', operator: 'exists' }], {})).toBe(false)
   })
 
   it('nested field access with dot notation', () => {
     const ctx = { booking: { guest: { email: 'guest@hotel.com' } } }
-    expect(evaluator.evaluate([{ field: 'booking.guest.email', operator: 'eq', value: 'guest@hotel.com' }], ctx)).toBe(true)
-    expect(evaluator.evaluate([{ field: 'booking.guest.email', operator: 'eq', value: 'other@hotel.com' }], ctx)).toBe(false)
+    expect(
+      evaluator.evaluate(
+        [{ field: 'booking.guest.email', operator: 'eq', value: 'guest@hotel.com' }],
+        ctx,
+      ),
+    ).toBe(true)
+    expect(
+      evaluator.evaluate(
+        [{ field: 'booking.guest.email', operator: 'eq', value: 'other@hotel.com' }],
+        ctx,
+      ),
+    ).toBe(false)
   })
 
   it('returns false for missing nested field', () => {
     const ctx = { booking: {} }
-    expect(evaluator.evaluate([{ field: 'booking.guest.email', operator: 'exists' }], ctx)).toBe(false)
+    expect(evaluator.evaluate([{ field: 'booking.guest.email', operator: 'exists' }], ctx)).toBe(
+      false,
+    )
   })
 
   it('all conditions must pass (AND logic)', () => {
     const ctx = { status: 'CONFIRMED', amount: 500 }
-    expect(evaluator.evaluate([
-      { field: 'status', operator: 'eq', value: 'CONFIRMED' },
-      { field: 'amount', operator: 'gt', value: 300 },
-    ], ctx)).toBe(true)
+    expect(
+      evaluator.evaluate(
+        [
+          { field: 'status', operator: 'eq', value: 'CONFIRMED' },
+          { field: 'amount', operator: 'gt', value: 300 },
+        ],
+        ctx,
+      ),
+    ).toBe(true)
 
-    expect(evaluator.evaluate([
-      { field: 'status', operator: 'eq', value: 'CONFIRMED' },
-      { field: 'amount', operator: 'gt', value: 600 },
-    ], ctx)).toBe(false)
+    expect(
+      evaluator.evaluate(
+        [
+          { field: 'status', operator: 'eq', value: 'CONFIRMED' },
+          { field: 'amount', operator: 'gt', value: 600 },
+        ],
+        ctx,
+      ),
+    ).toBe(false)
   })
 
   it('returns false for unknown operator', () => {
-    expect(evaluator.evaluate([{ field: 'status', operator: 'unknown' as never, value: 'x' }], { status: 'x' })).toBe(false)
+    expect(
+      evaluator.evaluate([{ field: 'status', operator: 'unknown' as never, value: 'x' }], {
+        status: 'x',
+      }),
+    ).toBe(false)
   })
 })

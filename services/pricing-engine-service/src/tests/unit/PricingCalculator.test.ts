@@ -69,7 +69,7 @@ describe('PricingCalculator', () => {
         targetDate,
         activeRules: [],
       })
-      expect(result.occupancyFactor).toBe(1.10)
+      expect(result.occupancyFactor).toBe(1.1)
       expect(result.calculatedRate).toBe(110)
     })
 
@@ -87,11 +87,11 @@ describe('PricingCalculator', () => {
     it('applies 1.4x at very high occupancy (85–95%)', () => {
       const result = calculator.compute({
         baseRate: 100,
-        currentOccupancy: 0.90,
+        currentOccupancy: 0.9,
         targetDate,
         activeRules: [],
       })
-      expect(result.occupancyFactor).toBe(1.40)
+      expect(result.occupancyFactor).toBe(1.4)
       expect(result.calculatedRate).toBe(140)
     })
 
@@ -102,7 +102,7 @@ describe('PricingCalculator', () => {
         targetDate,
         activeRules: [],
       })
-      expect(result.occupancyFactor).toBe(1.60)
+      expect(result.occupancyFactor).toBe(1.6)
       expect(result.calculatedRate).toBe(160)
     })
   })
@@ -111,7 +111,11 @@ describe('PricingCalculator', () => {
     const targetDate = new Date('2026-08-15')
 
     it('applies percentage increase rule', () => {
-      const rule = makeMockRule({ adjustmentType: 'INCREASE', pricingStrategy: 'PERCENTAGE', adjustmentValue: 20 })
+      const rule = makeMockRule({
+        adjustmentType: 'INCREASE',
+        pricingStrategy: 'PERCENTAGE_ADJUSTMENT',
+        adjustmentValue: 20,
+      })
       const result = calculator.compute({
         baseRate: 100,
         currentOccupancy: 0.35, // 1.0x occupancy factor
@@ -124,7 +128,11 @@ describe('PricingCalculator', () => {
     })
 
     it('applies flat rate rule', () => {
-      const rule = makeMockRule({ adjustmentType: 'INCREASE', pricingStrategy: 'FLAT_RATE', adjustmentValue: 25 })
+      const rule = makeMockRule({
+        adjustmentType: 'INCREASE',
+        pricingStrategy: 'FLAT_RATE',
+        adjustmentValue: 25,
+      })
       const result = calculator.compute({
         baseRate: 100,
         currentOccupancy: 0.35,
@@ -149,7 +157,9 @@ describe('PricingCalculator', () => {
 
     it('respects minimumPrice floor', () => {
       const rule = makeMockRule({
-        adjustmentType: 'DECREASE', pricingStrategy: 'PERCENTAGE', adjustmentValue: 50,
+        adjustmentType: 'DECREASE',
+        pricingStrategy: 'PERCENTAGE_ADJUSTMENT',
+        adjustmentValue: 50,
         minimumPrice: 60,
       })
       const result = calculator.compute({
@@ -178,7 +188,11 @@ describe('PricingCalculator', () => {
 
   describe('surge multiplier cap', () => {
     it('caps rate at 3.0x base by default', () => {
-      const rule = makeMockRule({ adjustmentType: 'INCREASE', pricingStrategy: 'PERCENTAGE', adjustmentValue: 500 })
+      const rule = makeMockRule({
+        adjustmentType: 'INCREASE',
+        pricingStrategy: 'PERCENTAGE_ADJUSTMENT',
+        adjustmentValue: 500,
+      })
       const result = calculator.compute({
         baseRate: 100,
         currentOccupancy: 0.99,
@@ -209,9 +223,9 @@ describe('PricingCalculator', () => {
         currentOccupancy: 0.35,
         targetDate: new Date('2026-08-15'),
         activeRules: [],
-        demandFactor: 1.20,
+        demandFactor: 1.2,
       })
-      expect(result.demandFactor).toBe(1.20)
+      expect(result.demandFactor).toBe(1.2)
       expect(result.calculatedRate).toBe(120)
     })
   })
@@ -219,10 +233,10 @@ describe('PricingCalculator', () => {
   describe('rule applicability', () => {
     it('ignores rules outside their date range', () => {
       const expiredRule = makeMockRule({
-        startDate: new Date('2025-01-01'),
-        endDate: new Date('2025-12-31'),
+        activeFrom: new Date('2025-01-01'),
+        activeTo: new Date('2025-12-31'),
         adjustmentType: 'INCREASE',
-        pricingStrategy: 'PERCENTAGE',
+        pricingStrategy: 'PERCENTAGE_ADJUSTMENT',
         adjustmentValue: 50,
       })
       const result = calculator.compute({

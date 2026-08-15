@@ -107,17 +107,16 @@ export function withTraceContext(logger: Logger, context: TraceContext): Logger 
   })
 }
 
-export function createRequestLogger(logger: Logger): ReturnType<typeof pinoHttp> {
+export function createRequestLogger(logger: Logger): any {
   return pinoHttp({
     logger,
-    customLogLevel: (_req: IncomingMessage, res: ServerResponse) => {
-      if (res.statusCode >= 500) return 'error'
-      if (res.statusCode >= 400) return 'warn'
+    customLogLevel: (_req: any, res: any) => {
+      if (res.statusCode && res.statusCode >= 500) return 'error'
+      if (res.statusCode && res.statusCode >= 400) return 'warn'
       return 'info'
     },
-    customSuccessMessage: (req: IncomingMessage, res: ServerResponse) =>
-      `${req.method} ${req.url} ${res.statusCode}`,
-    customReceivedMessage: (req: IncomingMessage) => `Incoming ${req.method} ${req.url}`,
+    customSuccessMessage: (req: any, res: any) => `${req.method} ${req.url} ${res.statusCode}`,
+    customReceivedMessage: (req: any) => `Incoming ${req.method} ${req.url}`,
     serializers: {
       req: (req: Record<string, unknown>) => {
         const headers = (req['headers'] as Record<string, unknown>) ?? {}

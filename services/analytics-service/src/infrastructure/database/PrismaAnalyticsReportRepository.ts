@@ -73,7 +73,7 @@ export class PrismaAnalyticsReportRepository implements IAnalyticsReportReposito
       data: {
         reportStatus: data.reportStatus,
         ...(data.reportData !== undefined && {
-          reportData: data.reportData as unknown as Prisma.InputJsonValue,
+          reportData: data.reportData as any,
         }),
         ...(data.errorMessage !== undefined && { errorMessage: data.errorMessage }),
         ...(data.completedAt !== undefined && { completedAt: data.completedAt }),

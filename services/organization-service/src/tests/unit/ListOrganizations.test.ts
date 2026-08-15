@@ -31,7 +31,14 @@ function makeOrg(id: string, ownerId: string): Organization {
 function makePaginated(orgs: Organization[]): PaginatedResult<Organization> {
   return {
     data: orgs,
-    meta: { total: orgs.length, page: 1, limit: 20, totalPages: 1 },
+    meta: {
+      total: orgs.length,
+      page: 1,
+      limit: 20,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    },
   }
 }
 
@@ -68,9 +75,7 @@ describe('ListOrganizations', () => {
 
     const result = await useCase.execute({ page: 1, limit: 20 }, 'super-user', 'SUPER_ADMIN')
 
-    expect(orgRepo.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ ownerId: undefined })
-    )
+    expect(orgRepo.findMany).toHaveBeenCalledWith(expect.objectContaining({ ownerId: undefined }))
     expect(result.data).toHaveLength(2)
   })
 
@@ -80,9 +85,7 @@ describe('ListOrganizations', () => {
 
     await useCase.execute({ page: 1, limit: 20 }, 'user-A', 'HOTEL_MANAGER')
 
-    expect(orgRepo.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ ownerId: 'user-A' })
-    )
+    expect(orgRepo.findMany).toHaveBeenCalledWith(expect.objectContaining({ ownerId: 'user-A' }))
   })
 
   it('forwards status and plan filters to repository', async () => {
@@ -91,11 +94,11 @@ describe('ListOrganizations', () => {
     await useCase.execute(
       { page: 1, limit: 10, status: 'ACTIVE', plan: 'PROFESSIONAL' },
       'user-A',
-      'HOTEL_MANAGER'
+      'HOTEL_MANAGER',
     )
 
     expect(orgRepo.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 'ACTIVE', plan: 'PROFESSIONAL', page: 1, limit: 10 })
+      expect.objectContaining({ status: 'ACTIVE', plan: 'PROFESSIONAL', page: 1, limit: 10 }),
     )
   })
 
@@ -113,8 +116,6 @@ describe('ListOrganizations', () => {
 
     await useCase.execute({ page: 3, limit: 5 }, 'user-A', 'SUPER_ADMIN')
 
-    expect(orgRepo.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ page: 3, limit: 5 })
-    )
+    expect(orgRepo.findMany).toHaveBeenCalledWith(expect.objectContaining({ page: 3, limit: 5 }))
   })
 })

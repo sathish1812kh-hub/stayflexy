@@ -15,11 +15,24 @@ function makeHotel(status: 'ACTIVE' | 'INACTIVE' = 'ACTIVE', deletedAt: Date | n
     organizationId: 'org-1',
     name: 'Grand Palace',
     slug: 'grand-palace',
-    address: null, city: 'Mumbai', state: null, country: 'IN', postalCode: null,
-    phone: null, email: null, website: null, starRating: null,
+    address: null,
+    city: 'Mumbai',
+    state: null,
+    country: 'IN',
+    postalCode: null,
+    phone: null,
+    email: null,
+    website: null,
+    starRating: null,
     status,
-    timezone: 'UTC', checkInTime: '14:00', checkOutTime: '11:00',
-    metadata: null, createdById: null, createdAt: new Date(), updatedAt: new Date(), deletedAt,
+    timezone: 'UTC',
+    checkInTime: '14:00',
+    checkOutTime: '11:00',
+    metadata: null,
+    createdById: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt,
   })
 }
 
@@ -36,7 +49,7 @@ function makeRoomType(): RoomType {
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
-  })
+  } as any)
 }
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────
@@ -98,11 +111,11 @@ describe('CreateRoomType', () => {
     const result = await useCase.execute(
       { hotelId: 'hotel-1', name: 'Deluxe', basePrice: 150, maxOccupancy: 2 },
       'org-1',
-      'corr-1'
+      'corr-1',
     )
 
     expect(roomTypeRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({ hotelId: 'hotel-1', name: 'Deluxe', organizationId: 'org-1' })
+      expect.objectContaining({ hotelId: 'hotel-1', name: 'Deluxe', organizationId: 'org-1' }),
     )
     expect(result.id).toBe('rt-1')
   })
@@ -111,7 +124,10 @@ describe('CreateRoomType', () => {
     hotelRepo.findById.mockResolvedValue(null)
 
     await expect(
-      useCase.execute({ hotelId: 'hotel-1', name: 'Deluxe', basePrice: 100, maxOccupancy: 2 }, 'org-1')
+      useCase.execute(
+        { hotelId: 'hotel-1', name: 'Deluxe', basePrice: 100, maxOccupancy: 2 },
+        'org-1',
+      ),
     ).rejects.toThrow(NotFoundError)
   })
 
@@ -119,7 +135,10 @@ describe('CreateRoomType', () => {
     hotelRepo.findById.mockResolvedValue(makeHotel())
 
     await expect(
-      useCase.execute({ hotelId: 'hotel-1', name: 'Deluxe', basePrice: 100, maxOccupancy: 2 }, 'org-999')
+      useCase.execute(
+        { hotelId: 'hotel-1', name: 'Deluxe', basePrice: 100, maxOccupancy: 2 },
+        'org-999',
+      ),
     ).rejects.toThrow(ForbiddenError)
   })
 
@@ -127,7 +146,10 @@ describe('CreateRoomType', () => {
     hotelRepo.findById.mockResolvedValue(makeHotel('INACTIVE'))
 
     await expect(
-      useCase.execute({ hotelId: 'hotel-1', name: 'Deluxe', basePrice: 100, maxOccupancy: 2 }, 'org-1')
+      useCase.execute(
+        { hotelId: 'hotel-1', name: 'Deluxe', basePrice: 100, maxOccupancy: 2 },
+        'org-1',
+      ),
     ).rejects.toThrow(ForbiddenError)
   })
 
@@ -136,7 +158,10 @@ describe('CreateRoomType', () => {
     roomTypeRepo.findByHotelAndName.mockResolvedValue(makeRoomType())
 
     await expect(
-      useCase.execute({ hotelId: 'hotel-1', name: 'Deluxe', basePrice: 100, maxOccupancy: 2 }, 'org-1')
+      useCase.execute(
+        { hotelId: 'hotel-1', name: 'Deluxe', basePrice: 100, maxOccupancy: 2 },
+        'org-1',
+      ),
     ).rejects.toThrow(ConflictError)
   })
 
@@ -148,13 +173,13 @@ describe('CreateRoomType', () => {
     await useCase.execute(
       { hotelId: 'hotel-1', name: 'Deluxe', basePrice: 150, maxOccupancy: 2 },
       'org-1',
-      'corr-pub'
+      'corr-pub',
     )
     await Promise.resolve()
 
     expect(mockPublisher.publish).toHaveBeenCalledWith(
       'hotel.events',
-      expect.objectContaining({ eventType: 'hotel.room_type.created' })
+      expect.objectContaining({ eventType: 'hotel.room_type.created' }),
     )
   })
 })

@@ -34,7 +34,9 @@ function makeUser(overrides: Partial<ConstructorParameters<typeof User>[0]> = {}
   })
 }
 
-function makeRefreshToken(overrides: Partial<ConstructorParameters<typeof RefreshToken>[0]> = {}): RefreshToken {
+function makeRefreshToken(
+  overrides: Partial<ConstructorParameters<typeof RefreshToken>[0]> = {},
+): RefreshToken {
   return new RefreshToken({
     id: 'token-id-1',
     userId: 'user-abc',
@@ -106,9 +108,9 @@ describe('RefreshTokens', () => {
   })
 
   it('throws UnauthorizedError when refresh token has invalid format (no colon)', async () => {
-    await expect(
-      useCase.execute({ refreshToken: 'nocolon' }, '127.0.0.1', 'Jest'),
-    ).rejects.toThrow(UnauthorizedError)
+    await expect(useCase.execute({ refreshToken: 'nocolon' }, '127.0.0.1', 'Jest')).rejects.toThrow(
+      UnauthorizedError,
+    )
 
     expect(mockTokenRepo.findActiveTokens).not.toHaveBeenCalled()
   })
@@ -170,8 +172,9 @@ describe('RefreshTokens', () => {
     await useCase.execute({ refreshToken: 'user-abc:valid' }, '127.0.0.1', 'Jest')
 
     // Revoke must happen before issue
-    const revokeOrder = mockTokenRepo.revoke.mock.invocationCallOrder[0]
-    const issueOrder = mockTokenService.issueTokenPair.mock.invocationCallOrder[0]
+    const revokeOrder = (mockTokenRepo.revoke as unknown as jest.Mock).mock.invocationCallOrder[0]
+    const issueOrder = (mockTokenService.issueTokenPair as unknown as jest.Mock).mock
+      .invocationCallOrder[0]
     expect(revokeOrder).toBeDefined()
     expect(issueOrder).toBeDefined()
     if (revokeOrder !== undefined && issueOrder !== undefined) {

@@ -4,10 +4,13 @@ function makeRedisMock() {
   const store = new Map<string, string>()
   return {
     get: jest.fn(async (key: string) => store.get(key) ?? null),
-    del: jest.fn(async (key: string) => { store.delete(key); return 1 }),
+    del: jest.fn(async (key: string) => {
+      store.delete(key)
+      return 1
+    }),
     pipeline: jest.fn(() => {
       const ops: Array<() => void> = []
-      const pipe = {
+      const pipe: any = {
         incr: jest.fn((key: string) => {
           ops.push(() => {
             const cur = parseInt(store.get(key) ?? '0', 10)
@@ -17,8 +20,11 @@ function makeRedisMock() {
         }),
         expire: jest.fn(() => pipe),
         exec: jest.fn(async () => {
-          ops.forEach(op => op())
-          return [[null, 1], [null, 1]]
+          ops.forEach((op) => op())
+          return [
+            [null, 1],
+            [null, 1],
+          ]
         }),
       }
       return pipe

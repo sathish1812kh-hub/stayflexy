@@ -51,6 +51,7 @@ const mockOrgRepo: jest.Mocked<IOrganizationRepository> = {
   findByOwnerId: jest.fn(),
   create: jest.fn(),
   update: jest.fn(),
+  setOwner: jest.fn(),
   softDelete: jest.fn(),
   findMany: jest.fn(),
 }
@@ -95,16 +96,16 @@ describe('CreateOrganization', () => {
 
     const result = await useCase.execute(
       { name: 'Test Hotel Group', email: 'admin@test.com', country: 'US' },
-      'user-123'
+      'user-123',
     )
 
     expect(result.id).toBe('org-123')
     expect(result.ownerId).toBe('user-123')
     expect(mockOrgRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({ ownerId: 'user-123', slug: 'test-hotel-group' })
+      expect.objectContaining({ ownerId: 'user-123', slug: 'test-hotel-group' }),
     )
     expect(mockMemberRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({ isOwner: true, organizationId: 'org-123' })
+      expect.objectContaining({ isOwner: true, organizationId: 'org-123' }),
     )
   })
 
@@ -114,8 +115,8 @@ describe('CreateOrganization', () => {
     await expect(
       useCase.execute(
         { name: 'Test Hotel Group', email: 'admin@test.com', country: 'US' },
-        'user-123'
-      )
+        'user-123',
+      ),
     ).rejects.toThrow(ConflictError)
 
     expect(mockOrgRepo.create).not.toHaveBeenCalled()
@@ -126,10 +127,7 @@ describe('CreateOrganization', () => {
     mockOrgRepo.findByOwnerId.mockResolvedValue(makeOrg())
 
     await expect(
-      useCase.execute(
-        { name: 'Another Org', email: 'admin2@test.com', country: 'US' },
-        'user-123'
-      )
+      useCase.execute({ name: 'Another Org', email: 'admin2@test.com', country: 'US' }, 'user-123'),
     ).rejects.toThrow(ConflictError)
 
     expect(mockOrgRepo.create).not.toHaveBeenCalled()
@@ -143,11 +141,11 @@ describe('CreateOrganization', () => {
 
     await useCase.execute(
       { name: 'My Hotel Group!', email: 'admin@test.com', country: 'US' },
-      'user-123'
+      'user-123',
     )
 
     expect(mockOrgRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({ slug: 'my-hotel-group' })
+      expect.objectContaining({ slug: 'my-hotel-group' }),
     )
   })
 
@@ -159,12 +157,12 @@ describe('CreateOrganization', () => {
 
     await useCase.execute(
       { name: 'My Hotel Group', slug: 'custom-slug', email: 'admin@test.com', country: 'US' },
-      'user-123'
+      'user-123',
     )
 
     expect(mockOrgRepo.findBySlug).toHaveBeenCalledWith('custom-slug')
     expect(mockOrgRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({ slug: 'custom-slug' })
+      expect.objectContaining({ slug: 'custom-slug' }),
     )
   })
 
@@ -177,7 +175,7 @@ describe('CreateOrganization', () => {
     await useCase.execute(
       { name: 'Test Hotel Group', email: 'admin@test.com', country: 'US' },
       'user-123',
-      'corr-xyz'
+      'corr-xyz',
     )
 
     // Allow micro-task queue to flush
@@ -188,14 +186,12 @@ describe('CreateOrganization', () => {
       expect.objectContaining({
         eventType: 'organization.created',
         organizationId: 'org-123',
-      })
+      }),
     )
   })
 
   it('does NOT throw if the event publisher fails', async () => {
-    ;(mockPublisher.publish as jest.Mock).mockRejectedValueOnce(
-      new Error('Kafka down')
-    )
+    ;(mockPublisher.publish as jest.Mock).mockRejectedValueOnce(new Error('Kafka down'))
     mockOrgRepo.findBySlug.mockResolvedValue(null)
     mockOrgRepo.findByOwnerId.mockResolvedValue(null)
     mockOrgRepo.create.mockResolvedValue(makeOrg())
@@ -204,8 +200,8 @@ describe('CreateOrganization', () => {
     await expect(
       useCase.execute(
         { name: 'Test Hotel Group', email: 'admin@test.com', country: 'US' },
-        'user-123'
-      )
+        'user-123',
+      ),
     ).resolves.toBeDefined()
   })
 })
