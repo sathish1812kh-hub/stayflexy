@@ -51,5 +51,11 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: 1
           NODE_OPTIONS: '--max-old-space-size=4096'
+          APP_NAME: 'stayflexi'
+          APP_VERSION: '6.9.0'
+          JWT_SECRET: 'stayflexi-super-secure-production-jwt-secret-key-that-is-at-least-64-characters-long'
+          JWT_REFRESH_SECRET: 'stayflexi-super-secure-production-jwt-refresh-secret-key-that-is-at-least-64-chars'
+          API_BASE_URL: 'http://localhost:3000'
           DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/stayflexi_dev?schema=public'
-          JWT_SECRET: 'ci-build-dummy-jwt-secret-key-32-chars'
+          REDIS_URL: 'redis://localhost:6379'
+          KAFKA_BROKERS: 'localhost:9092'
