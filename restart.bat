@@ -2,10 +2,11 @@
 echo ===================================================
 echo   Stayflexi - Local Operations Control Restarter
 echo ===================================================
+echo.
 
-call stop.bat
+call "%~dp0stop.bat"
 echo.
 echo Waiting for ports to clear...
-timeout /t 2 /nobreak >nul
+timeout /t 3 /nobreak >nul
 echo.
-call start.bat
+call "%~dp0start.bat"

@@ -25,16 +25,19 @@ export default function LoginPage() {
     e.preventDefault()
     setSubmitting(true)
     setError('')
-    
+
     try {
-      const response = await dataClient.login(email, password === '••••••••' ? 'dev-pass' : password)
+      const response = await dataClient.login(
+        email,
+        password === '••••••••' ? 'dev-pass' : password,
+      )
       if (response) {
         localStorage.setItem('sf_user_email', response.user.email)
         localStorage.setItem('sf_user_role', response.user.primaryRole)
         localStorage.setItem('sf_user_first_name', response.user.firstName || '')
         localStorage.setItem('sf_user_last_name', response.user.lastName || '')
         localStorage.setItem('sf_jwt_token', response.accessToken)
-        
+
         // Redirect to main console dashboard
         router.push('/')
       } else {
@@ -50,16 +53,20 @@ export default function LoginPage() {
   const handleForceLogin = async () => {
     setSubmitting(true)
     setError('')
-    
+
     try {
-      const response = await dataClient.login(email, password === '••••••••' ? 'dev-pass' : password, true)
+      const response = await dataClient.login(
+        email,
+        password === '••••••••' ? 'dev-pass' : password,
+        true,
+      )
       if (response) {
         localStorage.setItem('sf_user_email', response.user.email)
         localStorage.setItem('sf_user_role', response.user.primaryRole)
         localStorage.setItem('sf_user_first_name', response.user.firstName || '')
         localStorage.setItem('sf_user_last_name', response.user.lastName || '')
         localStorage.setItem('sf_jwt_token', response.accessToken)
-        
+
         // Redirect to main console dashboard
         router.push('/')
       } else {
@@ -73,82 +80,101 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      {/* Decorative glass orbs */}
-      <div style={{
-        position: 'absolute',
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(0, 242, 254, 0.12) 0%, transparent 70%)',
-        top: '-10%',
-        left: '-10%',
-        zIndex: 0
-      }} />
-      <div style={{
-        position: 'absolute',
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(127, 0, 255, 0.1) 0%, transparent 70%)',
-        bottom: '-10%',
-        right: '-10%',
-        zIndex: 0
-      }} />
-
-      <div className="glass-card" style={{
-        width: '100%',
-        maxWidth: '440px',
-        padding: '40px',
-        borderRadius: '16px',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        zIndex: 10,
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
         position: 'relative',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.4)'
-      }}>
+        overflow: 'hidden',
+      }}
+    >
+      {/* Decorative glass orbs */}
+      <div
+        style={{
+          position: 'absolute',
+          width: '400px',
+          height: '400px',
+          background: 'radial-gradient(circle, rgba(0, 242, 254, 0.12) 0%, transparent 70%)',
+          top: '-10%',
+          left: '-10%',
+          zIndex: 0,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          width: '400px',
+          height: '400px',
+          background: 'radial-gradient(circle, rgba(127, 0, 255, 0.1) 0%, transparent 70%)',
+          bottom: '-10%',
+          right: '-10%',
+          zIndex: 0,
+        }}
+      />
+
+      <div
+        className="glass-card"
+        style={{
+          width: '100%',
+          maxWidth: '440px',
+          padding: '40px',
+          borderRadius: '16px',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          zIndex: 10,
+          position: 'relative',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+        }}
+      >
         {/* Header Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
-            color: '#060913',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '20px',
-            fontWeight: 800,
-            marginBottom: '16px',
-            boxShadow: '0 0 20px rgba(0, 242, 254, 0.4)'
-          }}>
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+              color: '#060913',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '20px',
+              fontWeight: 800,
+              marginBottom: '16px',
+              boxShadow: '0 0 20px rgba(0, 242, 254, 0.4)',
+            }}
+          >
             S
           </div>
-          <h2 style={{ fontSize: '24px', fontWeight: 700, letterSpacing: '-0.02em', color: '#fff' }}>Stayflexi Supergraph</h2>
-          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>Property Management System Auth Gate</p>
+          <h2
+            style={{ fontSize: '24px', fontWeight: 700, letterSpacing: '-0.02em', color: '#fff' }}
+          >
+            Stayflexi Supergraph
+          </h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>
+            Property Management System Auth Gate
+          </p>
         </div>
 
         {error && (
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.15)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            color: '#ef4444',
-            padding: '10px 14px',
-            borderRadius: '6px',
-            fontSize: '12px',
-            marginBottom: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
-          }}>
+          <div
+            style={{
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              color: '#ef4444',
+              padding: '10px 14px',
+              borderRadius: '6px',
+              fontSize: '12px',
+              marginBottom: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+            }}
+          >
             <span>{error}</span>
-            {error.includes("limit") && (
+            {error.includes('limit') && (
               <button
                 type="button"
                 onClick={handleForceLogin}
@@ -163,10 +189,10 @@ export default function LoginPage() {
                   fontWeight: 600,
                   cursor: 'pointer',
                   width: 'fit-content',
-                  transition: 'background 0.2s'
+                  transition: 'background 0.2s',
                 }}
-                onMouseEnter={e => e.currentTarget.style.background = '#dc2626'}
-                onMouseLeave={e => e.currentTarget.style.background = '#ef4444'}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#dc2626')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = '#ef4444')}
               >
                 Force Logout Other Devices & Log In
               </button>
@@ -174,17 +200,40 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form
+          onSubmit={handleLogin}
+          style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+        >
           {/* Email field */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Staff Email</label>
+            <label
+              style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                color: 'var(--text-muted)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
+              Staff Email
+            </label>
             <div style={{ position: 'relative' }}>
-              <User style={{ width: '14px', height: '14px', position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
+              <User
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-muted)',
+                }}
+              />
+              <input
                 type="email"
                 required
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 suppressHydrationWarning={true}
                 style={{
                   width: '100%',
@@ -195,7 +244,7 @@ export default function LoginPage() {
                   color: '#fff',
                   fontSize: '13px',
                   outline: 'none',
-                  transition: 'border-color 0.2s'
+                  transition: 'border-color 0.2s',
                 }}
                 placeholder="email@stayflexi.com"
                 className="input-focus-glow"
@@ -205,14 +254,34 @@ export default function LoginPage() {
 
           {/* Password field */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Security Password</label>
+            <label
+              style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                color: 'var(--text-muted)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
+              Security Password
+            </label>
             <div style={{ position: 'relative' }}>
-              <Lock style={{ width: '14px', height: '14px', position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
+              <Lock
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-muted)',
+                }}
+              />
+              <input
                 type="password"
                 required
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 suppressHydrationWarning={true}
                 style={{
                   width: '100%',
@@ -223,7 +292,7 @@ export default function LoginPage() {
                   color: '#fff',
                   fontSize: '13px',
                   outline: 'none',
-                  transition: 'border-color 0.2s'
+                  transition: 'border-color 0.2s',
                 }}
                 placeholder="Enter password"
                 className="input-focus-glow"
@@ -233,12 +302,32 @@ export default function LoginPage() {
 
           {/* Role selector field */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Staff Access Role</label>
+            <label
+              style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                color: 'var(--text-muted)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
+              Staff Access Role
+            </label>
             <div style={{ position: 'relative' }}>
-              <Shield style={{ width: '14px', height: '14px', position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <Shield
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-muted)',
+                }}
+              />
               <select
                 value={role}
-                onChange={e => setRole(e.target.value)}
+                onChange={(e) => setRole(e.target.value)}
                 suppressHydrationWarning={true}
                 style={{
                   width: '100%',
@@ -250,18 +339,24 @@ export default function LoginPage() {
                   fontSize: '13px',
                   outline: 'none',
                   cursor: 'pointer',
-                  appearance: 'none'
+                  appearance: 'none',
                 }}
               >
-                <option value="Super Admin" style={{ background: '#0e1424' }}>Super Admin (Pradeep K.)</option>
-                <option value="Front Desk" style={{ background: '#0e1424' }}>Front Desk Representative</option>
-                <option value="Manager" style={{ background: '#0e1424' }}>Property Manager</option>
+                <option value="Super Admin" style={{ background: '#0e1424' }}>
+                  Super Admin (Pradeep K.)
+                </option>
+                <option value="Front Desk" style={{ background: '#0e1424' }}>
+                  Front Desk Representative
+                </option>
+                <option value="Manager" style={{ background: '#0e1424' }}>
+                  Property Manager
+                </option>
               </select>
             </div>
           </div>
 
           {/* Submit Button */}
-          <button 
+          <button
             type="submit"
             disabled={submitting}
             suppressHydrationWarning={true}
@@ -280,7 +375,7 @@ export default function LoginPage() {
               justifyContent: 'center',
               gap: '8px',
               transition: 'all 0.2s',
-              boxShadow: '0 4px 12px rgba(0, 242, 254, 0.2)'
+              boxShadow: '0 4px 12px rgba(0, 242, 254, 0.2)',
             }}
             className="login-btn-hover"
           >
@@ -295,7 +390,17 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '24px', fontSize: '11px', color: 'var(--text-muted)' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            marginTop: '24px',
+            fontSize: '11px',
+            color: 'var(--text-muted)',
+          }}
+        >
           <Terminal style={{ width: '12px', height: '12px' }} />
           <span>Local Auth tokens stored securely.</span>
         </div>

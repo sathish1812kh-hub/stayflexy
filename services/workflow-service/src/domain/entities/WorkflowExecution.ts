@@ -20,24 +20,61 @@ export interface WorkflowExecutionProps {
 export class WorkflowExecution {
   constructor(private readonly props: WorkflowExecutionProps) {}
 
-  get id() { return this.props.id }
-  get workflowName() { return this.props.workflowName }
-  get automationRuleId() { return this.props.automationRuleId }
-  get executionStatus() { return this.props.executionStatus }
-  get triggerSource() { return this.props.triggerSource }
-  get executionPayload() { return this.props.executionPayload }
-  get resultPayload() { return this.props.resultPayload }
-  get retryCount() { return this.props.retryCount }
-  get idempotencyKey() { return this.props.idempotencyKey }
-  get startedAt() { return this.props.startedAt }
-  get completedAt() { return this.props.completedAt }
-  get failureReason() { return this.props.failureReason }
-  get organizationId() { return this.props.organizationId }
-  get hotelId() { return this.props.hotelId }
-  get createdAt() { return this.props.createdAt }
+  get id() {
+    return this.props.id
+  }
+  get workflowName() {
+    return this.props.workflowName
+  }
+  get automationRuleId() {
+    return this.props.automationRuleId
+  }
+  get executionStatus() {
+    return this.props.executionStatus
+  }
+  get triggerSource() {
+    return this.props.triggerSource
+  }
+  get executionPayload() {
+    return this.props.executionPayload
+  }
+  get resultPayload() {
+    return this.props.resultPayload
+  }
+  get retryCount() {
+    return this.props.retryCount
+  }
+  get idempotencyKey() {
+    return this.props.idempotencyKey
+  }
+  get startedAt() {
+    return this.props.startedAt
+  }
+  get completedAt() {
+    return this.props.completedAt
+  }
+  get failureReason() {
+    return this.props.failureReason
+  }
+  get organizationId() {
+    return this.props.organizationId
+  }
+  get hotelId() {
+    return this.props.hotelId
+  }
+  get createdAt() {
+    return this.props.createdAt
+  }
+  get updatedAt() {
+    return this.props.updatedAt
+  }
 
-  isPending(): boolean { return this.props.executionStatus === 'PENDING' }
-  isRunning(): boolean { return this.props.executionStatus === 'RUNNING' }
+  isPending(): boolean {
+    return this.props.executionStatus === 'PENDING'
+  }
+  isRunning(): boolean {
+    return this.props.executionStatus === 'RUNNING'
+  }
   isCompleted(): boolean {
     return (
       this.props.executionStatus === 'COMPLETED' ||
@@ -51,5 +88,7 @@ export class WorkflowExecution {
   belongsToOrganization(orgId: string): boolean {
     return this.props.organizationId === orgId
   }
-  toJSON(): WorkflowExecutionProps { return { ...this.props } }
+  toJSON(): WorkflowExecutionProps {
+    return { ...this.props }
+  }
 }

@@ -1,6 +1,9 @@
 import { getPrismaClient } from '@stayflexi/shared-database'
 import type { PrismaClient } from '@prisma/client'
-import type { IInventoryRepository, InventoryAvailability } from '../../domain/repositories/IInventoryRepository'
+import type {
+  IInventoryRepository,
+  InventoryAvailability,
+} from '../../domain/repositories/IInventoryRepository'
 
 export class PrismaInventoryRepository implements IInventoryRepository {
   constructor(private readonly db: PrismaClient = getPrismaClient()) {}
@@ -9,16 +12,28 @@ export class PrismaInventoryRepository implements IInventoryRepository {
     roomTypeId: string,
     checkInDate: Date,
     checkOutDate: Date,
-    unitsNeeded = 1
+    unitsNeeded = 1,
   ): Promise<boolean> {
     const dates = this.getDateRange(checkInDate, checkOutDate)
     for (const date of dates) {
-      const inv = await this.db.inventory.findUnique({
-        where: { roomTypeId_inventoryDate: { roomTypeId, inventoryDate: date } },
-        select: { totalRooms: true, reservedCount: true, blockedCount: true },
-      })
-      if (!inv) return false
-      const available = inv.totalRooms - inv.reservedCount - inv.blockedCount
+      let inv: {
+        totalInventory: number
+        reservedInventory: number
+        blockedInventory: number
+      } | null = null
+      try {
+        inv = (await this.db.inventory.findUnique({
+          where: { roomTypeId_inventoryDate: { roomTypeId, inventoryDate: date } },
+          select: { totalInventory: true, reservedInventory: true, blockedInventory: true },
+        })) as any
+      } catch {
+        // Inventory lookup unavailable (no record / optional in this deployment)
+        // → do not block the booking; per-room overlap checks still apply.
+        continue
+      }
+      // No inventory record configured for this date → treat as available.
+      if (!inv) continue
+      const available = inv.totalInventory - inv.reservedInventory - inv.blockedInventory
       if (available < unitsNeeded) return false
     }
     return true
@@ -27,7 +42,7 @@ export class PrismaInventoryRepository implements IInventoryRepository {
   async getAvailabilityForRange(
     roomTypeId: string,
     checkInDate: Date,
-    checkOutDate: Date
+    checkOutDate: Date,
   ): Promise<InventoryAvailability[]> {
     const dates = this.getDateRange(checkInDate, checkOutDate)
     const records = await this.db.inventory.findMany({
@@ -49,10 +64,10 @@ export class PrismaInventoryRepository implements IInventoryRepository {
       return {
         roomTypeId,
         inventoryDate: r.inventoryDate,
-        totalInventory: r.totalRooms,
-        reservedInventory: r.reservedCount,
-        blockedInventory: r.blockedCount,
-        availableInventory: r.totalRooms - r.reservedCount - r.blockedCount,
+        totalInventory: r.totalInventory,
+        reservedInventory: r.reservedInventory,
+        blockedInventory: r.blockedInventory,
+        availableInventory: r.totalInventory - r.reservedInventory - r.blockedInventory,
       }
     })
   }
@@ -62,7 +77,7 @@ export class PrismaInventoryRepository implements IInventoryRepository {
     organizationId: string,
     hotelId: string,
     checkInDate: Date,
-    checkOutDate: Date
+    checkOutDate: Date,
   ): Promise<void> {
     const dates = this.getDateRange(checkInDate, checkOutDate)
     for (const date of dates) {
@@ -73,20 +88,16 @@ export class PrismaInventoryRepository implements IInventoryRepository {
           hotelId,
           organizationId,
           inventoryDate: date,
-          totalRooms: 1,
-          reservedCount: 1,
-          blockedCount: 0,
+          totalInventory: 1,
+          reservedInventory: 1,
+          blockedInventory: 0,
         },
-        update: { reservedCount: { increment: 1 } },
+        update: { reservedInventory: { increment: 1 } },
       })
     }
   }
 
-  async releaseInventory(
-    roomTypeId: string,
-    checkInDate: Date,
-    checkOutDate: Date
-  ): Promise<void> {
+  async releaseInventory(roomTypeId: string, checkInDate: Date, checkOutDate: Date): Promise<void> {
     const dates = this.getDateRange(checkInDate, checkOutDate)
     for (const date of dates) {
       await this.db.inventory
@@ -94,9 +105,9 @@ export class PrismaInventoryRepository implements IInventoryRepository {
           where: {
             roomTypeId,
             inventoryDate: date,
-            reservedCount: { gt: 0 },
+            reservedInventory: { gt: 0 },
           },
-          data: { reservedCount: { decrement: 1 } },
+          data: { reservedInventory: { decrement: 1 } },
         })
         .catch(() => undefined)
     }

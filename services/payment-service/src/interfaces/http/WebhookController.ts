@@ -31,7 +31,7 @@ export class WebhookController {
     private readonly cache: PaymentCache,
     private readonly eventPublisher: IEventPublisher,
     private readonly logger: Logger,
-    private readonly webhookSecret: string
+    private readonly webhookSecret: string,
   ) {}
 
   // Webhook endpoint receives raw body (express.raw middleware used in route registration)
@@ -44,10 +44,17 @@ export class WebhookController {
       const signature = req.headers['x-webhook-signature'] as string | undefined
 
       if (!this.verifySignature(rawBody, signature)) {
-        this.logger.warn({ correlationId, hasSignature: !!signature }, 'Webhook signature verification failed')
+        this.logger.warn(
+          { correlationId, hasSignature: !!signature },
+          'Webhook signature verification failed',
+        )
         res.status(401).json({
           success: false,
-          error: { code: 'INVALID_SIGNATURE', message: 'Webhook signature verification failed', statusCode: 401 },
+          error: {
+            code: 'INVALID_SIGNATURE',
+            message: 'Webhook signature verification failed',
+            statusCode: 401,
+          },
         })
         return
       }
@@ -67,7 +74,11 @@ export class WebhookController {
       if (!payload.eventId || !payload.eventType) {
         res.status(400).json({
           success: false,
-          error: { code: 'MISSING_FIELDS', message: 'eventId and eventType are required', statusCode: 400 },
+          error: {
+            code: 'MISSING_FIELDS',
+            message: 'eventId and eventType are required',
+            statusCode: 400,
+          },
         })
         return
       }
@@ -75,8 +86,22 @@ export class WebhookController {
       // 3. Idempotency — replay prevention
       const idempotencyKey = `webhook:${payload.eventId}`
       const existing = await this.idempotencyStore.get(idempotencyKey).catch(() => null)
-      if (existing !== null && existing !== 'PROCESSING') {
-        this.logger.info({ eventId: payload.eventId }, 'Webhook already processed — returning cached response')
+      if (existing === 'PROCESSING') {
+        res.status(409).json({
+          success: false,
+          error: {
+            code: 'PROCESSING',
+            message: 'Webhook already being processed',
+            statusCode: 409,
+          },
+        })
+        return
+      }
+      if (existing !== null) {
+        this.logger.info(
+          { eventId: payload.eventId },
+          'Webhook already processed — returning cached response',
+        )
         if (typeof existing === 'object' && 'body' in existing) {
           res.status(200).json(existing.body)
         } else {
@@ -89,7 +114,11 @@ export class WebhookController {
       if (!claimed) {
         res.status(409).json({
           success: false,
-          error: { code: 'PROCESSING', message: 'Webhook already being processed', statusCode: 409 },
+          error: {
+            code: 'PROCESSING',
+            message: 'Webhook already being processed',
+            statusCode: 409,
+          },
         })
         return
       }
@@ -98,11 +127,13 @@ export class WebhookController {
       await this.processWebhook(payload, correlationId)
 
       const responseBody = { success: true, data: { acknowledged: true, eventId: payload.eventId } }
-      await this.idempotencyStore.store(idempotencyKey, {
-        statusCode: 200,
-        body: responseBody,
-        createdAt: new Date().toISOString(),
-      }).catch(() => undefined)
+      await this.idempotencyStore
+        .store(idempotencyKey, {
+          statusCode: 200,
+          body: responseBody,
+          createdAt: new Date().toISOString(),
+        })
+        .catch(() => undefined)
 
       res.status(200).json(responseBody)
     } catch (err) {
@@ -132,11 +163,17 @@ export class WebhookController {
     }
     if (!payment && transactionId) {
       // fallback: search by transactionId via reference lookup — log for now
-      this.logger.warn({ transactionId, eventType }, 'Webhook payment lookup by transactionId not directly supported — skipping')
+      this.logger.warn(
+        { transactionId, eventType },
+        'Webhook payment lookup by transactionId not directly supported — skipping',
+      )
     }
 
     if (!payment) {
-      this.logger.warn({ paymentReference, transactionId, eventType, correlationId }, 'Webhook received for unknown payment — audit only')
+      this.logger.warn(
+        { paymentReference, transactionId, eventType, correlationId },
+        'Webhook received for unknown payment — audit only',
+      )
       return
     }
 
@@ -146,7 +183,13 @@ export class WebhookController {
       case 'payment.authorized':
         if (payment.isPending) {
           await this.paymentRepo.updateStatus(paymentId, 'PROCESSING')
-          await this.paymentRepo.addAuditEntry(paymentId, 'PROCESSING', 'Payment authorized via webhook', 'system', { webhookEventType: eventType })
+          await this.paymentRepo.addAuditEntry(
+            paymentId,
+            'PROCESSING',
+            'Payment authorized via webhook',
+            'system',
+            { webhookEventType: eventType },
+          )
         }
         break
 
@@ -156,46 +199,96 @@ export class WebhookController {
             paidAt: new Date(),
             transactionId: payload.transactionId ?? payment.transactionId ?? undefined,
           })
-          await this.paymentRepo.addAuditEntry(paymentId, 'SUCCESS', 'Payment captured via webhook', 'system', { webhookEventType: eventType })
+          await this.paymentRepo.addAuditEntry(
+            paymentId,
+            'SUCCESS',
+            'Payment captured via webhook',
+            'system',
+            { webhookEventType: eventType },
+          )
           await this.cache.invalidatePayment(paymentId)
-          this.eventPublisher.publish('payment.events', {
-            eventType: 'payment.completed',
-            aggregateId: paymentId,
-            aggregateType: 'Payment',
-            organizationId,
-            correlationId,
-            payload: { paymentId, bookingId: payment.bookingId, amount: payment.amount, currency: payment.currency, webhookEventType: eventType },
-          }).catch(err => this.logger.warn({ err }, 'Failed to publish payment.completed from webhook'))
+          this.eventPublisher
+            .publish('payment.events', {
+              eventType: 'payment.completed',
+              aggregateId: paymentId,
+              aggregateType: 'Payment',
+              organizationId,
+              correlationId,
+              payload: {
+                paymentId,
+                bookingId: payment.bookingId,
+                amount: payment.amount,
+                currency: payment.currency,
+                webhookEventType: eventType,
+              },
+            })
+            .catch((err) =>
+              this.logger.warn({ err }, 'Failed to publish payment.completed from webhook'),
+            )
         }
         break
 
       case 'payment.failed':
         if (payment.isPending || payment.paymentStatus === 'PROCESSING') {
-          await this.paymentRepo.updateStatus(paymentId, 'FAILED', { failureReason: failureReason ?? 'Payment failed via webhook' })
-          await this.paymentRepo.addAuditEntry(paymentId, 'FAILED', `Payment failed via webhook: ${failureReason ?? 'unknown'}`, 'system', { webhookEventType: eventType, failureReason })
+          await this.paymentRepo.updateStatus(paymentId, 'FAILED', {
+            failureReason: failureReason ?? 'Payment failed via webhook',
+          })
+          await this.paymentRepo.addAuditEntry(
+            paymentId,
+            'FAILED',
+            `Payment failed via webhook: ${failureReason ?? 'unknown'}`,
+            'system',
+            { webhookEventType: eventType, failureReason },
+          )
           await this.cache.invalidatePayment(paymentId)
-          this.eventPublisher.publish('payment.events', {
-            eventType: 'payment.failed',
-            aggregateId: paymentId,
-            aggregateType: 'Payment',
-            organizationId,
-            correlationId,
-            payload: { paymentId, bookingId: payment.bookingId, failureReason, webhookEventType: eventType },
-          }).catch(err => this.logger.warn({ err }, 'Failed to publish payment.failed from webhook'))
+          this.eventPublisher
+            .publish('payment.events', {
+              eventType: 'payment.failed',
+              aggregateId: paymentId,
+              aggregateType: 'Payment',
+              organizationId,
+              correlationId,
+              payload: {
+                paymentId,
+                bookingId: payment.bookingId,
+                failureReason,
+                webhookEventType: eventType,
+              },
+            })
+            .catch((err) =>
+              this.logger.warn({ err }, 'Failed to publish payment.failed from webhook'),
+            )
         }
         break
 
       case 'payment.cancelled':
         if (payment.isPending) {
-          await this.paymentRepo.updateStatus(paymentId, 'FAILED', { failureReason: 'Cancelled via webhook' })
-          await this.paymentRepo.addAuditEntry(paymentId, 'VOIDED', 'Payment cancelled via webhook', 'system', { webhookEventType: eventType })
+          await this.paymentRepo.updateStatus(paymentId, 'FAILED', {
+            failureReason: 'Cancelled via webhook',
+          })
+          await this.paymentRepo.addAuditEntry(
+            paymentId,
+            'VOIDED',
+            'Payment cancelled via webhook',
+            'system',
+            { webhookEventType: eventType },
+          )
           await this.cache.invalidatePayment(paymentId)
         }
         break
 
       default:
-        this.logger.warn({ eventType, paymentId, correlationId }, 'Unhandled webhook event type — audit only')
-        await this.paymentRepo.addAuditEntry(paymentId, 'RECONCILED', `Unhandled webhook event: ${eventType}`, 'system', { webhookEventType: eventType })
+        this.logger.warn(
+          { eventType, paymentId, correlationId },
+          'Unhandled webhook event type — audit only',
+        )
+        await this.paymentRepo.addAuditEntry(
+          paymentId,
+          'RECONCILED',
+          `Unhandled webhook event: ${eventType}`,
+          'system',
+          { webhookEventType: eventType },
+        )
         break
     }
 

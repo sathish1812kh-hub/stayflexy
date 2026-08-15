@@ -7,6 +7,8 @@ import {
   executeWorkflowDtoSchema,
   createRuleDtoSchema,
   listWorkflowsQuerySchema,
+  type CreateWorkflowDto,
+  type ExecuteWorkflowDto,
 } from '../../application/dtos/workflow.dto'
 import type { CreateWorkflow } from '../../application/use-cases/CreateWorkflow'
 import type { ExecuteWorkflow } from '../../application/use-cases/ExecuteWorkflow'
@@ -40,14 +42,10 @@ export class WorkflowController {
   }
 
   // POST /api/v1/workflows
-  createExecution = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
+  createExecution = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orgId, correlationId } = this.getAuth(req)
-      const dto = validate(createWorkflowDtoSchema, req.body)
+      const dto = validate(createWorkflowDtoSchema as any, req.body) as CreateWorkflowDto
       const result = await this.createWorkflowUC.execute(dto, orgId, correlationId)
       res.status(202).json(successResponse(result, correlationId))
     } catch (err) {
@@ -56,14 +54,10 @@ export class WorkflowController {
   }
 
   // POST /api/v1/workflows/execute
-  executeWorkflow = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
+  executeWorkflow = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orgId, correlationId } = this.getAuth(req)
-      const dto = validate(executeWorkflowDtoSchema, req.body)
+      const dto = validate(executeWorkflowDtoSchema as any, req.body) as ExecuteWorkflowDto
       const result = await this.executeWorkflowUC.execute(dto, orgId, correlationId)
       res.status(202).json(successResponse(result, correlationId))
     } catch (err) {
@@ -72,11 +66,7 @@ export class WorkflowController {
   }
 
   // GET /api/v1/workflows/:id
-  getExecution = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
+  getExecution = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orgId, correlationId } = this.getAuth(req)
       const id = req.params['id']
@@ -99,14 +89,10 @@ export class WorkflowController {
   }
 
   // GET /api/v1/workflows  or  GET /api/v1/workflows/executions
-  listExecutions = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
+  listExecutions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orgId, correlationId } = this.getAuth(req)
-      const query = validate(listWorkflowsQuerySchema, req.query)
+      const query = validate(listWorkflowsQuerySchema as any, req.query) as any
       const result = await this.listWorkflowsUC.execute(orgId, {
         hotelId: query.hotelId,
         executionStatus: query.executionStatus,
@@ -127,11 +113,7 @@ export class WorkflowController {
   }
 
   // POST /api/v1/workflows/:id/retry
-  retryExecution = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
+  retryExecution = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orgId, correlationId } = this.getAuth(req)
       const id = req.params['id']
@@ -154,11 +136,7 @@ export class WorkflowController {
   }
 
   // POST /api/v1/workflows/rules
-  createRule = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
+  createRule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { userId, orgId, correlationId } = this.getAuth(req)
       const dto = validate(createRuleDtoSchema, req.body)
@@ -179,11 +157,7 @@ export class WorkflowController {
   }
 
   // GET /api/v1/workflows/rules
-  listRules = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
+  listRules = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orgId, correlationId } = this.getAuth(req)
       const hotelId = req.query['hotelId'] as string | undefined
@@ -200,7 +174,7 @@ export class WorkflowController {
 
       res.json({
         success: true,
-        data: paged.map(r => r.toJSON()),
+        data: paged.map((r) => r.toJSON()),
         meta,
         correlationId,
       })

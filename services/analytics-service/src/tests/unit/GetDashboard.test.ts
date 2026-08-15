@@ -4,36 +4,38 @@ import type { AnalyticsCache } from '../../infrastructure/cache/AnalyticsCache'
 import type { PrismaClient } from '@prisma/client'
 import type { Logger } from '@stayflexi/shared-logger'
 
-const mockLogger: Logger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() } as unknown as Logger
+const mockLogger: Logger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+} as unknown as Logger
 
 const makeDecimal = (n: number) => ({ toNumber: () => n })
 
-function makeDb(opts: {
-  occupancy?: Array<{ date: string; occupied: number; total: number; rate: number }>
-  checkIns?: number
-  checkOuts?: number
-  newBookings?: number
-  last7Revenue?: unknown
-  last7Bookings?: number
-  last7Cancellations?: number
-  kpis?: unknown
-  pendingHousekeeping?: number
-  pendingMaintenance?: number
-  hotel?: unknown
-} = {}): PrismaClient {
-  const defaultKpis = {
-    hotelId: 'hotel-1', organizationId: 'org-1',
-    period: { from: '2024-01-01', to: '2024-01-31' },
-    occupancyRate: 72, adr: 180, revpar: 129.6, totalRevenue: 5400,
-    totalBookings: 30, cancellationRate: 10, averageStayDuration: 2,
-    revenueByChannel: {}, revenueByRoomType: {},
-  }
+function makeDb(
+  opts: {
+    occupancy?: Array<{ date: string; occupied: number; total: number; rate: number }>
+    checkIns?: number
+    checkOuts?: number
+    newBookings?: number
+    last7Revenue?: unknown
+    last7Bookings?: number
+    last7Cancellations?: number
+    kpis?: unknown
+    pendingHousekeeping?: number
+    pendingMaintenance?: number
+    hotel?: unknown
+  } = {},
+): PrismaClient {
   return {
     booking: {
       count: jest.fn().mockResolvedValue(opts.checkIns ?? 3),
     },
     payment: {
-      aggregate: jest.fn().mockResolvedValue({ _sum: { amount: opts.last7Revenue ?? makeDecimal(2500) } }),
+      aggregate: jest
+        .fn()
+        .mockResolvedValue({ _sum: { amount: opts.last7Revenue ?? makeDecimal(2500) } }),
     },
     hotel: {
       findUnique: jest.fn().mockResolvedValue(opts.hotel ?? { totalRooms: 20 }),
@@ -48,15 +50,22 @@ function makeDb(opts: {
 }
 
 const mockKpiCalculator = {
-  calculateOccupancy: jest.fn().mockResolvedValue([
-    { date: '2024-01-15', occupied: 14, total: 20, rate: 70 },
-  ]),
+  calculateOccupancy: jest
+    .fn()
+    .mockResolvedValue([{ date: '2024-01-15', occupied: 14, total: 20, rate: 70 }]),
   calculateKpis: jest.fn().mockResolvedValue({
-    hotelId: 'hotel-1', organizationId: 'org-1',
+    hotelId: 'hotel-1',
+    organizationId: 'org-1',
     period: { from: '2024-01-01', to: '2024-01-31' },
-    occupancyRate: 72, adr: 180, revpar: 129.6, totalRevenue: 5400,
-    totalBookings: 30, cancellationRate: 10, averageStayDuration: 2,
-    revenueByChannel: {}, revenueByRoomType: {},
+    occupancyRate: 72,
+    adr: 180,
+    revpar: 129.6,
+    totalRevenue: 5400,
+    totalBookings: 30,
+    cancellationRate: 10,
+    averageStayDuration: 2,
+    revenueByChannel: {},
+    revenueByRoomType: {},
   }),
 } as unknown as jest.Mocked<KpiCalculator>
 
@@ -64,11 +73,17 @@ const mockCache = {
   getDashboard: jest.fn().mockResolvedValue(null),
   setDashboard: jest.fn().mockResolvedValue(undefined),
   invalidateHotel: jest.fn(),
-  getKpis: jest.fn(), setKpis: jest.fn(), invalidateKpis: jest.fn(),
-  getOccupancy: jest.fn(), setOccupancy: jest.fn(),
-  getRevenueReport: jest.fn(), setRevenueReport: jest.fn(),
-  getForecast: jest.fn(), setForecast: jest.fn(),
-  getExportStatus: jest.fn(), setExportStatus: jest.fn(),
+  getKpis: jest.fn(),
+  setKpis: jest.fn(),
+  invalidateKpis: jest.fn(),
+  getOccupancy: jest.fn(),
+  setOccupancy: jest.fn(),
+  getRevenueReport: jest.fn(),
+  setRevenueReport: jest.fn(),
+  getForecast: jest.fn(),
+  setForecast: jest.fn(),
+  getExportStatus: jest.fn(),
+  setExportStatus: jest.fn(),
 } as unknown as jest.Mocked<AnalyticsCache>
 
 describe('GetDashboard', () => {
@@ -76,6 +91,10 @@ describe('GetDashboard', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockCache.getDashboard.mockResolvedValue(null)
+    mockKpiCalculator.calculateOccupancy.mockResolvedValue([
+      { date: '2024-01-15', occupied: 14, total: 20, rate: 70 },
+    ])
     useCase = new GetDashboard(makeDb(), mockKpiCalculator, mockCache, mockLogger)
   })
 
@@ -95,9 +114,18 @@ describe('GetDashboard', () => {
 
   it('returns cached result on cache hit', async () => {
     const cached = {
-      hotelId: 'hotel-1', organizationId: 'org-1',
+      hotelId: 'hotel-1',
+      organizationId: 'org-1',
       generatedAt: new Date().toISOString(),
-      today: { date: '2024-01-15', occupancyRate: 70, occupied: 14, totalRooms: 20, checkIns: 2, checkOuts: 1, newBookings: 3 },
+      today: {
+        date: '2024-01-15',
+        occupancyRate: 70,
+        occupied: 14,
+        totalRooms: 20,
+        checkIns: 2,
+        checkOuts: 1,
+        newBookings: 3,
+      },
       last7Days: { revenue: 2500, bookings: 10, avgOccupancyRate: 68, cancellations: 1 },
       last30Days: { revenue: 5400, bookings: 30, adr: 180, revpar: 129.6, cancellationRate: 10 },
       pendingTasks: { housekeeping: 5, maintenance: 2 },
@@ -111,7 +139,10 @@ describe('GetDashboard', () => {
 
   it('caches the result after generating', async () => {
     await useCase.execute('hotel-1', 'org-1')
-    expect(mockCache.setDashboard).toHaveBeenCalledWith('hotel-1', expect.objectContaining({ hotelId: 'hotel-1' }))
+    expect(mockCache.setDashboard).toHaveBeenCalledWith(
+      'hotel-1',
+      expect.objectContaining({ hotelId: 'hotel-1' }),
+    )
   })
 
   it('today occupancy comes from calculateOccupancy', async () => {

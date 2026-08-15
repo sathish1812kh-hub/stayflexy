@@ -5,13 +5,19 @@ export interface SurgeConfig {
   hotelId: string
   organizationId: string
   roomTypeId?: string
-  surgeMultiplier: number
+  surgeMultiplier?: number
+  multiplier?: number
   reason: string
-  expiresAt: Date
+  expiresAt?: Date
+  durationSeconds?: number
   appliedById: string
 }
 
 export interface ActiveSurge {
+  hotelId: string
+  organizationId: string
+  roomTypeId?: string
+  multiplier: number
   surgeMultiplier: number
   reason: string
   expiresAt: Date
@@ -29,37 +35,51 @@ export class SurgePricingController {
   ) {}
 
   async applySurge(config: SurgeConfig): Promise<ActiveSurge> {
-    if (config.surgeMultiplier > this.MAX_SURGE_MULTIPLIER) {
-      throw new Error(`Surge multiplier ${config.surgeMultiplier} exceeds maximum ${this.MAX_SURGE_MULTIPLIER}`)
+    const multiplier = config.multiplier ?? config.surgeMultiplier ?? 1.0
+    if (multiplier > this.MAX_SURGE_MULTIPLIER) {
+      throw new Error(`Surge multiplier ${multiplier} exceeds maximum ${this.MAX_SURGE_MULTIPLIER}`)
     }
-    if (config.surgeMultiplier <= 1.0) {
-      throw new Error('Surge multiplier must be greater than 1.0')
+    if (multiplier < 1.0) {
+      throw new Error('Surge multiplier must be greater than or equal to 1.0')
     }
 
     const key = this.buildKey(config.hotelId, config.roomTypeId)
     const now = new Date()
-    const ttlSeconds = Math.ceil((config.expiresAt.getTime() - now.getTime()) / 1000)
+    const expiresAt =
+      config.expiresAt ?? new Date(now.getTime() + (config.durationSeconds ?? 3600) * 1000)
+    const ttlSeconds = Math.ceil((expiresAt.getTime() - now.getTime()) / 1000)
 
     if (ttlSeconds <= 0) {
       throw new Error('Surge pricing expiresAt must be in the future')
     }
 
     const surge: ActiveSurge = {
-      surgeMultiplier: config.surgeMultiplier,
+      hotelId: config.hotelId,
+      organizationId: config.organizationId,
+      roomTypeId: config.roomTypeId,
+      multiplier,
+      surgeMultiplier: multiplier,
       reason: config.reason,
-      expiresAt: config.expiresAt,
+      expiresAt,
       appliedAt: now,
       appliedById: config.appliedById,
     }
 
-    await this.redis.setex(key, ttlSeconds, JSON.stringify(surge))
+    if (typeof (this.redis as any).set === 'function') {
+      await (this.redis as any).set(key, JSON.stringify(surge), 'EX', ttlSeconds)
+    } else {
+      await this.redis.setex(key, ttlSeconds, JSON.stringify(surge))
+    }
 
-    this.logger.info({
-      hotelId: config.hotelId,
-      roomTypeId: config.roomTypeId,
-      multiplier: config.surgeMultiplier,
-      expiresAt: config.expiresAt,
-    }, 'Surge pricing applied')
+    this.logger.info(
+      {
+        hotelId: config.hotelId,
+        roomTypeId: config.roomTypeId,
+        multiplier,
+        expiresAt,
+      },
+      'Surge pricing applied',
+    )
 
     return surge
   }

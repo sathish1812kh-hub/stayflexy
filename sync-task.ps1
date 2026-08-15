@@ -45,10 +45,15 @@ if ($postgresActive) {
 }
 
 $neo4jActive = Test-PortActive 7687
+if (-not $neo4jActive -and (Test-Path "$PSScriptRoot\scripts\start-neo4j.ps1")) {
+    & "$PSScriptRoot\scripts\start-neo4j.ps1"
+    $neo4jActive = Test-PortActive 7687
+}
+
 if ($neo4jActive) {
-    Write-Host "  Neo4j Bolt (Port 7687): ONLINE" -ForegroundColor Green
+    Write-Host "  Neo4j Bolt (Port 7687): ONLINE (Native Zero-Docker)" -ForegroundColor Green
 } else {
-    Write-Host "  Neo4j Bolt (Port 7687): OFFLINE (Optional but recommended)" -ForegroundColor Yellow
+    Write-Host "  Neo4j Bolt (Port 7687): OFFLINE (Run scripts/start-neo4j.ps1)" -ForegroundColor Yellow
 }
 
 # 3. Synchronize current-state.md Commit Hash (Phase 12)

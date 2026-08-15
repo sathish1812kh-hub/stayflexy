@@ -3,7 +3,11 @@
   "version": "2.0.0",
   "private": true,
   "main": "src/index.ts",
-  "scripts": { "type-check": "tsc --noEmit", "test": "jest", "test:coverage": "jest --coverage" },
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
   "dependencies": {
     "@opentelemetry/api": "^1.7.0",
     "@opentelemetry/sdk-node": "^0.49.0",
@@ -13,8 +17,7 @@
     "@opentelemetry/resources": "^1.21.0",
     "@opentelemetry/semantic-conventions": "^1.21.0",
     "pino": "^8.17.0",
-    "pino-http": "^9.0.0",
-    "async-local-storage": "^2.4.0"
+    "pino-http": "^9.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",

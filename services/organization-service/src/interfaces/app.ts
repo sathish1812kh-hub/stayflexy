@@ -7,7 +7,11 @@ import { schema } from './graphql/schema'
 import type { IEventPublisher } from '@stayflexi/shared-events'
 import type { Logger } from '@stayflexi/shared-logger'
 import { createRequestLogger } from '@stayflexi/shared-logger'
-import { MetricsRegistry, createHttpMetricsMiddleware, createMetricsHandler } from '@stayflexi/shared-observability'
+import {
+  MetricsRegistry,
+  createHttpMetricsMiddleware,
+  createMetricsHandler,
+} from '@stayflexi/shared-observability'
 import { getPrismaClient } from '@stayflexi/shared-database'
 import type Redis from 'ioredis'
 
@@ -41,7 +45,7 @@ export function createApp(
   config: OrgConfig,
   redis: Redis,
   eventPublisher: IEventPublisher,
-  logger: Logger
+  logger: Logger,
 ): express.Application {
   const db = getPrismaClient(config.DATABASE_URL)
 
@@ -59,7 +63,7 @@ export function createApp(
     memberRepo,
     eventPublisher,
     logger,
-    config.MAX_MEMBERS_PER_ORG
+    config.MAX_MEMBERS_PER_ORG,
   )
   const removeMember = new RemoveMember(orgRepo, memberRepo, eventPublisher, logger)
   const transferOwnership = new TransferOwnership(orgRepo, memberRepo, logger)
@@ -74,7 +78,7 @@ export function createApp(
     removeMember,
     transferOwnership,
     listOrgs,
-    memberRepo
+    memberRepo,
   )
 
   // Express app
@@ -85,7 +89,7 @@ export function createApp(
   app.use(
     helmet({
       hsts: { maxAge: 31536000, includeSubDomains: true },
-    })
+    }),
   )
   app.use(
     cors({
@@ -100,7 +104,7 @@ export function createApp(
         'X-User-Role',
         'X-Service-Key',
       ],
-    })
+    }),
   )
   app.use(express.json({ limit: '5mb' }))
   const registry = new MetricsRegistry()
@@ -144,12 +148,15 @@ export function createApp(
             listOrganizations: listOrgs,
           }
         },
-      })
+      }),
     )
   })
 
   // 404 handler
-  app.use((_req, res) => {
+  app.use((req, res, next) => {
+    if (req.path === '/graphql') {
+      return next()
+    }
     res.status(404).json({
       success: false,
       error: {

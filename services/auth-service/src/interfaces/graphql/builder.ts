@@ -9,9 +9,8 @@ import type { GetCurrentUser } from '../../application/use-cases/GetCurrentUser'
 export interface GraphQLContext {
   userId: string | null
   organizationId: string | null
-  role: string
   correlationId?: string
-  
+
   // Use cases
   registerUser: RegisterUser
   loginUser: LoginUser

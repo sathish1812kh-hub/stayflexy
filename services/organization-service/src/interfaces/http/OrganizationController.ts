@@ -8,6 +8,7 @@ import {
   updateOrgDtoSchema,
   addMemberDtoSchema,
   listOrgsDtoSchema,
+  type ListOrgsDto,
 } from '../../application/dtos/organization.dto'
 import type { CreateOrganization } from '../../application/use-cases/CreateOrganization'
 import type { GetOrganization } from '../../application/use-cases/GetOrganization'
@@ -38,7 +39,7 @@ export class OrganizationController {
     private readonly removeMemberUseCase: RemoveMember,
     private readonly transferOwnershipUseCase: TransferOwnership,
     private readonly listOrgsUseCase: ListOrganizations,
-    private readonly memberRepo: IMemberRepository
+    private readonly memberRepo: IMemberRepository,
   ) {}
 
   private getAuthContext(req: Request): AuthContext {
@@ -113,10 +114,7 @@ export class OrganizationController {
       }
 
       const page = Math.max(1, parseInt(String(req.query['page'] ?? '1'), 10))
-      const limit = Math.min(
-        100,
-        Math.max(1, parseInt(String(req.query['limit'] ?? '20'), 10))
-      )
+      const limit = Math.min(100, Math.max(1, parseInt(String(req.query['limit'] ?? '20'), 10)))
 
       const { members, total } = await this.memberRepo.findActiveByOrg(id, page, limit)
 
@@ -186,7 +184,7 @@ export class OrganizationController {
         orgId,
         dto.newOwnerId,
         userId,
-        correlationId
+        correlationId,
       )
       res.json({ success: true, data: updated.toJSON(), correlationId })
     } catch (err) {
@@ -198,9 +196,9 @@ export class OrganizationController {
     try {
       const { userId, role, correlationId } = this.getAuthContext(req)
       const dto = validate(
-        listOrgsDtoSchema,
-        req.query as Record<string, string | undefined>
-      )
+        listOrgsDtoSchema as any,
+        req.query as Record<string, string | undefined>,
+      ) as ListOrgsDto
       const result = await this.listOrgsUseCase.execute(dto, userId, role)
       res.json({
         success: true,

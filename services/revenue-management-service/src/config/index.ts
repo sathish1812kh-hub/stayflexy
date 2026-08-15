@@ -3,7 +3,10 @@ import { loadConfig, baseServiceConfigSchema } from '@stayflexi/shared-config'
 
 const revenueManagementConfigSchema = baseServiceConfigSchema.extend({
   PORT: z.string().default('3012').transform(Number),
-  KAFKA_ENABLED: z.string().default('false').transform(v => v === 'true'),
+  KAFKA_ENABLED: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
   KAFKA_CLIENT_ID: z.string().default('revenue-management-service'),
   KAFKA_GROUP_ID: z.string().default('revenue-management-service'),
   REVENUE_CACHE_TTL_SECONDS: z.string().default('600').transform(Number), // 10 min
@@ -17,5 +20,8 @@ const revenueManagementConfigSchema = baseServiceConfigSchema.extend({
 export type RevenueManagementConfig = z.infer<typeof revenueManagementConfigSchema>
 
 export function loadRevenueManagementConfig(): RevenueManagementConfig {
-  return loadConfig(revenueManagementConfigSchema as z.ZodSchema<RevenueManagementConfig>, process.env as Record<string, string | undefined>)
+  return loadConfig(
+    revenueManagementConfigSchema as unknown as z.ZodSchema<RevenueManagementConfig>,
+    process.env as Record<string, string | undefined>,
+  )
 }

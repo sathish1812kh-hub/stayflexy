@@ -74,278 +74,319 @@ export interface Room {
 // Pre-populated default mock database values to ensure full visual functionality offline
 const DEFAULT_HOTELS: Hotel[] = [
   {
-    id: "h1-resort-goa",
-    organizationId: "org-stayflexi",
-    name: "Grand Stayflexi Beach Resort",
-    slug: "grand-stayflexi-resort",
-    address: "101 Candolim Beach Road",
-    city: "Goa",
-    state: "Goa",
-    country: "IND",
-    postalCode: "403515",
-    phone: "+91 832 2456789",
-    email: "resort.goa@stayflexi.com",
-    website: "https://resort.goa.stayflexi.com",
+    id: 'h1-resort-goa',
+    organizationId: 'org-stayflexi',
+    name: 'Grand Stayflexi Beach Resort',
+    slug: 'grand-stayflexi-resort',
+    address: '101 Candolim Beach Road',
+    city: 'Goa',
+    state: 'Goa',
+    country: 'IND',
+    postalCode: '403515',
+    phone: '+91 832 2456789',
+    email: 'resort.goa@stayflexi.com',
+    website: 'https://resort.goa.stayflexi.com',
     starRating: 5,
-    status: "ACTIVE",
-    timezone: "IST",
-    checkInTime: "14:00",
-    checkOutTime: "11:00",
+    status: 'ACTIVE',
+    timezone: 'IST',
+    checkInTime: '14:00',
+    checkOutTime: '11:00',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: "h2-suites-blr",
-    organizationId: "org-stayflexi",
-    name: "Stayflexi Business Suites",
-    slug: "stayflexi-suites-bangalore",
-    address: "42 Outer Ring Road, HSR",
-    city: "Bangalore",
-    state: "Karnataka",
-    country: "IND",
-    postalCode: "560102",
-    phone: "+91 80 49103322",
-    email: "suites.blr@stayflexi.com",
-    website: "https://suites.blr.stayflexi.com",
+    id: 'h2-suites-blr',
+    organizationId: 'org-stayflexi',
+    name: 'Stayflexi Business Suites',
+    slug: 'stayflexi-suites-bangalore',
+    address: '42 Outer Ring Road, HSR',
+    city: 'Bangalore',
+    state: 'Karnataka',
+    country: 'IND',
+    postalCode: '560102',
+    phone: '+91 80 49103322',
+    email: 'suites.blr@stayflexi.com',
+    website: 'https://suites.blr.stayflexi.com',
     starRating: 4,
-    status: "ACTIVE",
-    timezone: "IST",
-    checkInTime: "12:00",
-    checkOutTime: "11:00",
+    status: 'ACTIVE',
+    timezone: 'IST',
+    checkInTime: '12:00',
+    checkOutTime: '11:00',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: "h3-palace-jpr",
-    organizationId: "org-stayflexi",
-    name: "Stayflexi Heritage Palace",
-    slug: "stayflexi-heritage-jaipur",
-    address: "Heritage Circle, Amer",
-    city: "Jaipur",
-    state: "Rajasthan",
-    country: "IND",
-    postalCode: "302001",
-    phone: "+91 141 22883311",
-    email: "palace.jpr@stayflexi.com",
-    website: "https://palace.jpr.stayflexi.com",
+    id: 'h3-palace-jpr',
+    organizationId: 'org-stayflexi',
+    name: 'Stayflexi Heritage Palace',
+    slug: 'stayflexi-heritage-jaipur',
+    address: 'Heritage Circle, Amer',
+    city: 'Jaipur',
+    state: 'Rajasthan',
+    country: 'IND',
+    postalCode: '302001',
+    phone: '+91 141 22883311',
+    email: 'palace.jpr@stayflexi.com',
+    website: 'https://palace.jpr.stayflexi.com',
     starRating: 5,
-    status: "UNDER_RENOVATION",
-    timezone: "IST",
-    checkInTime: "14:00",
-    checkOutTime: "12:00",
+    status: 'UNDER_RENOVATION',
+    timezone: 'IST',
+    checkInTime: '14:00',
+    checkOutTime: '12:00',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-  }
+  },
 ]
 
 const DEFAULT_ROOM_TYPES: RoomType[] = [
   {
-    id: "rt-deluxe",
-    hotelId: "h1-resort-goa",
-    organizationId: "org-stayflexi",
-    name: "Deluxe Pool-View Room",
-    description: "Spacious room overlooking the central resort swimming pool. Furnished with premium teakwood and features a full balcony.",
-    basePrice: 150.00,
+    id: 'rt-deluxe',
+    hotelId: 'h1-resort-goa',
+    organizationId: 'org-stayflexi',
+    name: 'Deluxe Pool-View Room',
+    description:
+      'Spacious room overlooking the central resort swimming pool. Furnished with premium teakwood and features a full balcony.',
+    basePrice: 150.0,
     maxOccupancy: 2,
-    amenities: ["Pool View", "Balcony", "Free Wi-Fi", "AC", "Minibar", "Smart TV"],
+    amenities: ['Pool View', 'Balcony', 'Free Wi-Fi', 'AC', 'Minibar', 'Smart TV'],
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: "rt-executive",
-    hotelId: "h1-resort-goa",
-    organizationId: "org-stayflexi",
-    name: "Executive Club Suite",
-    description: "Includes access to the VIP Executive Lounge, complimentary cocktail hours, and panoramic ocean vistas.",
-    basePrice: 280.00,
+    id: 'rt-executive',
+    hotelId: 'h1-resort-goa',
+    organizationId: 'org-stayflexi',
+    name: 'Executive Club Suite',
+    description:
+      'Includes access to the VIP Executive Lounge, complimentary cocktail hours, and panoramic ocean vistas.',
+    basePrice: 280.0,
     maxOccupancy: 3,
-    amenities: ["Ocean View", "Lounge Access", "Free Wi-Fi", "AC", "Espresso Machine", "Bath Tub"],
+    amenities: ['Ocean View', 'Lounge Access', 'Free Wi-Fi', 'AC', 'Espresso Machine', 'Bath Tub'],
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: "rt-presidential",
-    hotelId: "h1-resort-goa",
-    organizationId: "org-stayflexi",
-    name: "Presidential Infinity Villa",
-    description: "Ultra-luxury detached villa featuring a private infinity pool, a separate master lounge, and dedicated butler service.",
-    basePrice: 650.00,
+    id: 'rt-presidential',
+    hotelId: 'h1-resort-goa',
+    organizationId: 'org-stayflexi',
+    name: 'Presidential Infinity Villa',
+    description:
+      'Ultra-luxury detached villa featuring a private infinity pool, a separate master lounge, and dedicated butler service.',
+    basePrice: 650.0,
     maxOccupancy: 4,
-    amenities: ["Infinity Pool", "Oceanfront", "Butler Service", "Kitchen", "Free Wi-Fi", "AC", "Private Jacuzzi"],
+    amenities: [
+      'Infinity Pool',
+      'Oceanfront',
+      'Butler Service',
+      'Kitchen',
+      'Free Wi-Fi',
+      'AC',
+      'Private Jacuzzi',
+    ],
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: "rt-business-std",
-    hotelId: "h2-suites-blr",
-    organizationId: "org-stayflexi",
-    name: "Standard Business King",
-    description: "Optimized for corporate travelers. Features an ergonomic workspace, ultra-high-speed fiber, and premium coffee setup.",
-    basePrice: 110.00,
+    id: 'rt-business-std',
+    hotelId: 'h2-suites-blr',
+    organizationId: 'org-stayflexi',
+    name: 'Standard Business King',
+    description:
+      'Optimized for corporate travelers. Features an ergonomic workspace, ultra-high-speed fiber, and premium coffee setup.',
+    basePrice: 110.0,
     maxOccupancy: 2,
-    amenities: ["Work Desk", "Ergonomic Chair", "High Speed Wi-Fi", "AC", "Coffee Maker"],
+    amenities: ['Work Desk', 'Ergonomic Chair', 'High Speed Wi-Fi', 'AC', 'Coffee Maker'],
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-  }
+  },
 ]
 
 const DEFAULT_ROOMS: Room[] = [
   // Goa Resort Rooms
   {
-    id: "r-101",
-    hotelId: "h1-resort-goa",
-    organizationId: "org-stayflexi",
-    roomTypeId: "rt-deluxe",
-    roomNumber: "101",
+    id: 'r-101',
+    hotelId: 'h1-resort-goa',
+    organizationId: 'org-stayflexi',
+    roomTypeId: 'rt-deluxe',
+    roomNumber: '101',
     floor: 1,
-    status: "AVAILABLE",
+    status: 'AVAILABLE',
     isActive: true,
-    notes: "Regular guest pre-check requested poolside delivery.",
+    notes: 'Regular guest pre-check requested poolside delivery.',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: "r-102",
-    hotelId: "h1-resort-goa",
-    organizationId: "org-stayflexi",
-    roomTypeId: "rt-deluxe",
-    roomNumber: "102",
+    id: 'r-102',
+    hotelId: 'h1-resort-goa',
+    organizationId: 'org-stayflexi',
+    roomTypeId: 'rt-deluxe',
+    roomNumber: '102',
     floor: 1,
-    status: "OCCUPIED",
+    status: 'OCCUPIED',
     isActive: true,
-    notes: "Guest checking out late tomorrow at 1:00 PM.",
+    notes: 'Guest checking out late tomorrow at 1:00 PM.',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: "r-103",
-    hotelId: "h1-resort-goa",
-    organizationId: "org-stayflexi",
-    roomTypeId: "rt-executive",
-    roomNumber: "103",
+    id: 'r-103',
+    hotelId: 'h1-resort-goa',
+    organizationId: 'org-stayflexi',
+    roomTypeId: 'rt-executive',
+    roomNumber: '103',
     floor: 1,
-    status: "HOUSEKEEPING",
+    status: 'HOUSEKEEPING',
     isActive: true,
-    notes: "Deep cleaning session needed. VIP guest arrivals scheduled.",
+    notes: 'Deep cleaning session needed. VIP guest arrivals scheduled.',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: "r-201",
-    hotelId: "h1-resort-goa",
-    organizationId: "org-stayflexi",
-    roomTypeId: "rt-deluxe",
-    roomNumber: "201",
+    id: 'r-201',
+    hotelId: 'h1-resort-goa',
+    organizationId: 'org-stayflexi',
+    roomTypeId: 'rt-deluxe',
+    roomNumber: '201',
     floor: 2,
-    status: "AVAILABLE",
+    status: 'AVAILABLE',
     isActive: true,
-    notes: "Air conditioning filter recently serviced.",
+    notes: 'Air conditioning filter recently serviced.',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: "r-202",
-    hotelId: "h1-resort-goa",
-    organizationId: "org-stayflexi",
-    roomTypeId: "rt-executive",
-    roomNumber: "202",
+    id: 'r-202',
+    hotelId: 'h1-resort-goa',
+    organizationId: 'org-stayflexi',
+    roomTypeId: 'rt-executive',
+    roomNumber: '202',
     floor: 2,
-    status: "MAINTENANCE",
+    status: 'MAINTENANCE',
     isActive: true,
-    notes: "Balcony sliding door track needs repair replacement.",
+    notes: 'Balcony sliding door track needs repair replacement.',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: "r-301",
-    hotelId: "h1-resort-goa",
-    organizationId: "org-stayflexi",
-    roomTypeId: "rt-presidential",
-    roomNumber: "301",
+    id: 'r-301',
+    hotelId: 'h1-resort-goa',
+    organizationId: 'org-stayflexi',
+    roomTypeId: 'rt-presidential',
+    roomNumber: '301',
     floor: 3,
-    status: "BLOCKED",
+    status: 'BLOCKED',
     isActive: true,
-    notes: "Held exclusively for state department delegation.",
+    notes: 'Held exclusively for state department delegation.',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
-  
+
   // Bangalore Business Rooms
   {
-    id: "r-901",
-    hotelId: "h2-suites-blr",
-    organizationId: "org-stayflexi",
-    roomTypeId: "rt-business-std",
-    roomNumber: "901",
+    id: 'r-901',
+    hotelId: 'h2-suites-blr',
+    organizationId: 'org-stayflexi',
+    roomTypeId: 'rt-business-std',
+    roomNumber: '901',
     floor: 9,
-    status: "AVAILABLE",
+    status: 'AVAILABLE',
     isActive: true,
-    notes: "Dual monitors workspace initialized.",
+    notes: 'Dual monitors workspace initialized.',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: "r-902",
-    hotelId: "h2-suites-blr",
-    organizationId: "org-stayflexi",
-    roomTypeId: "rt-business-std",
-    roomNumber: "902",
+    id: 'r-902',
+    hotelId: 'h2-suites-blr',
+    organizationId: 'org-stayflexi',
+    roomTypeId: 'rt-business-std',
+    roomNumber: '902',
     floor: 9,
-    status: "OCCUPIED",
+    status: 'OCCUPIED',
     isActive: true,
-    notes: "Corporate account booking from Socifyy.",
+    notes: 'Corporate account booking from Socifyy.',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-  }
+  },
 ]
 
 function checkClientPermission(action: string) {
-  if (typeof window === 'undefined') return;
-  const role = localStorage.getItem('sf_user_role');
+  if (typeof window === 'undefined') return
+  const role = localStorage.getItem('sf_user_role')
   if (!role) {
-    throw new Error("Unauthorized: No session token or role found.");
+    throw new Error('Unauthorized: No session token or role found.')
   }
-  if (role === 'SUPER_ADMIN') return;
-  
+  if (role === 'SUPER_ADMIN') return
+
   const permissionMap: Record<string, string[]> = {
-    'ORG_ADMIN': [
-      'hotel:create', 'hotel:read', 'hotel:update', 'hotel:delete',
-      'room:create', 'room:read', 'room:update', 'room:delete',
-      'booking:create', 'booking:read', 'booking:update', 'booking:cancel', 'booking:approve',
-      'payment:create', 'payment:read', 'payment:refund',
-      'inventory:read', 'inventory:update', 'inventory:block',
-      'rate_plan:create', 'rate_plan:read', 'rate_plan:update', 'rate_plan:delete',
-    ],
-    'HOTEL_MANAGER': [
-      'hotel:read', 'hotel:update',
-      'room:create', 'room:read', 'room:update', 'room:delete',
-      'booking:create', 'booking:read', 'booking:update', 'booking:cancel', 'booking:approve',
-      'payment:read',
-      'inventory:read', 'inventory:update', 'inventory:block',
-      'rate_plan:create', 'rate_plan:read', 'rate_plan:update', 'rate_plan:delete',
-    ],
-    'FRONT_DESK': [
+    ORG_ADMIN: [
+      'hotel:create',
+      'hotel:read',
+      'hotel:update',
+      'hotel:delete',
+      'room:create',
       'room:read',
-      'booking:create', 'booking:read', 'booking:update', 'booking:cancel',
-      'payment:create', 'payment:read',
+      'room:update',
+      'room:delete',
+      'booking:create',
+      'booking:read',
+      'booking:update',
+      'booking:cancel',
+      'booking:approve',
+      'payment:create',
+      'payment:read',
+      'payment:refund',
+      'inventory:read',
+      'inventory:update',
+      'inventory:block',
+      'rate_plan:create',
+      'rate_plan:read',
+      'rate_plan:update',
+      'rate_plan:delete',
+    ],
+    HOTEL_MANAGER: [
+      'hotel:read',
+      'hotel:update',
+      'room:create',
+      'room:read',
+      'room:update',
+      'room:delete',
+      'booking:create',
+      'booking:read',
+      'booking:update',
+      'booking:cancel',
+      'booking:approve',
+      'payment:read',
+      'inventory:read',
+      'inventory:update',
+      'inventory:block',
+      'rate_plan:create',
+      'rate_plan:read',
+      'rate_plan:update',
+      'rate_plan:delete',
+    ],
+    FRONT_DESK: [
+      'room:read',
+      'booking:create',
+      'booking:read',
+      'booking:update',
+      'booking:cancel',
+      'payment:create',
+      'payment:read',
       'inventory:read',
     ],
-    'HOUSEKEEPING': [
-      'room:read',
-    ],
-    'ACCOUNTANT': [
-      'booking:read',
-      'payment:read',
-    ],
-  };
+    HOUSEKEEPING: ['room:read'],
+    ACCOUNTANT: ['booking:read', 'payment:read'],
+  }
 
-  const allowedActions = permissionMap[role] || [];
+  const allowedActions = permissionMap[role] || []
   if (!allowedActions.includes(action)) {
-    throw new Error(`Forbidden: Role "${role}" does not have permission for "${action}".`);
+    throw new Error(`Forbidden: Role "${role}" does not have permission for "${action}".`)
   }
 }
 
@@ -361,7 +402,7 @@ class StayflexiDataClient {
       const savedHotels = localStorage.getItem('sf_hotels')
       const savedRoomTypes = localStorage.getItem('sf_room_types')
       const savedRooms = localStorage.getItem('sf_rooms')
-      
+
       if (savedHotels) this.hotels = JSON.parse(savedHotels)
       if (savedRoomTypes) this.roomTypes = JSON.parse(savedRoomTypes)
       if (savedRooms) this.rooms = JSON.parse(savedRooms)
@@ -378,22 +419,31 @@ class StayflexiDataClient {
 
   // Network helpers that gracefully fall back
   private async queryGraphQL(query: string, variables = {}) {
-    if (this.isOffline) {
-      return null
-    }
     try {
+      let authHeader = 'Bearer local-dev-token'
+      if (typeof window !== 'undefined') {
+        const savedToken = localStorage.getItem('sf_jwt_token')
+        if (savedToken) {
+          authHeader = `Bearer ${savedToken}`
+        }
+      }
+
       const response = await fetch('http://localhost:8080/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer local-dev-token',
+          Authorization: authHeader,
         },
         body: JSON.stringify({ query, variables }),
       })
-      if (!response.ok) throw new Error()
-      return await response.json()
-    } catch {
-      this.isOffline = true
+      if (!response.ok) {
+        throw new Error(`HTTP status ${response.status}`)
+      }
+      const data = await response.json()
+      this.isOffline = false
+      return data
+    } catch (err) {
+      console.warn('GraphQL network request failed, using local fallback state:', err)
       return null // Fallback trigger
     }
   }
@@ -414,14 +464,19 @@ class StayflexiDataClient {
     return this.hotels
   }
 
-  async createHotel(hotel: Omit<Hotel, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'>): Promise<Hotel> {
-    const remote = await this.queryGraphQL(`
+  async createHotel(
+    hotel: Omit<Hotel, 'id' | 'organizationId' | 'createdAt' | 'updatedAt'>,
+  ): Promise<Hotel> {
+    const remote = await this.queryGraphQL(
+      `
       mutation CreateHotel($name: String!, $city: String!, $country: String!, $address: String, $state: String, $postalCode: String, $phone: String, $email: String, $website: String, $starRating: Int, $timezone: String, $checkInTime: String, $checkOutTime: String, $slug: String) {
         createHotel(name: $name, city: $city, country: $country, address: $address, state: $state, postalCode: $postalCode, phone: $phone, email: $email, website: $website, starRating: $starRating, timezone: $timezone, checkInTime: $checkInTime, checkOutTime: $checkOutTime, slug: $slug) {
           id organizationId name slug address city state country postalCode phone email website starRating status timezone checkInTime checkOutTime createdAt updatedAt
         }
       }
-    `, hotel)
+    `,
+      hotel,
+    )
 
     if (remote?.data?.createHotel) {
       const newHotel = remote.data.createHotel
@@ -431,11 +486,11 @@ class StayflexiDataClient {
     }
 
     // Local Mock Fallback
-    checkClientPermission('hotel:create');
+    checkClientPermission('hotel:create')
     const newHotel: Hotel = {
       ...hotel,
       id: `h-${Math.random().toString(36).substr(2, 9)}`,
-      organizationId: "org-stayflexi",
+      organizationId: 'org-stayflexi',
       address: hotel.address ?? null,
       state: hotel.state ?? null,
       postalCode: hotel.postalCode ?? null,
@@ -443,10 +498,10 @@ class StayflexiDataClient {
       email: hotel.email ?? null,
       website: hotel.website ?? null,
       starRating: hotel.starRating ?? null,
-      status: "ACTIVE",
-      timezone: hotel.timezone ?? "IST",
-      checkInTime: hotel.checkInTime ?? "14:00",
-      checkOutTime: hotel.checkOutTime ?? "11:00",
+      status: 'ACTIVE',
+      timezone: hotel.timezone ?? 'IST',
+      checkInTime: hotel.checkInTime ?? '14:00',
+      checkOutTime: hotel.checkOutTime ?? '11:00',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -457,6 +512,25 @@ class StayflexiDataClient {
 
   // RoomTypes Methods
   async getRoomTypes(): Promise<RoomType[]> {
+    // Backend is the source of truth: room types live in the DB and are exposed
+    // as a field on each Hotel. Reading them from the backend (instead of
+    // localStorage-only) is what lets two browser windows share the same state.
+    // localStorage is kept only as an offline / last-known cache.
+    const remote = await this.queryGraphQL(`
+      query GetAllRoomTypes {
+        hotels {
+          roomTypes {
+            id hotelId organizationId name description basePrice maxOccupancy maxAdults maxChildren maxInfants minChildAge maxChildAge minInfantAge maxInfantAge minOccupancy absoluteMax hourlyPrice extraBedPrice extraGuestPrice maxExtraBeds amenities isActive createdAt updatedAt
+          }
+        }
+      }
+    `)
+    if (remote?.data?.hotels) {
+      this.roomTypes = remote.data.hotels.flatMap((h: any) => h.roomTypes ?? [])
+      this.save()
+      return this.roomTypes
+    }
+    // Offline / unauthenticated fallback: last-known snapshot, else seeded defaults
     if (typeof window !== 'undefined') {
       const savedRoomTypes = localStorage.getItem('sf_room_types')
       if (savedRoomTypes) this.roomTypes = JSON.parse(savedRoomTypes)
@@ -464,8 +538,11 @@ class StayflexiDataClient {
     return this.roomTypes
   }
 
-  async createRoomType(roomType: Omit<RoomType, 'id' | 'organizationId' | 'createdAt' | 'updatedAt' | 'isActive'>): Promise<RoomType> {
-    const remote = await this.queryGraphQL(`
+  async createRoomType(
+    roomType: Omit<RoomType, 'id' | 'organizationId' | 'createdAt' | 'updatedAt' | 'isActive'>,
+  ): Promise<RoomType> {
+    const remote = await this.queryGraphQL(
+      `
       mutation CreateRoomType(
         $hotelId: String!,
         $name: String!,
@@ -511,7 +588,9 @@ class StayflexiDataClient {
           id hotelId organizationId name description basePrice maxOccupancy maxAdults maxChildren maxInfants minChildAge maxChildAge minInfantAge maxInfantAge minOccupancy absoluteMax hourlyPrice extraBedPrice extraGuestPrice maxExtraBeds amenities isActive createdAt updatedAt
         }
       }
-    `, roomType)
+    `,
+      roomType,
+    )
 
     if (remote?.data?.createRoomType) {
       const newRt = remote.data.createRoomType
@@ -521,11 +600,11 @@ class StayflexiDataClient {
     }
 
     // Local Mock Fallback
-    checkClientPermission('room:create');
+    checkClientPermission('room:create')
     const newRt: RoomType = {
       ...roomType,
       id: `rt-${Math.random().toString(36).substr(2, 9)}`,
-      organizationId: "org-stayflexi",
+      organizationId: 'org-stayflexi',
       description: roomType.description ?? null,
       amenities: roomType.amenities ?? null,
       isActive: true,
@@ -539,6 +618,25 @@ class StayflexiDataClient {
 
   // Rooms Methods
   async getRooms(): Promise<Room[]> {
+    // Backend is the source of truth: rooms live in the DB and are exposed as a
+    // field on each Hotel. Reading them from the backend (instead of
+    // localStorage-only) is what lets two browser windows share the same room
+    // statuses. localStorage is kept only as an offline / last-known cache.
+    const remote = await this.queryGraphQL(`
+      query GetAllRooms {
+        hotels {
+          rooms {
+            id hotelId organizationId roomTypeId roomNumber floor status isActive notes wing zone wifiSSID wifiPassword arrivalNotes lockVendor lockDeviceId lockSecret connectingRoomId parentRoomId createdAt updatedAt
+          }
+        }
+      }
+    `)
+    if (remote?.data?.hotels) {
+      this.rooms = remote.data.hotels.flatMap((h: any) => h.rooms ?? [])
+      this.save()
+      return this.rooms
+    }
+    // Offline / unauthenticated fallback: last-known snapshot, else seeded defaults
     if (typeof window !== 'undefined') {
       const savedRooms = localStorage.getItem('sf_rooms')
       if (savedRooms) this.rooms = JSON.parse(savedRooms)
@@ -546,8 +644,11 @@ class StayflexiDataClient {
     return this.rooms
   }
 
-  async createRoom(room: Omit<Room, 'id' | 'organizationId' | 'createdAt' | 'updatedAt' | 'isActive' | 'status'>): Promise<Room> {
-    const remote = await this.queryGraphQL(`
+  async createRoom(
+    room: Omit<Room, 'id' | 'organizationId' | 'createdAt' | 'updatedAt' | 'isActive' | 'status'>,
+  ): Promise<Room> {
+    const remote = await this.queryGraphQL(
+      `
       mutation CreateRoom(
         $hotelId: String!,
         $roomTypeId: String!,
@@ -585,7 +686,9 @@ class StayflexiDataClient {
           id hotelId organizationId roomTypeId roomNumber floor status isActive notes wing zone wifiSSID wifiPassword arrivalNotes lockVendor lockDeviceId lockSecret connectingRoomId parentRoomId createdAt updatedAt
         }
       }
-    `, room)
+    `,
+      room,
+    )
 
     if (remote?.data?.createRoom) {
       const newRoom = remote.data.createRoom
@@ -595,11 +698,11 @@ class StayflexiDataClient {
     }
 
     // Local Mock Fallback
-    checkClientPermission('room:create');
+    checkClientPermission('room:create')
     const newRoom: Room = {
       ...room,
       id: `r-${Math.random().toString(36).substr(2, 9)}`,
-      organizationId: "org-stayflexi",
+      organizationId: 'org-stayflexi',
       floor: room.floor ?? null,
       notes: room.notes ?? null,
       wing: room.wing ?? null,
@@ -612,7 +715,7 @@ class StayflexiDataClient {
       lockSecret: room.lockSecret ?? null,
       connectingRoomId: room.connectingRoomId ?? null,
       parentRoomId: room.parentRoomId ?? null,
-      status: "AVAILABLE",
+      status: 'AVAILABLE',
       isActive: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -622,24 +725,31 @@ class StayflexiDataClient {
     return newRoom
   }
 
-  async updateRoomStatus(roomId: string, status: Room['status'], reason = ""): Promise<Room | null> {
-    const remote = await this.queryGraphQL(`
+  async updateRoomStatus(
+    roomId: string,
+    status: Room['status'],
+    reason = '',
+  ): Promise<Room | null> {
+    const remote = await this.queryGraphQL(
+      `
       mutation UpdateRoomStatus($roomId: String!, $status: RoomStatus!, $reason: String) {
         updateRoomStatus(roomId: $roomId, status: $status, reason: $reason) {
           id hotelId organizationId roomTypeId roomNumber floor status isActive notes createdAt updatedAt
         }
       }
-    `, { roomId, status, reason })
+    `,
+      { roomId, status, reason },
+    )
 
     if (remote?.data?.updateRoomStatus) {
       const updated = remote.data.updateRoomStatus
-      this.rooms = this.rooms.map((r) => r.id === roomId ? updated : r)
+      this.rooms = this.rooms.map((r) => (r.id === roomId ? updated : r))
       this.save()
       return updated
     }
 
     // Local Mock Fallback
-    checkClientPermission('room:update');
+    checkClientPermission('room:update')
     const index = this.rooms.findIndex((r) => r.id === roomId)
     if (index === -1) return null
     const target = this.rooms[index]!
@@ -654,41 +764,15 @@ class StayflexiDataClient {
     return updated
   }
 
-  async login(email: string, password: string, force = false): Promise<{ accessToken: string; refreshToken: string; user: any } | null> {
-    if (typeof window !== 'undefined') {
-      try {
-        const response = await fetch('/api/v1/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password, force }),
-        });
-        
-        if (response.ok) {
-          const res = await response.json();
-          if (res.success && res.data) {
-            return {
-              accessToken: res.data.tokens.accessToken,
-              refreshToken: res.data.tokens.refreshToken,
-              user: res.data.user,
-            };
-          }
-        } else {
-          const errorData = await response.json().catch(() => null);
-          if (errorData?.error?.message) {
-            throw new Error(errorData.error.message);
-          }
-        }
-      } catch (err: any) {
-        console.error("NextJS API Auth Login Error:", err);
-        if (err.message && (err.message.includes("limit") || err.message.includes("device"))) {
-          throw err; // Propagate maximum device limit message
-        }
-      }
-    }
+  async login(
+    email: string,
+    password: string,
+    force = false,
+  ): Promise<{ accessToken: string; refreshToken: string; user: any } | null> {
+    void force // no device-limit/force-login concept in the GraphQL login mutation yet — see plan notes
 
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation Login($email: String!, $password: String!) {
         login(email: $email, password: $password) {
           accessToken
@@ -698,7 +782,9 @@ class StayflexiDataClient {
           }
         }
       }
-    `, { email, password })
+    `,
+      { email, password },
+    )
 
     if (remote?.data?.login) {
       return remote.data.login
@@ -715,13 +801,14 @@ class StayflexiDataClient {
         lastName: 'K.',
         primaryRole: 'SUPER_ADMIN',
         organizationId: 'org-stayflexi',
-        status: 'ACTIVE'
-      }
+        status: 'ACTIVE',
+      },
     }
   }
 
   async getBookings(hotelId: string): Promise<any[]> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       query GetBookings($hotelId: String!) {
         bookings(hotelId: $hotelId) {
           id
@@ -758,7 +845,9 @@ class StayflexiDataClient {
           }
         }
       }
-    `, { hotelId })
+    `,
+      { hotelId },
+    )
 
     if (remote?.data?.bookings) {
       return remote.data.bookings
@@ -770,9 +859,9 @@ class StayflexiDataClient {
       if (savedRes) {
         const reservations = JSON.parse(savedRes) as any[]
         // Transform the frontend representation into the federated shape
-        return reservations.map(r => ({
+        return reservations.map((r) => ({
           id: r.id,
-          organizationId: "org-stayflexi",
+          organizationId: 'org-stayflexi',
           hotelId: hotelId,
           bookingNumber: `SF-${r.id.split('-')[1]?.toUpperCase() || 'MOCK'}`,
           status: r.status,
@@ -790,12 +879,17 @@ class StayflexiDataClient {
             {
               id: `br-${r.id}`,
               roomId: r.roomId,
-              roomTypeId: this.rooms.find(rm => rm.id === r.roomId)?.roomTypeId || 'rt-deluxe',
+              roomTypeId: this.rooms.find((rm) => rm.id === r.roomId)?.roomTypeId || 'rt-deluxe',
               checkInDate: `${r.checkIn}T14:00:00.000Z`,
               checkOutDate: `${r.checkOut}T11:00:00.000Z`,
-              status: r.status === 'CHECKED_IN' ? 'OCCUPIED' : r.status === 'CHECKED_OUT' ? 'VACATED' : 'RESERVED',
-              totalRoomAmount: r.amount
-            }
+              status:
+                r.status === 'CHECKED_IN'
+                  ? 'OCCUPIED'
+                  : r.status === 'CHECKED_OUT'
+                    ? 'VACATED'
+                    : 'RESERVED',
+              totalRoomAmount: r.amount,
+            },
           ],
           guests: [
             {
@@ -804,9 +898,9 @@ class StayflexiDataClient {
               firstName: r.guestName.split(' ')[0] || 'Guest',
               lastName: r.guestName.split(' ')[1] || 'Stayflexi',
               email: `${r.guestName.toLowerCase().replace(/[^a-z]+/g, '')}@example.com`,
-              phone: '+91 99999 88888'
-            }
-          ]
+              phone: '+91 99999 88888',
+            },
+          ],
         }))
       }
     }
@@ -831,7 +925,8 @@ class StayflexiDataClient {
     discount?: number
     notes?: string
   }): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation CreateBooking(
         $hotelId: String!
         $firstName: String!
@@ -856,9 +951,9 @@ class StayflexiDataClient {
           email: $email
           phone: $phone
           nationality: $nationality
-          idType: $idType
-          idNumber: $idNumber
-          dob: $dob
+          governmentIdType: $idType
+          governmentIdNumber: $idNumber
+          dateOfBirth: $dob
           roomTypeId: $roomTypeId
           checkIn: $checkIn
           checkOut: $checkOut
@@ -900,24 +995,30 @@ class StayflexiDataClient {
           }
         }
       }
-    `, args)
+    `,
+      args,
+    )
 
     if (remote?.data?.createBooking) {
       return remote.data.createBooking
     }
 
     // Local Mock Fallback
-    checkClientPermission('booking:create');
+    checkClientPermission('booking:create')
     const id = `res-${Math.random().toString(36).substr(2, 9)}`
-    const roomRate = args.baseRate || this.roomTypes.find(rt => rt.id === args.roomTypeId)?.basePrice || 150.00
+    const roomRate =
+      args.baseRate || this.roomTypes.find((rt) => rt.id === args.roomTypeId)?.basePrice || 150.0
     const start = new Date(args.checkIn)
     const end = new Date(args.checkOut)
-    const nights = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
+    const nights = Math.max(
+      1,
+      Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)),
+    )
     const amount = roomRate * nights
 
     const newBooking = {
       id,
-      organizationId: "org-stayflexi",
+      organizationId: 'org-stayflexi',
       hotelId: args.hotelId,
       bookingNumber: `SF-${id.split('-')[1]?.toUpperCase() || 'MOCK'}`,
       status: 'PENDING',
@@ -934,13 +1035,17 @@ class StayflexiDataClient {
       rooms: [
         {
           id: `br-${id}`,
-          roomId: args.roomId || this.rooms.find(rm => rm.roomTypeId === args.roomTypeId && rm.status === 'AVAILABLE')?.id || 'r-101',
+          roomId:
+            args.roomId ||
+            this.rooms.find((rm) => rm.roomTypeId === args.roomTypeId && rm.status === 'AVAILABLE')
+              ?.id ||
+            'r-101',
           roomTypeId: args.roomTypeId,
           checkInDate: `${args.checkIn}T14:00:00.000Z`,
           checkOutDate: `${args.checkOut}T11:00:00.000Z`,
           status: 'RESERVED',
-          totalRoomAmount: amount
-        }
+          totalRoomAmount: amount,
+        },
       ],
       guests: [
         {
@@ -949,9 +1054,9 @@ class StayflexiDataClient {
           firstName: args.firstName,
           lastName: args.lastName,
           email: args.email ?? null,
-          phone: args.phone ?? null
-        }
-      ]
+          phone: args.phone ?? null,
+        },
+      ],
     }
 
     // Sync back to local storage reservations list
@@ -963,7 +1068,7 @@ class StayflexiDataClient {
         reservations.push({
           id: newBooking.id,
           guestName: `${args.firstName} ${args.lastName}`,
-          roomNumber: this.rooms.find(r => r.id === firstRoom.roomId)?.roomNumber || '101',
+          roomNumber: this.rooms.find((r) => r.id === firstRoom.roomId)?.roomNumber || '101',
           roomId: firstRoom.roomId,
           checkIn: args.checkIn,
           checkOut: args.checkOut,
@@ -977,7 +1082,7 @@ class StayflexiDataClient {
           idNumber: args.idNumber,
           dob: args.dob,
           baseRate: args.baseRate,
-          discount: args.discount
+          discount: args.discount,
         })
         localStorage.setItem('sf_reservations', JSON.stringify(reservations))
       }
@@ -986,7 +1091,7 @@ class StayflexiDataClient {
     return newBooking
   }
 
-  async createHourlyBooking(args: { 
+  async createHourlyBooking(args: {
     hotelId: string
     firstName: string
     lastName: string
@@ -1001,9 +1106,10 @@ class StayflexiDataClient {
     endTime: string
     baseRate?: number
     discount?: number
-    notes?: string 
+    notes?: string
   }): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation CreateHourlyBooking(
         $hotelId: String!
         $firstName: String!
@@ -1075,32 +1181,34 @@ class StayflexiDataClient {
           }
         }
       }
-    `, {
-      hotelId: args.hotelId,
-      firstName: args.firstName,
-      lastName: args.lastName,
-      email: args.email,
-      phone: args.phone,
-      nationality: args.nationality,
-      governmentIdType: args.idType,
-      governmentIdNumber: args.idNumber,
-      dateOfBirth: args.dob,
-      roomTypeId: args.roomTypeId,
-      startTime: args.startTime,
-      endTime: args.endTime,
-      baseRate: args.baseRate,
-      discount: args.discount,
-      notes: args.notes
-    })
+    `,
+      {
+        hotelId: args.hotelId,
+        firstName: args.firstName,
+        lastName: args.lastName,
+        email: args.email,
+        phone: args.phone,
+        nationality: args.nationality,
+        governmentIdType: args.idType,
+        governmentIdNumber: args.idNumber,
+        dateOfBirth: args.dob,
+        roomTypeId: args.roomTypeId,
+        startTime: args.startTime,
+        endTime: args.endTime,
+        baseRate: args.baseRate,
+        discount: args.discount,
+        notes: args.notes,
+      },
+    )
 
     if (remote?.data?.createHourlyBooking) {
       return remote.data.createHourlyBooking
     }
 
     // Local Mock Fallback for offline environments
-    checkClientPermission('booking:create');
+    checkClientPermission('booking:create')
     const id = `res-${Math.random().toString(36).substr(2, 9)}`
-    const roomRate = args.baseRate || 45.00 // base micro hourly rate
+    const roomRate = args.baseRate || 45.0 // base micro hourly rate
     const start = new Date(args.startTime)
     const end = new Date(args.endTime)
     const hours = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60)))
@@ -1108,7 +1216,7 @@ class StayflexiDataClient {
 
     const newBooking = {
       id,
-      organizationId: "org-stayflexi",
+      organizationId: 'org-stayflexi',
       hotelId: args.hotelId,
       bookingNumber: `SF-${id.split('-')[1]?.toUpperCase() || 'MOCK'}`,
       status: 'PENDING',
@@ -1128,13 +1236,15 @@ class StayflexiDataClient {
       rooms: [
         {
           id: `br-${id}`,
-          roomId: this.rooms.find(rm => rm.roomTypeId === args.roomTypeId && rm.status === 'AVAILABLE')?.id || 'r-101',
+          roomId:
+            this.rooms.find((rm) => rm.roomTypeId === args.roomTypeId && rm.status === 'AVAILABLE')
+              ?.id || 'r-101',
           roomTypeId: args.roomTypeId,
           checkInDate: args.startTime,
           checkOutDate: args.endTime,
           status: 'RESERVED',
-          totalRoomAmount: amount
-        }
+          totalRoomAmount: amount,
+        },
       ],
       guests: [
         {
@@ -1143,9 +1253,9 @@ class StayflexiDataClient {
           firstName: args.firstName,
           lastName: args.lastName,
           email: args.email ?? null,
-          phone: args.phone ?? null
-        }
-      ]
+          phone: args.phone ?? null,
+        },
+      ],
     }
 
     if (typeof window !== 'undefined') {
@@ -1156,7 +1266,7 @@ class StayflexiDataClient {
         reservations.push({
           id: newBooking.id,
           guestName: `${args.firstName} ${args.lastName}`,
-          roomNumber: this.rooms.find(r => r.id === firstRoom.roomId)?.roomNumber || '101',
+          roomNumber: this.rooms.find((r) => r.id === firstRoom.roomId)?.roomNumber || '101',
           roomId: firstRoom.roomId,
           checkIn: args.startTime.split('T')[0] || '',
           checkOut: args.endTime.split('T')[0] || '',
@@ -1170,7 +1280,7 @@ class StayflexiDataClient {
           idNumber: args.idNumber,
           dob: args.dob,
           baseRate: args.baseRate,
-          discount: args.discount
+          discount: args.discount,
         })
         localStorage.setItem('sf_reservations', JSON.stringify(reservations))
       }
@@ -1180,13 +1290,16 @@ class StayflexiDataClient {
   }
 
   async checkInGuest(bookingId: string, roomId: string): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation CheckInGuest($bookingId: String!, $roomId: String!) {
         checkInGuest(bookingId: $bookingId, roomId: $roomId) {
           id status checkedInAt
         }
       }
-    `, { bookingId, roomId })
+    `,
+      { bookingId, roomId },
+    )
 
     if (remote?.data?.checkInGuest) {
       // Sync local room status
@@ -1195,12 +1308,14 @@ class StayflexiDataClient {
     }
 
     // Local Sync Fallback
-    checkClientPermission('booking:update');
+    checkClientPermission('booking:update')
     if (typeof window !== 'undefined') {
       const savedRes = localStorage.getItem('sf_reservations')
       if (savedRes) {
         let reservations = JSON.parse(savedRes) as any[]
-        reservations = reservations.map(r => r.id === bookingId ? { ...r, status: 'CHECKED_IN', roomId } : r)
+        reservations = reservations.map((r) =>
+          r.id === bookingId ? { ...r, status: 'CHECKED_IN', roomId } : r,
+        )
         localStorage.setItem('sf_reservations', JSON.stringify(reservations))
       }
     }
@@ -1209,24 +1324,27 @@ class StayflexiDataClient {
   }
 
   async reassignRoom(bookingId: string, roomId: string): Promise<boolean> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation ReassignRoom($bookingId: String!, $roomId: String!) {
         reassignRoom(bookingId: $bookingId, roomId: $roomId) {
           id
         }
       }
-    `, { bookingId, roomId })
+    `,
+      { bookingId, roomId },
+    )
 
     if (remote?.data?.reassignRoom) {
       return true
     }
 
-    checkClientPermission('booking:update');
+    checkClientPermission('booking:update')
     if (typeof window !== 'undefined') {
       const savedRes = localStorage.getItem('sf_reservations')
       if (savedRes) {
         let reservations = JSON.parse(savedRes) as any[]
-        reservations = reservations.map(r => r.id === bookingId ? { ...r, roomId } : r)
+        reservations = reservations.map((r) => (r.id === bookingId ? { ...r, roomId } : r))
         localStorage.setItem('sf_reservations', JSON.stringify(reservations))
       }
     }
@@ -1234,7 +1352,8 @@ class StayflexiDataClient {
   }
 
   async validateMagicLink(token: string): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       query ValidateMagicLink($token: String!) {
         validateMagicLink(token: $token) {
           id
@@ -1271,7 +1390,9 @@ class StayflexiDataClient {
           }
         }
       }
-    `, { token })
+    `,
+      { token },
+    )
 
     if (remote?.data?.validateMagicLink) {
       return remote.data.validateMagicLink
@@ -1282,7 +1403,7 @@ class StayflexiDataClient {
       const savedRes = localStorage.getItem('sf_reservations')
       if (savedRes) {
         const reservations = JSON.parse(savedRes) as any[]
-        const match = reservations.find(r => r.id === token || r.bookingNumber === token)
+        const match = reservations.find((r) => r.id === token || r.bookingNumber === token)
         if (match) return match
       }
     }
@@ -1297,7 +1418,8 @@ class StayflexiDataClient {
     governmentIdNumber?: string
     nationality?: string
   }): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation CompleteContactlessCheckIn(
         $bookingId: String!
         $documentBase64: String!
@@ -1331,13 +1453,19 @@ class StayflexiDataClient {
           }
         }
       }
-    `, args)
+    `,
+      args,
+    )
 
     const resolvedBooking = remote?.data?.completeContactlessCheckIn
     if (resolvedBooking) {
       const firstRoomId = resolvedBooking.rooms?.[0]?.roomId
       if (firstRoomId) {
-        await this.updateRoomStatus(firstRoomId, 'OCCUPIED', `Self check-in completed via MagicLink for booking ${args.bookingId}`)
+        await this.updateRoomStatus(
+          firstRoomId,
+          'OCCUPIED',
+          `Self check-in completed via MagicLink for booking ${args.bookingId}`,
+        )
       }
       return resolvedBooking
     }
@@ -1347,39 +1475,54 @@ class StayflexiDataClient {
       const savedRes = localStorage.getItem('sf_reservations')
       if (savedRes) {
         let reservations = JSON.parse(savedRes) as any[]
-        const match = reservations.find(r => r.id === args.bookingId)
+        const match = reservations.find((r) => r.id === args.bookingId)
         const firstRoomId = match?.rooms?.[0]?.roomId || 'unassigned_room_id'
-        
-        reservations = reservations.map(r => r.id === args.bookingId ? { 
-          ...r, 
-          status: 'CHECKED_IN', 
-          checkedInAt: new Date().toISOString(),
-          guests: r.guests ? r.guests.map((g: any, idx: number) => idx === 0 ? {
-            ...g,
-            nationality: args.nationality || 'US',
-            governmentIdType: args.governmentIdType || 'PASSPORT',
-            governmentIdNumber: args.governmentIdNumber || 'CONTACTLESS_OCR'
-          } : g) : []
-        } : r)
+
+        reservations = reservations.map((r) =>
+          r.id === args.bookingId
+            ? {
+                ...r,
+                status: 'CHECKED_IN',
+                checkedInAt: new Date().toISOString(),
+                guests: r.guests
+                  ? r.guests.map((g: any, idx: number) =>
+                      idx === 0
+                        ? {
+                            ...g,
+                            nationality: args.nationality || 'US',
+                            governmentIdType: args.governmentIdType || 'PASSPORT',
+                            governmentIdNumber: args.governmentIdNumber || 'CONTACTLESS_OCR',
+                          }
+                        : g,
+                    )
+                  : [],
+              }
+            : r,
+        )
         localStorage.setItem('sf_reservations', JSON.stringify(reservations))
-        
+
         if (firstRoomId !== 'unassigned_room_id') {
-          await this.updateRoomStatus(firstRoomId, 'OCCUPIED', `Self check-in completed via MagicLink for booking ${args.bookingId}`)
+          await this.updateRoomStatus(
+            firstRoomId,
+            'OCCUPIED',
+            `Self check-in completed via MagicLink for booking ${args.bookingId}`,
+          )
         }
       }
     }
 
-    return { 
-      id: args.bookingId, 
-      status: 'CHECKED_IN', 
+    return {
+      id: args.bookingId,
+      status: 'CHECKED_IN',
       checkedInAt: new Date().toISOString(),
       rooms: [{ id: 'mock-room-id', roomId: 'mock-room-id', status: 'OCCUPIED' }],
-      guests: [{ id: 'mock-guest-id', firstName: 'Guest', lastName: 'Self-Service' }]
+      guests: [{ id: 'mock-guest-id', firstName: 'Guest', lastName: 'Self-Service' }],
     }
   }
 
   async generateSmartKey(bookingId: string): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation GenerateSmartKey($bookingId: String!) {
         generateSmartKey(bookingId: $bookingId) {
           id
@@ -1388,24 +1531,29 @@ class StayflexiDataClient {
           expiresAt
         }
       }
-    `, { bookingId })
+    `,
+      { bookingId },
+    )
 
     if (remote?.data?.generateSmartKey) {
       return remote.data.generateSmartKey
     }
 
     // Local Storage Mock Fallback for offline access keys
-    const accessCode = Math.floor(100000 + Math.random() * 900000).toString().replace(/(\d{3})(\d{3})/, '$1 $2')
+    const accessCode = Math.floor(100000 + Math.random() * 900000)
+      .toString()
+      .replace(/(\d{3})(\d{3})/, '$1 $2')
     return {
       id: `key-${Math.random().toString(36).substr(2, 9)}`,
       bookingId,
       accessCode,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     }
   }
 
   async sendFlexiAIChat(bookingId: string | null, message: string): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation SendFlexiAIChat($bookingId: String, $message: String!) {
         sendFlexiAIChat(bookingId: $bookingId, message: $message) {
           role
@@ -1415,7 +1563,9 @@ class StayflexiDataClient {
           actionPayload
         }
       }
-    `, { bookingId, message })
+    `,
+      { bookingId, message },
+    )
 
     if (remote?.data?.sendFlexiAIChat) {
       return remote.data.sendFlexiAIChat
@@ -1423,142 +1573,192 @@ class StayflexiDataClient {
 
     // Local Storage Mock Fallback for offline concierge queries
     const msg = message.toLowerCase()
-    let reply = bookingId 
-      ? "Hello! I am your Flexi AI Concierge (Offline Mode). How can I help you with your stay today?"
-      : "Hello! I am Flexi AI, your Stayflexi Operations & BI Assistant (Offline Mode). How can I help you today?"
+    let reply = bookingId
+      ? 'Hello! I am your Flexi AI Concierge (Offline Mode). How can I help you with your stay today?'
+      : 'Hello! I am Flexi AI, your Stayflexi Operations & BI Assistant (Offline Mode). How can I help you today?'
     let suggestions: string[] = bookingId
-      ? ["Upgrade Room", "Order Food", "View Folio"]
-      : ["Revenue Report", "Block Room 103", "Occupancy Analytics"]
+      ? ['Upgrade Room', 'Order Food', 'View Folio']
+      : ['Revenue Report', 'Block Room 103', 'Occupancy Analytics']
     let localAction: string | null = null
     let localPayload: string | null = null
 
     if (bookingId) {
-      if (msg.includes('hourly') || msg.includes('flexi') || msg.includes('fractional') || msg.includes('slot')) {
-        reply = "Stayflexi offers flexible hourly stays! You can rent rooms in 3, 6, or 12 hour slots. Would you like to check room availability for an hourly stay?"
-        suggestions = ["Book 3 Hours", "Book 6 Hours", "View Hourly Rates"]
-      } else if (msg.includes('upgrade') || msg.includes('room type') || msg.includes('deluxe') || msg.includes('executive')) {
-        reply = "We have high-end Deluxe and Executive suites available for upgrades! You can purchase early room check-in or switch room types instantly."
-        suggestions = ["Upgrade to Deluxe", "See Elite Villas"]
-        localAction = "upgrade_room"
-      } else if (msg.includes('food') || msg.includes('menu') || msg.includes('room service') || msg.includes('eat') || msg.includes('dinner')) {
-        reply = "Our 24/7 kitchen serves authentic Goa dishes, Club Sandwiches, and custom cocktails. Orders post directly to your room folio ledger."
-        suggestions = ["View Food Menu", "Order Breakfast"]
-        localAction = "order_food"
-      } else if (msg.includes('key') || msg.includes('lock') || msg.includes('code') || msg.includes('door')) {
-        reply = "Once check-in is complete and invoice payments are validated, your secure smart lock digital code will instantly reveal."
-        suggestions = ["Reveal Smart Key", "View Check-In Details"]
-        localAction = "reveal_key"
-      } else if (msg.includes('checkout') || msg.includes('check out') || msg.includes('bill') || msg.includes('folio') || msg.includes('invoice')) {
-        reply = "You can review your room ledger invoice, add charges, or complete checkout self-service securely in the Guest Portal."
-        suggestions = ["View Invoice Folio", "Checkout Room"]
-        localAction = "checkout"
+      if (
+        msg.includes('hourly') ||
+        msg.includes('flexi') ||
+        msg.includes('fractional') ||
+        msg.includes('slot')
+      ) {
+        reply =
+          'Stayflexi offers flexible hourly stays! You can rent rooms in 3, 6, or 12 hour slots. Would you like to check room availability for an hourly stay?'
+        suggestions = ['Book 3 Hours', 'Book 6 Hours', 'View Hourly Rates']
+      } else if (
+        msg.includes('upgrade') ||
+        msg.includes('room type') ||
+        msg.includes('deluxe') ||
+        msg.includes('executive')
+      ) {
+        reply =
+          'We have high-end Deluxe and Executive suites available for upgrades! You can purchase early room check-in or switch room types instantly.'
+        suggestions = ['Upgrade to Deluxe', 'See Elite Villas']
+        localAction = 'upgrade_room'
+      } else if (
+        msg.includes('food') ||
+        msg.includes('menu') ||
+        msg.includes('room service') ||
+        msg.includes('eat') ||
+        msg.includes('dinner')
+      ) {
+        reply =
+          'Our 24/7 kitchen serves authentic Goa dishes, Club Sandwiches, and custom cocktails. Orders post directly to your room folio ledger.'
+        suggestions = ['View Food Menu', 'Order Breakfast']
+        localAction = 'order_food'
+      } else if (
+        msg.includes('key') ||
+        msg.includes('lock') ||
+        msg.includes('code') ||
+        msg.includes('door')
+      ) {
+        reply =
+          'Once check-in is complete and invoice payments are validated, your secure smart lock digital code will instantly reveal.'
+        suggestions = ['Reveal Smart Key', 'View Check-In Details']
+        localAction = 'reveal_key'
+      } else if (
+        msg.includes('checkout') ||
+        msg.includes('check out') ||
+        msg.includes('bill') ||
+        msg.includes('folio') ||
+        msg.includes('invoice')
+      ) {
+        reply =
+          'You can review your room ledger invoice, add charges, or complete checkout self-service securely in the Guest Portal.'
+        suggestions = ['View Invoice Folio', 'Checkout Room']
+        localAction = 'checkout'
       }
     } else {
-      if (msg.includes('revenue') || msg.includes('report') || msg.includes('sales') || msg.includes('analytics') || msg.includes('earn')) {
-        reply = "Based on the latest Supergraph aggregated subgraphs, our gross revenue for May 2026 is **$24,850.00** with an occupancy rate of **82.5%**. Deluxe Pool-View rooms contributed 65% of the total revenue."
-        suggestions = ["Revenue by Room Type", "Show Occupancy Details", "Export Report"]
-        localAction = "navigate"
-        localPayload = JSON.stringify({ target: "/console" })
+      if (
+        msg.includes('revenue') ||
+        msg.includes('report') ||
+        msg.includes('sales') ||
+        msg.includes('analytics') ||
+        msg.includes('earn')
+      ) {
+        reply =
+          'Based on the latest Supergraph aggregated subgraphs, our gross revenue for May 2026 is **$24,850.00** with an occupancy rate of **82.5%**. Deluxe Pool-View rooms contributed 65% of the total revenue.'
+        suggestions = ['Revenue by Room Type', 'Show Occupancy Details', 'Export Report']
+        localAction = 'navigate'
+        localPayload = JSON.stringify({ target: '/console' })
       } else if (msg.includes('block') || msg.includes('inventory') || msg.includes('close')) {
-        reply = "I can help you block room inventory. Which room or room category would you like to hold?"
-        suggestions = ["Block Room 103", "Block Deluxe Pool-View", "Show Rooms Grid"]
+        reply =
+          'I can help you block room inventory. Which room or room category would you like to hold?'
+        suggestions = ['Block Room 103', 'Block Deluxe Pool-View', 'Show Rooms Grid']
         if (msg.includes('103')) {
-          localAction = "block_inventory"
-          localPayload = JSON.stringify({ roomNumber: "103" })
+          localAction = 'block_inventory'
+          localPayload = JSON.stringify({ roomNumber: '103' })
         }
       } else if (msg.includes('occupancy') || msg.includes('occupied') || msg.includes('status')) {
-        reply = "Our current occupancy rate is **82.5%** with 6 rooms occupied and 2 available rooms. Housekeeping is currently deep cleaning Room 103."
-        suggestions = ["Show Rooms Grid", "View Clean Statuses"]
-        localAction = "navigate"
-        localPayload = JSON.stringify({ target: "/inventory" })
+        reply =
+          'Our current occupancy rate is **82.5%** with 6 rooms occupied and 2 available rooms. Housekeeping is currently deep cleaning Room 103.'
+        suggestions = ['Show Rooms Grid', 'View Clean Statuses']
+        localAction = 'navigate'
+        localPayload = JSON.stringify({ target: '/inventory' })
       } else if (msg.includes('review') || msg.includes('reply') || msg.includes('ota')) {
-        reply = "Navigating to the consolidated guest reviews dashboard. I've initialized the AI responder copilot to draft replies."
-        suggestions = ["Review Console", "Pending Reviews"]
-        localAction = "navigate_app"
-        localPayload = JSON.stringify({ app: "reviews", reviewId: "rev-1" })
+        reply =
+          "Navigating to the consolidated guest reviews dashboard. I've initialized the AI responder copilot to draft replies."
+        suggestions = ['Review Console', 'Pending Reviews']
+        localAction = 'navigate_app'
+        localPayload = JSON.stringify({ app: 'reviews', reviewId: 'rev-1' })
       }
     }
 
-    const isBrowser = typeof window !== 'undefined';
-    const activeModel = isBrowser ? (localStorage.getItem('sf_chat_active_model') || 'gemini') : 'gemini';
+    const isBrowser = typeof window !== 'undefined'
+    const activeModel = isBrowser
+      ? localStorage.getItem('sf_chat_active_model') || 'gemini'
+      : 'gemini'
 
     // Retrieve corresponding key
-    let apiKey: string | null = null;
+    let apiKey: string | null = null
     if (activeModel === 'gemini') {
       apiKey = isBrowser
-        ? (localStorage.getItem('sf_api_key_gemini') || localStorage.getItem('sf_gemini_api_key') || process.env['NEXT_PUBLIC_GEMINI_API_KEY'] || "AQ.Ab8RN6If54EHgak6M7m6gynnaapjEH_3N2__KeIFLekSr5X8Tw")
-        : "AQ.Ab8RN6If54EHgak6M7m6gynnaapjEH_3N2__KeIFLekSr5X8Tw";
+        ? localStorage.getItem('sf_api_key_gemini') ||
+          localStorage.getItem('sf_gemini_api_key') ||
+          process.env['NEXT_PUBLIC_GEMINI_API_KEY'] ||
+          'AQ.Ab8RN6If54EHgak6M7m6gynnaapjEH_3N2__KeIFLekSr5X8Tw'
+        : 'AQ.Ab8RN6If54EHgak6M7m6gynnaapjEH_3N2__KeIFLekSr5X8Tw'
     } else if (activeModel === 'openai') {
-      apiKey = isBrowser ? localStorage.getItem('sf_api_key_openai') : null;
+      apiKey = isBrowser ? localStorage.getItem('sf_api_key_openai') : null
     } else if (activeModel === 'groq') {
-      apiKey = isBrowser ? localStorage.getItem('sf_api_key_groq') : null;
+      apiKey = isBrowser ? localStorage.getItem('sf_api_key_groq') : null
     } else if (activeModel === 'anthropic') {
-      apiKey = isBrowser ? localStorage.getItem('sf_api_key_anthropic') : null;
+      apiKey = isBrowser ? localStorage.getItem('sf_api_key_anthropic') : null
     } else if (activeModel === 'kimi') {
-      apiKey = isBrowser ? localStorage.getItem('sf_api_key_kimi') : null;
+      apiKey = isBrowser ? localStorage.getItem('sf_api_key_kimi') : null
     }
 
     const systemPrompt = bookingId
-      ? "You are the Flexi AI Concierge for Stayflexi guests. Assist guests with flexible hourly stays (3, 6, 12 hours at $45/hour), room upgrades (Deluxe, Executive suites), ordering food (24/7 kitchen, Goa dishes, Club Sandwiches, custom cocktails, posted directly to room folio), smart key digital codes (revealed after check-in and payment), reviewing room invoice/folio, and self-service checkout. Be professional, friendly, and concise. You must respond ONLY with a JSON object matching this schema: { \"content\": string, \"suggestedActions\": string[], \"action\": string | null, \"actionPayload\": string | null }. If the guest requests a room upgrade, set action to 'upgrade_room'. If ordering food or viewing food catalog/menu, set action to 'order_food'. If requesting keys or lock code, set action to 'reveal_key'. If requesting self-checkout or settling folio, set action to 'checkout'. Otherwise set action to null."
-      : "You are Flexi AI, the official Operations & Business Intelligence Assistant for Stayflexi. You assist hotel staff in controlling operations and getting real-time insights. You can explain how to perform tasks, summarize revenue/occupancy data, block rooms, or modify reservations. Suggest 2-4 appropriate operational actions for staff as quick-reply buttons (e.g., 'Revenue Report', 'Block Room 103', 'Occupancy Analytics', 'Show Rooms Grid'). Keep responses highly professional, direct, and operational. You must respond ONLY with a JSON object matching this schema: { \"content\": string, \"suggestedActions\": string[], \"action\": string | null, \"actionPayload\": string | null }. If the staff asks to block Room 103, set action to 'block_inventory' and actionPayload to '{\"roomNumber\":\"103\"}'. If staff wants to view the rooms grid or check inventory, set action to 'navigate' and actionPayload to '{\"target\":\"/inventory\"}'. If staff wants to view revenue or sales analytics, set action to 'navigate' and actionPayload to '{\"target\":\"/console\"}' or 'navigate_app' with payload '{\"app\":\"revenue\"}'. If staff wants to view guest reviews, set action to 'navigate_app' and actionPayload to '{\"app\":\"reviews\",\"reviewId\":\"rev-1\"}'. Otherwise set action to null.";
+      ? 'You are the Flexi AI Concierge for Stayflexi guests. Assist guests with flexible hourly stays (3, 6, 12 hours at $45/hour), room upgrades (Deluxe, Executive suites), ordering food (24/7 kitchen, Goa dishes, Club Sandwiches, custom cocktails, posted directly to room folio), smart key digital codes (revealed after check-in and payment), reviewing room invoice/folio, and self-service checkout. Be professional, friendly, and concise. You must respond ONLY with a JSON object matching this schema: { "content": string, "suggestedActions": string[], "action": string | null, "actionPayload": string | null }. If the guest requests a room upgrade, set action to \'upgrade_room\'. If ordering food or viewing food catalog/menu, set action to \'order_food\'. If requesting keys or lock code, set action to \'reveal_key\'. If requesting self-checkout or settling folio, set action to \'checkout\'. Otherwise set action to null.'
+      : 'You are Flexi AI, the official Operations & Business Intelligence Assistant for Stayflexi. You assist hotel staff in controlling operations and getting real-time insights. You can explain how to perform tasks, summarize revenue/occupancy data, block rooms, or modify reservations. Suggest 2-4 appropriate operational actions for staff as quick-reply buttons (e.g., \'Revenue Report\', \'Block Room 103\', \'Occupancy Analytics\', \'Show Rooms Grid\'). Keep responses highly professional, direct, and operational. You must respond ONLY with a JSON object matching this schema: { "content": string, "suggestedActions": string[], "action": string | null, "actionPayload": string | null }. If the staff asks to block Room 103, set action to \'block_inventory\' and actionPayload to \'{"roomNumber":"103"}\'. If staff wants to view the rooms grid or check inventory, set action to \'navigate\' and actionPayload to \'{"target":"/inventory"}\'. If staff wants to view revenue or sales analytics, set action to \'navigate\' and actionPayload to \'{"target":"/console"}\' or \'navigate_app\' with payload \'{"app":"revenue"}\'. If staff wants to view guest reviews, set action to \'navigate_app\' and actionPayload to \'{"app":"reviews","reviewId":"rev-1"}\'. Otherwise set action to null.'
 
     const cleanAndParseResponse = (text: string) => {
-      let cleanText = text.trim();
+      let cleanText = text.trim()
       if (cleanText.startsWith('```json')) {
-        cleanText = cleanText.substring(7);
+        cleanText = cleanText.substring(7)
       } else if (cleanText.startsWith('```')) {
-        cleanText = cleanText.substring(3);
+        cleanText = cleanText.substring(3)
       }
       if (cleanText.endsWith('```')) {
-        cleanText = cleanText.substring(0, cleanText.length - 3);
+        cleanText = cleanText.substring(0, cleanText.length - 3)
       }
-      const parsed = JSON.parse(cleanText.trim());
+      const parsed = JSON.parse(cleanText.trim())
       return {
         role: 'ASSISTANT',
         content: parsed.content,
         suggestedActions: parsed.suggestedActions || [],
         action: parsed.action || null,
-        actionPayload: parsed.actionPayload || null
-      };
-    };
+        actionPayload: parsed.actionPayload || null,
+      }
+    }
 
     if (apiKey) {
       try {
         if (activeModel === 'gemini') {
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: message }] }],
-              systemInstruction: {
-                parts: [{ text: systemPrompt }]
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
               },
-              generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                  type: "OBJECT",
-                  properties: {
-                    content: { type: "STRING" },
-                    suggestedActions: {
-                      type: "ARRAY",
-                      items: { type: "STRING" }
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: message }] }],
+                systemInstruction: {
+                  parts: [{ text: systemPrompt }],
+                },
+                generationConfig: {
+                  responseMimeType: 'application/json',
+                  responseSchema: {
+                    type: 'OBJECT',
+                    properties: {
+                      content: { type: 'STRING' },
+                      suggestedActions: {
+                        type: 'ARRAY',
+                        items: { type: 'STRING' },
+                      },
+                      action: { type: 'STRING' },
+                      actionPayload: { type: 'STRING' },
                     },
-                    action: { type: "STRING" },
-                    actionPayload: { type: "STRING" }
+                    required: ['content', 'suggestedActions'],
                   },
-                  required: ["content", "suggestedActions"]
-                }
-              }
-            })
-          });
+                },
+              }),
+            },
+          )
 
           if (response.ok) {
-            const data = await response.json() as any;
-            const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            const data = (await response.json()) as any
+            const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text
             if (textResponse) {
-              return cleanAndParseResponse(textResponse);
+              return cleanAndParseResponse(textResponse)
             }
           }
         } else if (activeModel === 'openai') {
@@ -1566,52 +1766,52 @@ class StayflexiDataClient {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`
+              Authorization: `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-              model: "gpt-4o",
+              model: 'gpt-4o',
               messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: message }
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: message },
               ],
-              response_format: { type: "json_object" }
-            })
-          });
+              response_format: { type: 'json_object' },
+            }),
+          })
 
           if (response.ok) {
-            const data = await response.json();
-            const textResponse = data.choices?.[0]?.message?.content;
+            const data = await response.json()
+            const textResponse = data.choices?.[0]?.message?.content
             if (textResponse) {
-              return cleanAndParseResponse(textResponse);
+              return cleanAndParseResponse(textResponse)
             }
           } else {
-            console.error("OpenAI call error response:", await response.text());
+            console.error('OpenAI call error response:', await response.text())
           }
         } else if (activeModel === 'groq') {
           const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`
+              Authorization: `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-              model: "llama-3.3-70b-versatile",
+              model: 'llama-3.3-70b-versatile',
               messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: message }
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: message },
               ],
-              response_format: { type: "json_object" }
-            })
-          });
+              response_format: { type: 'json_object' },
+            }),
+          })
 
           if (response.ok) {
-            const data = await response.json();
-            const textResponse = data.choices?.[0]?.message?.content;
+            const data = await response.json()
+            const textResponse = data.choices?.[0]?.message?.content
             if (textResponse) {
-              return cleanAndParseResponse(textResponse);
+              return cleanAndParseResponse(textResponse)
             }
           } else {
-            console.error("Groq call error response:", await response.text());
+            console.error('Groq call error response:', await response.text())
           }
         } else if (activeModel === 'anthropic') {
           const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1619,101 +1819,113 @@ class StayflexiDataClient {
             headers: {
               'Content-Type': 'application/json',
               'x-api-key': apiKey,
-              'anthropic-version': '2023-06-01'
+              'anthropic-version': '2023-06-01',
             },
             body: JSON.stringify({
-              model: "claude-3-5-sonnet-20241022",
+              model: 'claude-3-5-sonnet-20241022',
               max_tokens: 1024,
               system: systemPrompt,
-              messages: [
-                { role: "user", content: message }
-              ]
-            })
-          });
+              messages: [{ role: 'user', content: message }],
+            }),
+          })
 
           if (response.ok) {
-            const data = await response.json();
-            const textResponse = data.content?.[0]?.text;
+            const data = await response.json()
+            const textResponse = data.content?.[0]?.text
             if (textResponse) {
-              return cleanAndParseResponse(textResponse);
+              return cleanAndParseResponse(textResponse)
             }
           } else {
-            console.error("Anthropic call error response:", await response.text());
+            console.error('Anthropic call error response:', await response.text())
           }
         } else if (activeModel === 'kimi') {
           const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`
+              Authorization: `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-              model: "moonshot-v1-8k",
+              model: 'moonshot-v1-8k',
               messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: message }
-              ]
-            })
-          });
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: message },
+              ],
+            }),
+          })
 
           if (response.ok) {
-            const data = await response.json();
-            const textResponse = data.choices?.[0]?.message?.content;
+            const data = await response.json()
+            const textResponse = data.choices?.[0]?.message?.content
             if (textResponse) {
-              return cleanAndParseResponse(textResponse);
+              return cleanAndParseResponse(textResponse)
             }
           } else {
-            console.error("Kimi call error response:", await response.text());
+            console.error('Kimi call error response:', await response.text())
           }
         }
       } catch (err) {
-        console.error(`${activeModel} API call failed, using rule-based fallback:`, err);
+        console.error(`${activeModel} API call failed, using rule-based fallback:`, err)
       }
     } else {
-      console.warn(`API key for selected model "${activeModel}" is missing. Using local rule-based fallback.`);
+      console.warn(
+        `API key for selected model "${activeModel}" is missing. Using local rule-based fallback.`,
+      )
     }
 
     return {
       role: 'ASSISTANT',
-      content: apiKey ? reply : `⚠️ **API Key Missing for ${activeModel.toUpperCase()}**. Please click the \`+\` button to configure your API key. In the meantime, here is the simulated response:\n\n${reply}`,
+      content: apiKey
+        ? reply
+        : `⚠️ **API Key Missing for ${activeModel.toUpperCase()}**. Please click the \`+\` button to configure your API key. In the meantime, here is the simulated response:\n\n${reply}`,
       suggestedActions: suggestions,
       action: localAction,
-      actionPayload: localPayload
+      actionPayload: localPayload,
     }
   }
 
-  async analyzeReviewSentiment(comment: string): Promise<{ rating: number; sentiment: 'positive' | 'neutral' | 'negative' }> {
-    const apiKey = typeof window !== 'undefined' 
-      ? (localStorage.getItem('sf_gemini_api_key') || process.env['NEXT_PUBLIC_GEMINI_API_KEY'] || "AQ.Ab8RN6If54EHgak6M7m6gynnaapjEH_3N2__KeIFLekSr5X8Tw") 
-      : "AQ.Ab8RN6If54EHgak6M7m6gynnaapjEH_3N2__KeIFLekSr5X8Tw"
+  async analyzeReviewSentiment(
+    comment: string,
+  ): Promise<{ rating: number; sentiment: 'positive' | 'neutral' | 'negative' }> {
+    const apiKey =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('sf_gemini_api_key') ||
+          process.env['NEXT_PUBLIC_GEMINI_API_KEY'] ||
+          'AQ.Ab8RN6If54EHgak6M7m6gynnaapjEH_3N2__KeIFLekSr5X8Tw'
+        : 'AQ.Ab8RN6If54EHgak6M7m6gynnaapjEH_3N2__KeIFLekSr5X8Tw'
 
     if (apiKey) {
       try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: `Analyze this review comment: "${comment}"` }] }],
-            systemInstruction: {
-              parts: [{
-                text: "You are an AI sentiment analyzer and guest review scorer for a hotel property management system. Analyze the guest comment, and determine the score/rating (integer from 1 to 5, where 5 is excellent and 1 is terrible) and the sentiment ('positive', 'neutral', or 'negative'). You must respond with a JSON object matching this schema: { rating: number, sentiment: string }."
-              }]
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
             },
-            generationConfig: {
-              responseMimeType: "application/json",
-              responseSchema: {
-                type: "OBJECT",
-                properties: {
-                  rating: { type: "INTEGER" },
-                  sentiment: { type: "STRING" }
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `Analyze this review comment: "${comment}"` }] }],
+              systemInstruction: {
+                parts: [
+                  {
+                    text: "You are an AI sentiment analyzer and guest review scorer for a hotel property management system. Analyze the guest comment, and determine the score/rating (integer from 1 to 5, where 5 is excellent and 1 is terrible) and the sentiment ('positive', 'neutral', or 'negative'). You must respond with a JSON object matching this schema: { rating: number, sentiment: string }.",
+                  },
+                ],
+              },
+              generationConfig: {
+                responseMimeType: 'application/json',
+                responseSchema: {
+                  type: 'OBJECT',
+                  properties: {
+                    rating: { type: 'INTEGER' },
+                    sentiment: { type: 'STRING' },
+                  },
+                  required: ['rating', 'sentiment'],
                 },
-                required: ["rating", "sentiment"]
-              }
-            }
-          })
-        })
+              },
+            }),
+          },
+        )
 
         if (response.ok) {
           const data = await response.json()
@@ -1721,14 +1933,17 @@ class StayflexiDataClient {
           if (text) {
             const parsed = JSON.parse(text)
             const rating = Math.max(1, Math.min(5, Number(parsed.rating) || 3))
-            const sentiment = parsed.sentiment === 'positive' || parsed.sentiment === 'neutral' || parsed.sentiment === 'negative'
-              ? parsed.sentiment
-              : 'neutral'
+            const sentiment =
+              parsed.sentiment === 'positive' ||
+              parsed.sentiment === 'neutral' ||
+              parsed.sentiment === 'negative'
+                ? parsed.sentiment
+                : 'neutral'
             return { rating, sentiment }
           }
         }
       } catch (err) {
-        console.error("AI sentiment analysis failed:", err)
+        console.error('AI sentiment analysis failed:', err)
       }
     }
 
@@ -1737,16 +1952,40 @@ class StayflexiDataClient {
     let rating = 3
     let sentiment: 'positive' | 'neutral' | 'negative' = 'neutral'
 
-    if (clean.includes('exceptional') || clean.includes('excellent') || clean.includes('great') || clean.includes('amazing') || clean.includes('love') || clean.includes('perfect')) {
+    if (
+      clean.includes('exceptional') ||
+      clean.includes('excellent') ||
+      clean.includes('great') ||
+      clean.includes('amazing') ||
+      clean.includes('love') ||
+      clean.includes('perfect')
+    ) {
       rating = 5
       sentiment = 'positive'
-    } else if (clean.includes('good') || clean.includes('nice') || clean.includes('fine') || clean.includes('satisfactory')) {
+    } else if (
+      clean.includes('good') ||
+      clean.includes('nice') ||
+      clean.includes('fine') ||
+      clean.includes('satisfactory')
+    ) {
       rating = 4
       sentiment = 'positive'
-    } else if (clean.includes('bad') || clean.includes('dirty') || clean.includes('poor') || clean.includes('terrible') || clean.includes('worst') || clean.includes('disappointed')) {
+    } else if (
+      clean.includes('bad') ||
+      clean.includes('dirty') ||
+      clean.includes('poor') ||
+      clean.includes('terrible') ||
+      clean.includes('worst') ||
+      clean.includes('disappointed')
+    ) {
       rating = 1
       sentiment = 'negative'
-    } else if (clean.includes('slow') || clean.includes('issue') || clean.includes('delay') || clean.includes('problem')) {
+    } else if (
+      clean.includes('slow') ||
+      clean.includes('issue') ||
+      clean.includes('delay') ||
+      clean.includes('problem')
+    ) {
       rating = 2
       sentiment = 'negative'
     }
@@ -1755,13 +1994,16 @@ class StayflexiDataClient {
   }
 
   async checkOutGuest(bookingId: string): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation CheckOutGuest($bookingId: String!) {
         checkOutGuest(bookingId: $bookingId) {
           id status checkedOutAt
         }
       }
-    `, { bookingId })
+    `,
+      { bookingId },
+    )
 
     if (remote?.data?.checkOutGuest) {
       return remote.data.checkOutGuest
@@ -1772,25 +2014,34 @@ class StayflexiDataClient {
       const savedRes = localStorage.getItem('sf_reservations')
       if (savedRes) {
         let reservations = JSON.parse(savedRes) as any[]
-        const target = reservations.find(r => r.id === bookingId)
+        const target = reservations.find((r) => r.id === bookingId)
         if (target) {
-          reservations = reservations.map(r => r.id === bookingId ? { ...r, status: 'CHECKED_OUT' } : r)
+          reservations = reservations.map((r) =>
+            r.id === bookingId ? { ...r, status: 'CHECKED_OUT' } : r,
+          )
           localStorage.setItem('sf_reservations', JSON.stringify(reservations))
-          await this.updateRoomStatus(target.roomId, 'HOUSEKEEPING', `Checked out guest for booking ${bookingId}`)
+          await this.updateRoomStatus(
+            target.roomId,
+            'HOUSEKEEPING',
+            `Checked out guest for booking ${bookingId}`,
+          )
         }
       }
     }
     return { id: bookingId, status: 'CHECKED_OUT', checkedOutAt: new Date().toISOString() }
   }
 
-  async cancelBooking(bookingId: string, reason = ""): Promise<any> {
-    const remote = await this.queryGraphQL(`
+  async cancelBooking(bookingId: string, reason = ''): Promise<any> {
+    const remote = await this.queryGraphQL(
+      `
       mutation CancelBooking($bookingId: String!, $reason: String) {
         cancelBooking(bookingId: $bookingId, reason: $reason) {
           id status cancelledAt
         }
       }
-    `, { bookingId, reason })
+    `,
+      { bookingId, reason },
+    )
 
     if (remote?.data?.cancelBooking) {
       return remote.data.cancelBooking
@@ -1801,11 +2052,17 @@ class StayflexiDataClient {
       const savedRes = localStorage.getItem('sf_reservations')
       if (savedRes) {
         let reservations = JSON.parse(savedRes) as any[]
-        const target = reservations.find(r => r.id === bookingId)
+        const target = reservations.find((r) => r.id === bookingId)
         if (target) {
-          reservations = reservations.map(r => r.id === bookingId ? { ...r, status: 'CANCELLED' } : r)
+          reservations = reservations.map((r) =>
+            r.id === bookingId ? { ...r, status: 'CANCELLED' } : r,
+          )
           localStorage.setItem('sf_reservations', JSON.stringify(reservations))
-          await this.updateRoomStatus(target.roomId, 'AVAILABLE', `Cancelled booking ${bookingId}: ${reason}`)
+          await this.updateRoomStatus(
+            target.roomId,
+            'AVAILABLE',
+            `Cancelled booking ${bookingId}: ${reason}`,
+          )
         }
       }
     }
@@ -1813,14 +2070,21 @@ class StayflexiDataClient {
   }
 
   // Inventory Calendar Methods (Phase 2 integration)
-  async getAvailabilityCalendar(hotelId: string, startDate: string, endDate: string): Promise<any[]> {
-    const remote = await this.queryGraphQL(`
+  async getAvailabilityCalendar(
+    hotelId: string,
+    startDate: string,
+    endDate: string,
+  ): Promise<any[]> {
+    const remote = await this.queryGraphQL(
+      `
       query GetAvailabilityCalendar($hotelId: String!, $startDate: String!, $endDate: String!) {
         availabilityCalendar(hotelId: $hotelId, startDate: $startDate, endDate: $endDate) {
           date roomTypeId totalCapacity availableCount reservedCount blockedCount basePrice
         }
       }
-    `, { hotelId, startDate, endDate })
+    `,
+      { hotelId, startDate, endDate },
+    )
 
     if (remote?.data?.availabilityCalendar) {
       return remote.data.availabilityCalendar
@@ -1830,32 +2094,41 @@ class StayflexiDataClient {
     const calendar: any[] = []
     const start = new Date(startDate)
     const end = new Date(endDate)
-    const activeBlocked = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('sf_blocked_inventory') || '[]') : []
-    const activeRes = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('sf_reservations') || '[]') : []
+    const activeBlocked =
+      typeof window !== 'undefined'
+        ? JSON.parse(localStorage.getItem('sf_blocked_inventory') || '[]')
+        : []
+    const activeRes =
+      typeof window !== 'undefined'
+        ? JSON.parse(localStorage.getItem('sf_reservations') || '[]')
+        : []
 
-    const rts = this.roomTypes.filter(rt => rt.hotelId === hotelId)
+    const rts = this.roomTypes.filter((rt) => rt.hotelId === hotelId)
 
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       const dateStr = d.toISOString().split('T')[0] || ''
-      
+
       for (const rt of rts) {
-        const totalRoomsOfRt = this.rooms.filter(rm => rm.roomTypeId === rt.id && rm.hotelId === hotelId).length || 5
-        
+        const totalRoomsOfRt =
+          this.rooms.filter((rm) => rm.roomTypeId === rt.id && rm.hotelId === hotelId).length || 5
+
         // Count blocks
-        const blocks = activeBlocked.filter((b: any) => 
-          b.hotelId === hotelId && 
-          b.roomTypeId === rt.id && 
-          dateStr >= b.startDate && 
-          dateStr <= b.endDate
+        const blocks = activeBlocked.filter(
+          (b: any) =>
+            b.hotelId === hotelId &&
+            b.roomTypeId === rt.id &&
+            dateStr >= b.startDate &&
+            dateStr <= b.endDate,
         ).length
 
         // Count reservations
-        const reserves = activeRes.filter((res: any) => 
-          res.status !== 'CANCELLED' && 
-          res.status !== 'CHECKED_OUT' &&
-          this.rooms.find(rm => rm.id === res.roomId)?.roomTypeId === rt.id &&
-          dateStr >= res.checkIn && 
-          dateStr <= res.checkOut
+        const reserves = activeRes.filter(
+          (res: any) =>
+            res.status !== 'CANCELLED' &&
+            res.status !== 'CHECKED_OUT' &&
+            this.rooms.find((rm) => rm.id === res.roomId)?.roomTypeId === rt.id &&
+            dateStr >= res.checkIn &&
+            dateStr <= res.checkOut,
         ).length
 
         calendar.push({
@@ -1865,22 +2138,31 @@ class StayflexiDataClient {
           availableCount: Math.max(0, totalRoomsOfRt - reserves - blocks),
           reservedCount: reserves,
           blockedCount: blocks,
-          basePrice: rt.basePrice
+          basePrice: rt.basePrice,
         })
       }
     }
 
-    return calendar;
+    return calendar
   }
 
-  async blockInventory(hotelId: string, roomTypeId: string, startDate: string, endDate: string, reason = ""): Promise<any> {
-    const remote = await this.queryGraphQL(`
+  async blockInventory(
+    hotelId: string,
+    roomTypeId: string,
+    startDate: string,
+    endDate: string,
+    reason = '',
+  ): Promise<any> {
+    const remote = await this.queryGraphQL(
+      `
       mutation BlockInventory($hotelId: String!, $roomTypeId: String!, $startDate: String!, $endDate: String!, $reason: String) {
         blockInventory(hotelId: $hotelId, roomTypeId: $roomTypeId, startDate: $startDate, endDate: $endDate, reason: $reason) {
           success message
         }
       }
-    `, { hotelId, roomTypeId, startDate, endDate, reason })
+    `,
+      { hotelId, roomTypeId, startDate, endDate, reason },
+    )
 
     if (remote?.data?.blockInventory) {
       return remote.data.blockInventory
@@ -1895,22 +2177,30 @@ class StayflexiDataClient {
         roomTypeId,
         startDate,
         endDate,
-        reason
+        reason,
       })
       localStorage.setItem('sf_blocked_inventory', JSON.stringify(activeBlocked))
     }
 
-    return { success: true, message: "Inventory blocked successfully (local fallback)." }
+    return { success: true, message: 'Inventory blocked successfully (local fallback).' }
   }
 
-  async unblockInventory(hotelId: string, roomTypeId: string, startDate: string, endDate: string): Promise<any> {
-    const remote = await this.queryGraphQL(`
+  async unblockInventory(
+    hotelId: string,
+    roomTypeId: string,
+    startDate: string,
+    endDate: string,
+  ): Promise<any> {
+    const remote = await this.queryGraphQL(
+      `
       mutation UnblockInventory($hotelId: String!, $roomTypeId: String!, $startDate: String!, $endDate: String!) {
         unblockInventory(hotelId: $hotelId, roomTypeId: $roomTypeId, startDate: $startDate, endDate: $endDate) {
           success message
         }
       }
-    `, { hotelId, roomTypeId, startDate, endDate })
+    `,
+      { hotelId, roomTypeId, startDate, endDate },
+    )
 
     if (remote?.data?.unblockInventory) {
       return remote.data.unblockInventory
@@ -1920,18 +2210,25 @@ class StayflexiDataClient {
     if (typeof window !== 'undefined') {
       let activeBlocked = JSON.parse(localStorage.getItem('sf_blocked_inventory') || '[]') as any[]
       // Remove matching block
-      activeBlocked = activeBlocked.filter(b => 
-        !(b.hotelId === hotelId && b.roomTypeId === roomTypeId && b.startDate === startDate && b.endDate === endDate)
+      activeBlocked = activeBlocked.filter(
+        (b) =>
+          !(
+            b.hotelId === hotelId &&
+            b.roomTypeId === roomTypeId &&
+            b.startDate === startDate &&
+            b.endDate === endDate
+          ),
       )
       localStorage.setItem('sf_blocked_inventory', JSON.stringify(activeBlocked))
     }
 
-    return { success: true, message: "Inventory unblocked successfully (local fallback)." }
+    return { success: true, message: 'Inventory unblocked successfully (local fallback).' }
   }
 
   // Payments & Invoices methods (Phase 3 integration)
   async getInvoices(bookingId: string): Promise<any[]> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       query GetInvoices($bookingId: String!) {
         invoices(bookingId: $bookingId) {
           id organizationId hotelId bookingId invoiceNumber invoiceStatus subtotal taxAmount discountAmount totalAmount currency issuedAt dueDate notes createdById createdAt updatedAt
@@ -1940,7 +2237,9 @@ class StayflexiDataClient {
           }
         }
       }
-    `, { bookingId })
+    `,
+      { bookingId },
+    )
 
     if (remote?.data?.invoices) {
       return remote.data.invoices
@@ -1960,7 +2259,8 @@ class StayflexiDataClient {
     description: string
     source: string
   }): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation PostChargeToFolio(
         $bookingId: String!
         $amount: Float!
@@ -1990,7 +2290,9 @@ class StayflexiDataClient {
           }
         }
       }
-    `, args)
+    `,
+      args,
+    )
 
     if (remote?.data?.postChargeToFolio) {
       return remote.data.postChargeToFolio
@@ -2012,7 +2314,7 @@ class StayflexiDataClient {
           taxAmount: 0,
           totalAmount: 0,
           currency: 'USD',
-          items: []
+          items: [],
         }
         invoices.push(inv)
       }
@@ -2024,12 +2326,15 @@ class StayflexiDataClient {
         quantity: 1,
         unitPrice: args.amount,
         totalPrice: args.amount,
-        taxRate: 0.05
+        taxRate: 0.05,
       }
       inv.items.push(newItem)
 
       inv.subtotal = inv.items.reduce((acc: number, item: any) => acc + item.totalPrice, 0)
-      inv.taxAmount = inv.items.reduce((acc: number, item: any) => acc + (item.totalPrice * item.taxRate), 0)
+      inv.taxAmount = inv.items.reduce(
+        (acc: number, item: any) => acc + item.totalPrice * item.taxRate,
+        0,
+      )
       inv.totalAmount = inv.subtotal + inv.taxAmount
 
       localStorage.setItem('sf_invoices', JSON.stringify(invoices))
@@ -2038,14 +2343,22 @@ class StayflexiDataClient {
     return null
   }
 
-  async initiatePayment(hotelId: string, bookingId: string, paymentMethod: string, amount: number): Promise<any> {
-    const remote = await this.queryGraphQL(`
+  async initiatePayment(
+    hotelId: string,
+    bookingId: string,
+    paymentMethod: string,
+    amount: number,
+  ): Promise<any> {
+    const remote = await this.queryGraphQL(
+      `
       mutation InitiatePayment($hotelId: String!, $bookingId: String!, $paymentMethod: String!, $amount: Float!, $currency: String!) {
         initiatePayment(hotelId: $hotelId, bookingId: $bookingId, paymentMethod: $paymentMethod, amount: $amount, currency: $currency) {
           id organizationId hotelId bookingId paymentReference paymentMethod paymentStatus amount currency processedById createdAt
         }
       }
-    `, { hotelId, bookingId, paymentMethod, amount, currency: 'USD' })
+    `,
+      { hotelId, bookingId, paymentMethod, amount, currency: 'USD' },
+    )
 
     if (remote?.data?.initiatePayment) {
       return remote.data.initiatePayment
@@ -2064,7 +2377,7 @@ class StayflexiDataClient {
       amount,
       currency: 'USD',
       processedById: 'u-1',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     }
 
     if (typeof window !== 'undefined') {
@@ -2104,9 +2417,9 @@ class StayflexiDataClient {
             quantity: 1,
             unitPrice: amount,
             totalPrice: amount,
-            taxRate: 0.12
-          }
-        ]
+            taxRate: 0.12,
+          },
+        ],
       })
       localStorage.setItem('sf_invoices', JSON.stringify(invoices))
     }
@@ -2130,21 +2443,48 @@ class StayflexiDataClient {
 
     // Offline standard static providers fallback list
     return [
-      { id: 'prov-agoda', providerCode: 'AGODA', providerName: 'Agoda', status: 'ACTIVE', description: 'Agoda.com direct channel synchronization' },
-      { id: 'prov-expedia', providerCode: 'EXPEDIA', providerName: 'Expedia', status: 'ACTIVE', description: 'Expedia Partner Solutions direct connectivity' },
-      { id: 'prov-booking', providerCode: 'BOOKING_COM', providerName: 'Booking.com', status: 'ACTIVE', description: 'Booking.com connectivity syncer' },
-      { id: 'prov-airbnb', providerCode: 'AIRBNB', providerName: 'Airbnb', status: 'ACTIVE', description: 'Airbnb direct mapping syncer' }
+      {
+        id: 'prov-agoda',
+        providerCode: 'AGODA',
+        providerName: 'Agoda',
+        status: 'ACTIVE',
+        description: 'Agoda.com direct channel synchronization',
+      },
+      {
+        id: 'prov-expedia',
+        providerCode: 'EXPEDIA',
+        providerName: 'Expedia',
+        status: 'ACTIVE',
+        description: 'Expedia Partner Solutions direct connectivity',
+      },
+      {
+        id: 'prov-booking',
+        providerCode: 'BOOKING_COM',
+        providerName: 'Booking.com',
+        status: 'ACTIVE',
+        description: 'Booking.com connectivity syncer',
+      },
+      {
+        id: 'prov-airbnb',
+        providerCode: 'AIRBNB',
+        providerName: 'Airbnb',
+        status: 'ACTIVE',
+        description: 'Airbnb direct mapping syncer',
+      },
     ]
   }
 
   async getOtaMappings(hotelId: string): Promise<any[]> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       query GetOtaMappings($hotelId: String!) {
         otaMappings(hotelId: $hotelId) {
           id organizationId hotelId roomTypeId providerId externalHotelId externalRoomTypeId syncStatus isActive lastSyncedAt
         }
       }
-    `, { hotelId })
+    `,
+      { hotelId },
+    )
 
     if (remote?.data?.otaMappings) {
       return remote.data.otaMappings
@@ -2156,12 +2496,45 @@ class StayflexiDataClient {
       if (savedMappings) {
         return JSON.parse(savedMappings).filter((m: any) => m.hotelId === hotelId)
       }
-      
+
       // Default offline static setup mappings
       const defaults = [
-        { id: 'map-1', organizationId: 'org-stayflexi', hotelId, roomTypeId: 'rt-deluxe', providerId: 'prov-agoda', externalHotelId: 'agoda-101', externalRoomTypeId: 'agoda-rt-deluxe', syncStatus: 'SUCCESS', isActive: true, lastSyncedAt: new Date().toISOString() },
-        { id: 'map-2', organizationId: 'org-stayflexi', hotelId, roomTypeId: 'rt-executive', providerId: 'prov-agoda', externalHotelId: 'agoda-101', externalRoomTypeId: 'agoda-rt-exec', syncStatus: 'SUCCESS', isActive: true, lastSyncedAt: new Date().toISOString() },
-        { id: 'map-3', organizationId: 'org-stayflexi', hotelId, roomTypeId: 'rt-deluxe', providerId: 'prov-expedia', externalHotelId: 'exp-202', externalRoomTypeId: 'exp-rt-deluxe', syncStatus: 'SUCCESS', isActive: true, lastSyncedAt: new Date().toISOString() }
+        {
+          id: 'map-1',
+          organizationId: 'org-stayflexi',
+          hotelId,
+          roomTypeId: 'rt-deluxe',
+          providerId: 'prov-agoda',
+          externalHotelId: 'agoda-101',
+          externalRoomTypeId: 'agoda-rt-deluxe',
+          syncStatus: 'SUCCESS',
+          isActive: true,
+          lastSyncedAt: new Date().toISOString(),
+        },
+        {
+          id: 'map-2',
+          organizationId: 'org-stayflexi',
+          hotelId,
+          roomTypeId: 'rt-executive',
+          providerId: 'prov-agoda',
+          externalHotelId: 'agoda-101',
+          externalRoomTypeId: 'agoda-rt-exec',
+          syncStatus: 'SUCCESS',
+          isActive: true,
+          lastSyncedAt: new Date().toISOString(),
+        },
+        {
+          id: 'map-3',
+          organizationId: 'org-stayflexi',
+          hotelId,
+          roomTypeId: 'rt-deluxe',
+          providerId: 'prov-expedia',
+          externalHotelId: 'exp-202',
+          externalRoomTypeId: 'exp-rt-deluxe',
+          syncStatus: 'SUCCESS',
+          isActive: true,
+          lastSyncedAt: new Date().toISOString(),
+        },
       ]
       localStorage.setItem('sf_ota_mappings', JSON.stringify(defaults))
       return defaults
@@ -2169,14 +2542,22 @@ class StayflexiDataClient {
     return []
   }
 
-  async connectOta(hotelId: string, providerId: string, externalHotelId: string, roomTypeMappings: any[]): Promise<any> {
-    const remote = await this.queryGraphQL(`
+  async connectOta(
+    hotelId: string,
+    providerId: string,
+    externalHotelId: string,
+    roomTypeMappings: any[],
+  ): Promise<any> {
+    const remote = await this.queryGraphQL(
+      `
       mutation ConnectOta($hotelId: String!, $providerId: String!, $externalHotelId: String!, $roomTypeMappings: [RoomTypeMappingInput!]!) {
         connectOta(hotelId: $hotelId, providerId: $providerId, externalHotelId: $externalHotelId, roomTypeMappings: $roomTypeMappings) {
           id organizationId hotelId roomTypeId providerId externalHotelId externalRoomTypeId syncStatus isActive lastSyncedAt
         }
       }
-    `, { hotelId, providerId, externalHotelId, roomTypeMappings })
+    `,
+      { hotelId, providerId, externalHotelId, roomTypeMappings },
+    )
 
     if (remote?.data?.connectOta) {
       return remote.data.connectOta
@@ -2193,7 +2574,7 @@ class StayflexiDataClient {
       externalRoomTypeId: roomTypeMappings[0]?.externalRoomTypeId || 'ext-rt-deluxe',
       syncStatus: 'SUCCESS',
       isActive: true,
-      lastSyncedAt: new Date().toISOString()
+      lastSyncedAt: new Date().toISOString(),
     }
 
     if (typeof window !== 'undefined') {
@@ -2206,13 +2587,16 @@ class StayflexiDataClient {
   }
 
   async getSyncJobs(hotelId: string): Promise<any[]> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       query GetSyncJobs($hotelId: String!) {
         syncJobs(hotelId: $hotelId) {
           id organizationId hotelId providerId syncType syncStatus idempotencyKey startedAt completedAt retryCount maxRetries errorMessage createdById createdAt
         }
       }
-    `, { hotelId })
+    `,
+      { hotelId },
+    )
 
     if (remote?.data?.syncJobs) {
       return remote.data.syncJobs
@@ -2227,8 +2611,38 @@ class StayflexiDataClient {
 
       // Default visual items to make page look premium instantly
       const defaults = [
-        { id: 'job-1', organizationId: 'org-stayflexi', hotelId, providerId: 'prov-agoda', syncType: 'INVENTORY_PUSH', syncStatus: 'SUCCESS', idempotencyKey: `sync:${hotelId}:agoda:inv`, startedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(), completedAt: new Date(Date.now() - 29 * 60 * 1000).toISOString(), retryCount: 0, maxRetries: 3, errorMessage: null, createdById: 'u-1', createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString() },
-        { id: 'job-2', organizationId: 'org-stayflexi', hotelId, providerId: 'prov-expedia', syncType: 'RATE_PUSH', syncStatus: 'SUCCESS', idempotencyKey: `sync:${hotelId}:expedia:rates`, startedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), completedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), retryCount: 0, maxRetries: 3, errorMessage: null, createdById: 'u-1', createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() }
+        {
+          id: 'job-1',
+          organizationId: 'org-stayflexi',
+          hotelId,
+          providerId: 'prov-agoda',
+          syncType: 'INVENTORY_PUSH',
+          syncStatus: 'SUCCESS',
+          idempotencyKey: `sync:${hotelId}:agoda:inv`,
+          startedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+          completedAt: new Date(Date.now() - 29 * 60 * 1000).toISOString(),
+          retryCount: 0,
+          maxRetries: 3,
+          errorMessage: null,
+          createdById: 'u-1',
+          createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+        },
+        {
+          id: 'job-2',
+          organizationId: 'org-stayflexi',
+          hotelId,
+          providerId: 'prov-expedia',
+          syncType: 'RATE_PUSH',
+          syncStatus: 'SUCCESS',
+          idempotencyKey: `sync:${hotelId}:expedia:rates`,
+          startedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          completedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          retryCount: 0,
+          maxRetries: 3,
+          errorMessage: null,
+          createdById: 'u-1',
+          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        },
       ]
       localStorage.setItem('sf_sync_jobs', JSON.stringify(defaults))
       return defaults
@@ -2237,13 +2651,16 @@ class StayflexiDataClient {
   }
 
   async triggerSync(hotelId: string, providerId: string, syncType: string): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation TriggerSync($hotelId: String!, $providerId: String!, $syncType: String!) {
         triggerSync(hotelId: $hotelId, providerId: $providerId, syncType: $syncType) {
           id organizationId hotelId providerId syncType syncStatus idempotencyKey startedAt completedAt retryCount maxRetries errorMessage createdById createdAt
         }
       }
-    `, { hotelId, providerId, syncType })
+    `,
+      { hotelId, providerId, syncType },
+    )
 
     if (remote?.data?.triggerSync) {
       return remote.data.triggerSync
@@ -2264,7 +2681,7 @@ class StayflexiDataClient {
       maxRetries: 3,
       errorMessage: null,
       createdById: 'u-1',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     }
 
     if (typeof window !== 'undefined') {
@@ -2274,7 +2691,11 @@ class StayflexiDataClient {
 
       // Also update mappings timestamp
       let mappings = JSON.parse(localStorage.getItem('sf_ota_mappings') || '[]')
-      mappings = mappings.map((m: any) => m.hotelId === hotelId && m.providerId === providerId ? { ...m, lastSyncedAt: new Date().toISOString() } : m)
+      mappings = mappings.map((m: any) =>
+        m.hotelId === hotelId && m.providerId === providerId
+          ? { ...m, lastSyncedAt: new Date().toISOString() }
+          : m,
+      )
       localStorage.setItem('sf_ota_mappings', JSON.stringify(mappings))
     }
 
@@ -2283,13 +2704,16 @@ class StayflexiDataClient {
 
   // Workflows & Rules methods (Phase 4 integration)
   async getWorkflowRules(hotelId: string): Promise<any[]> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       query GetWorkflows($hotelId: String!) {
         workflows(hotelId: $hotelId) {
           id organizationId hotelId ruleName triggerType conditionPayload actionPayload ruleStatus priority createdById createdAt updatedAt
         }
       }
-    `, { hotelId })
+    `,
+      { hotelId },
+    )
 
     if (remote?.data?.workflows) {
       return remote.data.workflows
@@ -2299,11 +2723,59 @@ class StayflexiDataClient {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('sf_workflow_rules')
       if (saved) return JSON.parse(saved)
-      
+
       const defaults = [
-        { id: "wf-1", organizationId: "org-stayflexi", hotelId, ruleName: "Late Arrival Notification", triggerType: "If check-in hour is after 8:00 PM", conditionPayload: JSON.stringify({ predicate: [] }), actionPayload: JSON.stringify({ type: "Send late-arrival SMS to guest profile", params: { service: "notification-service" } }), ruleStatus: "ACTIVE", priority: 0, createdById: "u-1", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-        { id: "wf-2", organizationId: "org-stayflexi", hotelId, ruleName: "VIP Welcome Upgrade Check", triggerType: "If guest type is Repeat and roomType is Presidential", conditionPayload: JSON.stringify({ predicate: [] }), actionPayload: JSON.stringify({ type: "Trigger priority welcome amenities dispatch", params: { service: "hotel-service" } }), ruleStatus: "ACTIVE", priority: 0, createdById: "u-1", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-        { id: "wf-3", organizationId: "org-stayflexi", hotelId, ruleName: "Agoda Rate Alignment Trigger", triggerType: "If basePrice of roomType is updated in PMS", conditionPayload: JSON.stringify({ predicate: [] }), actionPayload: JSON.stringify({ type: "Initiate full OTA synchronizer task", params: { service: "ota-service" } }), ruleStatus: "INACTIVE", priority: 0, createdById: "u-1", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+        {
+          id: 'wf-1',
+          organizationId: 'org-stayflexi',
+          hotelId,
+          ruleName: 'Late Arrival Notification',
+          triggerType: 'If check-in hour is after 8:00 PM',
+          conditionPayload: JSON.stringify({ predicate: [] }),
+          actionPayload: JSON.stringify({
+            type: 'Send late-arrival SMS to guest profile',
+            params: { service: 'notification-service' },
+          }),
+          ruleStatus: 'ACTIVE',
+          priority: 0,
+          createdById: 'u-1',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: 'wf-2',
+          organizationId: 'org-stayflexi',
+          hotelId,
+          ruleName: 'VIP Welcome Upgrade Check',
+          triggerType: 'If guest type is Repeat and roomType is Presidential',
+          conditionPayload: JSON.stringify({ predicate: [] }),
+          actionPayload: JSON.stringify({
+            type: 'Trigger priority welcome amenities dispatch',
+            params: { service: 'hotel-service' },
+          }),
+          ruleStatus: 'ACTIVE',
+          priority: 0,
+          createdById: 'u-1',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: 'wf-3',
+          organizationId: 'org-stayflexi',
+          hotelId,
+          ruleName: 'Agoda Rate Alignment Trigger',
+          triggerType: 'If basePrice of roomType is updated in PMS',
+          conditionPayload: JSON.stringify({ predicate: [] }),
+          actionPayload: JSON.stringify({
+            type: 'Initiate full OTA synchronizer task',
+            params: { service: 'ota-service' },
+          }),
+          ruleStatus: 'INACTIVE',
+          priority: 0,
+          createdById: 'u-1',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
       ]
       localStorage.setItem('sf_workflow_rules', JSON.stringify(defaults))
       return defaults
@@ -2311,14 +2783,23 @@ class StayflexiDataClient {
     return []
   }
 
-  async createWorkflowRule(args: { hotelId: string; name: string; trigger: string; action: string; service: string }): Promise<any> {
-    const remote = await this.queryGraphQL(`
+  async createWorkflowRule(args: {
+    hotelId: string
+    name: string
+    trigger: string
+    action: string
+    service: string
+  }): Promise<any> {
+    const remote = await this.queryGraphQL(
+      `
       mutation CreateWorkflow($hotelId: String!, $name: String!, $trigger: String!, $action: String!, $service: String!) {
         createWorkflow(hotelId: $hotelId, name: $name, trigger: $trigger, action: $action, service: $service) {
           id organizationId hotelId ruleName triggerType conditionPayload actionPayload ruleStatus priority createdById createdAt updatedAt
         }
       }
-    `, args)
+    `,
+      args,
+    )
 
     if (remote?.data?.createWorkflow) {
       return remote.data.createWorkflow
@@ -2337,7 +2818,7 @@ class StayflexiDataClient {
       priority: 0,
       createdById: 'u-1',
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     }
 
     if (typeof window !== 'undefined') {
@@ -2350,13 +2831,16 @@ class StayflexiDataClient {
   }
 
   async toggleWorkflowRule(id: string, isActive: boolean): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation ToggleWorkflow($id: String!, $isActive: Boolean!) {
         toggleWorkflow(id: $id, isActive: $isActive) {
           id ruleStatus
         }
       }
-    `, { id, isActive })
+    `,
+      { id, isActive },
+    )
 
     if (remote?.data?.toggleWorkflow) {
       return remote.data.toggleWorkflow
@@ -2365,20 +2849,31 @@ class StayflexiDataClient {
     // Local Storage Resilient Fallback
     if (typeof window !== 'undefined') {
       let saved = JSON.parse(localStorage.getItem('sf_workflow_rules') || '[]') as any[]
-      saved = saved.map(r => r.id === id ? { ...r, ruleStatus: isActive ? 'ACTIVE' : 'INACTIVE', updatedAt: new Date().toISOString() } : r)
+      saved = saved.map((r) =>
+        r.id === id
+          ? {
+              ...r,
+              ruleStatus: isActive ? 'ACTIVE' : 'INACTIVE',
+              updatedAt: new Date().toISOString(),
+            }
+          : r,
+      )
       localStorage.setItem('sf_workflow_rules', JSON.stringify(saved))
     }
     return { id, ruleStatus: isActive ? 'ACTIVE' : 'INACTIVE' }
   }
 
   async dryRunWorkflowRule(id: string): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       mutation DryRunWorkflow($id: String!) {
         dryRunWorkflow(id: $id) {
           id executionStatus startedAt completedAt failureReason
         }
       }
-    `, { id })
+    `,
+      { id },
+    )
 
     if (remote?.data?.dryRunWorkflow) {
       return remote.data.dryRunWorkflow
@@ -2390,13 +2885,14 @@ class StayflexiDataClient {
       executionStatus: 'COMPLETED',
       startedAt: new Date().toISOString(),
       completedAt: new Date().toISOString(),
-      failureReason: null
+      failureReason: null,
     }
   }
 
   // Analytics Metrics methods (Phase 4 integration)
   async getRevenueMetrics(hotelId: string, startDate: string, endDate: string): Promise<any> {
-    const remote = await this.queryGraphQL(`
+    const remote = await this.queryGraphQL(
+      `
       query GetRevenueMetrics($hotelId: String!, $startDate: String!, $endDate: String!) {
         revenueMetrics(hotelId: $hotelId, startDate: $startDate, endDate: $endDate) {
           hotelId
@@ -2412,7 +2908,9 @@ class StayflexiDataClient {
           }
         }
       }
-    `, { hotelId, startDate, endDate })
+    `,
+      { hotelId, startDate, endDate },
+    )
 
     if (remote?.data?.revenueMetrics) {
       return remote.data.revenueMetrics
@@ -2421,34 +2919,50 @@ class StayflexiDataClient {
     // High-Fidelity Local Offline Calculations Fallback
     const start = new Date(startDate)
     const end = new Date(endDate)
-    const activeRes = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('sf_reservations') || '[]') : []
+    const activeRes =
+      typeof window !== 'undefined'
+        ? JSON.parse(localStorage.getItem('sf_reservations') || '[]')
+        : []
 
     let totalRevenue = 0
     let totalBookings = 0
     let cancellations = 0
     const dailyMetrics: any[] = []
 
-    const totalRoomsCount = this.rooms.filter(rm => rm.hotelId === hotelId).length || 8
+    const totalRoomsCount = this.rooms.filter((rm) => rm.hotelId === hotelId).length || 8
 
     // Generate daily aggregates inside range
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       const dateStr = d.toISOString().substring(0, 10)
-      
+
       // Filter bookings active on this date
-      const activeOnDate = activeRes.filter((res: any) => 
-        res.checkIn <= dateStr && res.checkOut >= dateStr
+      const activeOnDate = activeRes.filter(
+        (res: any) => res.checkIn <= dateStr && res.checkOut >= dateStr,
       )
 
       const bookedCount = activeOnDate.filter((r: any) => r.status !== 'CANCELLED').length
       const dayCancellations = activeOnDate.filter((r: any) => r.status === 'CANCELLED').length
-      
+
       const dayRevenue = activeOnDate
         .filter((r: any) => r.status !== 'CANCELLED')
-        .reduce((sum: number, r: any) => sum + (r.amount / Math.max(1, Math.round((new Date(r.checkOut).getTime() - new Date(r.checkIn).getTime()) / (1000 * 60 * 60 * 24)))), 0)
+        .reduce(
+          (sum: number, r: any) =>
+            sum +
+            r.amount /
+              Math.max(
+                1,
+                Math.round(
+                  (new Date(r.checkOut).getTime() - new Date(r.checkIn).getTime()) /
+                    (1000 * 60 * 60 * 24),
+                ),
+              ),
+          0,
+        )
 
       const occupancy = totalRoomsCount > 0 ? Math.round((bookedCount / totalRoomsCount) * 100) : 0
       const adr = bookedCount > 0 ? Math.round((dayRevenue / bookedCount) * 100) / 100 : 0
-      const revpar = totalRoomsCount > 0 ? Math.round((dayRevenue / totalRoomsCount) * 100) / 100 : 0
+      const revpar =
+        totalRoomsCount > 0 ? Math.round((dayRevenue / totalRoomsCount) * 100) / 100 : 0
 
       totalRevenue += dayRevenue
       totalBookings += bookedCount
@@ -2457,17 +2971,19 @@ class StayflexiDataClient {
       dailyMetrics.push({
         date: dateStr,
         occupancyRate: occupancy,
-        adr: adr || 150.00,
-        revpar: revpar || 75.00,
+        adr: adr || 150.0,
+        revpar: revpar || 75.0,
         totalRevenue: Math.round(dayRevenue * 100) / 100,
-        bookingCount: bookedCount
+        bookingCount: bookedCount,
       })
     }
 
-    const occupancyRate = dailyMetrics.reduce((a, m) => a + m.occupancyRate, 0) / Math.max(1, dailyMetrics.length)
+    const occupancyRate =
+      dailyMetrics.reduce((a, m) => a + m.occupancyRate, 0) / Math.max(1, dailyMetrics.length)
     const adr = dailyMetrics.reduce((a, m) => a + m.adr, 0) / Math.max(1, dailyMetrics.length)
     const revpar = dailyMetrics.reduce((a, m) => a + m.revpar, 0) / Math.max(1, dailyMetrics.length)
-    const cancellationRate = totalBookings > 0 ? Math.round((cancellations / (totalBookings + cancellations)) * 100) : 5
+    const cancellationRate =
+      totalBookings > 0 ? Math.round((cancellations / (totalBookings + cancellations)) * 100) : 5
 
     return {
       hotelId,
@@ -2477,7 +2993,7 @@ class StayflexiDataClient {
       revpar: Math.round(revpar * 100) / 100,
       totalRevenue: Math.round(totalRevenue * 100) / 100,
       totalBookings,
-      cancellationRate
+      cancellationRate,
     }
   }
 }

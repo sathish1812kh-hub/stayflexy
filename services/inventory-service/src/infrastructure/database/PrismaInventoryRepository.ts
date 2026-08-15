@@ -16,9 +16,9 @@ function mapToInventory(raw: PrismaInventory): Inventory {
     organizationId: raw.organizationId,
     roomTypeId: raw.roomTypeId,
     inventoryDate: raw.inventoryDate,
-    totalRooms: raw.totalRooms,
-    reservedCount: raw.reservedCount,
-    blockedCount: raw.blockedCount,
+    totalRooms: raw.totalInventory,
+    reservedCount: raw.reservedInventory,
+    blockedCount: raw.blockedInventory,
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
   })
@@ -54,13 +54,13 @@ export class PrismaInventoryRepository implements IInventoryRepository {
           organizationId: data.organizationId,
           roomTypeId: data.roomTypeId,
           inventoryDate: data.date,
-          totalRooms: data.totalRoomsHint,
-          reservedCount: 0,
-          blockedCount: 0,
+          totalInventory: data.totalRoomsHint,
+          reservedInventory: 0,
+          blockedInventory: 0,
         },
         update: {
           // If hint > 0, allow caller to update total (e.g., when hotel adds rooms)
-          ...(data.totalRoomsHint > 0 ? { totalRooms: data.totalRoomsHint } : {}),
+          ...(data.totalRoomsHint > 0 ? { totalInventory: data.totalRoomsHint } : {}),
         },
       })
       return mapToInventory(raw)
@@ -74,7 +74,7 @@ export class PrismaInventoryRepository implements IInventoryRepository {
   async findByRoomTypeAndDateRange(
     roomTypeId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<Inventory[]> {
     try {
       const records = await this.db.inventory.findMany({
@@ -95,7 +95,7 @@ export class PrismaInventoryRepository implements IInventoryRepository {
   async findByHotelAndDateRange(
     hotelId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<Inventory[]> {
     try {
       const records = await this.db.inventory.findMany({
@@ -137,26 +137,26 @@ export class PrismaInventoryRepository implements IInventoryRepository {
             organizationId: data.organizationId,
             roomTypeId: data.roomTypeId,
             inventoryDate: date,
-            totalRooms: data.totalRoomsHint,
-            reservedCount: 0,
-            blockedCount: 0,
+            totalInventory: data.totalRoomsHint,
+            reservedInventory: 0,
+            blockedInventory: 0,
           },
           update: {
-            ...(data.totalRoomsHint > 0 ? { totalRooms: data.totalRoomsHint } : {}),
+            ...(data.totalRoomsHint > 0 ? { totalInventory: data.totalRoomsHint } : {}),
           },
         })
 
-        const available = raw.totalRooms - raw.reservedCount - raw.blockedCount
+        const available = raw.totalInventory - raw.reservedInventory - raw.blockedInventory
         if (available < data.quantity) {
           throw new ConflictError(
             `Overbooking prevented for ${date.toISOString().slice(0, 10)}: available=${available}, requested=${data.quantity}`,
-            'OVERBOOKING_PREVENTED'
+            'OVERBOOKING_PREVENTED',
           )
         }
 
         await tx.inventory.update({
           where: { id: raw.id },
-          data: { reservedCount: { increment: data.quantity } },
+          data: { reservedInventory: { increment: data.quantity } },
         })
 
         const reservation = await tx.inventoryReservation.create({
@@ -185,7 +185,7 @@ export class PrismaInventoryRepository implements IInventoryRepository {
     try {
       const raw = await this.db.inventory.update({
         where: { id },
-        data: { blockedCount: { increment: quantity } },
+        data: { blockedInventory: { increment: quantity } },
       })
       return mapToInventory(raw)
     } catch (err) {
@@ -199,7 +199,7 @@ export class PrismaInventoryRepository implements IInventoryRepository {
     try {
       const raw = await this.db.inventory.update({
         where: { id },
-        data: { blockedCount: { decrement: quantity } },
+        data: { blockedInventory: { decrement: quantity } },
       })
       return mapToInventory(raw)
     } catch (err) {
@@ -213,7 +213,7 @@ export class PrismaInventoryRepository implements IInventoryRepository {
     try {
       await this.db.inventory.updateMany({
         where: { hotelId, roomTypeId },
-        data: { totalRooms },
+        data: { totalInventory: totalRooms },
       })
     } catch (err) {
       const mapped = fromPrismaError(err)

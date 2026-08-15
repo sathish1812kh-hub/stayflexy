@@ -506,3 +506,50 @@ model AnalyticsAuditLog {
   @@index([createdAt])
   @@map("analytics_audit_logs")
 }
+
+// ─── CompetitorHotel ────────────────────────────────────────────────────────
+
+model CompetitorHotel {
+  id             String    @id @default(uuid())
+  organizationId String
+  hotelId        String
+  name           String    @db.VarChar(255)
+  location       String    @db.VarChar(255)
+  starRating     Decimal?  @db.Decimal(3, 1)
+  pricingSegment String    @default("MIDSCALE") @db.VarChar(50)
+  importance     String    @default("PRIMARY") @db.VarChar(50)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  scrapedPrices  CompetitorScrapedPrice[]
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([isActive])
+  @@map("competitor_hotels")
+}
+
+// ─── CompetitorScrapedPrice ─────────────────────────────────────────────────
+
+model CompetitorScrapedPrice {
+  id                String          @id @default(uuid())
+  organizationId    String
+  competitorHotelId String
+  competitorHotel   CompetitorHotel @relation(fields: [competitorHotelId], references: [id], onDelete: Cascade)
+  roomType          String          @db.VarChar(100)
+  listedPrice       Decimal         @db.Decimal(10, 2)
+  taxesIncluded     Boolean         @default(true)
+  availability      Boolean         @default(true)
+  checkInDate       DateTime        @db.Date
+  checkOutDate      DateTime        @db.Date
+  sourcePlatform    String          @default("DIRECT") @db.VarChar(50)
+  scrapedAt         DateTime        @default(now())
+
+  @@index([organizationId])
+  @@index([competitorHotelId])
+  @@index([checkInDate])
+  @@index([scrapedAt])
+  @@map("competitor_scraped_prices")
+}
+

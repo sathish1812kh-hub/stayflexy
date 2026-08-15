@@ -3,7 +3,7 @@ import { INVENTORY_EVENTS } from '@stayflexi/shared-events'
 import type { IEventPublisher } from '@stayflexi/shared-events'
 import type { IInventoryRepository } from '../../domain/repositories/IInventoryRepository'
 import type { IInventoryBlockRepository } from '../../domain/repositories/IInventoryBlockRepository'
-import type { DistributedLockService } from '../services/DistributedLockService'
+import { DistributedLockService } from '../services/DistributedLockService'
 import type { InventoryCache } from '../services/InventoryCache'
 import type { BlockInventoryDto } from '../dtos/inventory.dto'
 import type { Logger } from '@stayflexi/shared-logger'
@@ -41,14 +41,14 @@ export class BlockInventory {
     private readonly lockService: DistributedLockService,
     private readonly cache: InventoryCache,
     private readonly eventPublisher: IEventPublisher,
-    private readonly logger: Logger
+    private readonly logger: Logger,
   ) {}
 
   async execute(
     dto: BlockInventoryDto,
     requestingOrgId: string,
     requestingUserId: string,
-    correlationId?: string
+    correlationId?: string,
   ): Promise<BlockResult> {
     const startDate = parseUTCDate(dto.startDate)
     const endDate = parseUTCDate(dto.endDate)
@@ -77,7 +77,7 @@ export class BlockInventory {
         if (!inv.canBlock(dto.quantity)) {
           throw new ConflictError(
             `Cannot block ${dto.quantity} room(s) for ${formatDate(date)}: available=${inv.availableCount}`,
-            'INSUFFICIENT_AVAILABLE_TO_BLOCK'
+            'INSUFFICIENT_AVAILABLE_TO_BLOCK',
           )
         }
 
@@ -122,8 +122,13 @@ export class BlockInventory {
       })
 
     this.logger.info(
-      { roomTypeId: dto.roomTypeId, hotelId: dto.hotelId, dates: blockedDates.length, correlationId },
-      'Inventory blocked'
+      {
+        roomTypeId: dto.roomTypeId,
+        hotelId: dto.hotelId,
+        dates: blockedDates.length,
+        correlationId,
+      },
+      'Inventory blocked',
     )
 
     return {

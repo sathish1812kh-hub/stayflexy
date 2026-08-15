@@ -1,6 +1,19 @@
 # start-observed.ps1
 $ErrorActionPreference = "Continue"
 
+# Helper function to set variables in both process env block and PS env: scope
+function Set-EnvVar($key, $val) {
+    if ($null -eq $val) {
+        [Environment]::SetEnvironmentVariable($key, $null, "Process")
+        if (Test-Path "env:$key") {
+            Remove-Item "env:$key"
+        }
+    } else {
+        [Environment]::SetEnvironmentVariable($key, $val, "Process")
+        Set-Item -Path "env:$key" -Value $val
+    }
+}
+
 # Helper function to load env files into current process environment
 function Load-EnvFile($filePath) {
     if (Test-Path $filePath) {
@@ -16,7 +29,7 @@ function Load-EnvFile($filePath) {
                     } elseif ($val.StartsWith("'") -and $val.EndsWith("'")) {
                         $val = $val.Substring(1, $val.Length - 2)
                     }
-                    [Environment]::SetEnvironmentVariable($key, $val, "Process")
+                    Set-EnvVar $key $val
                 }
             }
         }
@@ -30,8 +43,10 @@ if ($pgStatus -like "*no server running*") {
     Start-Sleep -Seconds 3
 }
 
+Write-Host "Verifying Native Neo4j..." -ForegroundColor Yellow
+& "$PSScriptRoot\scripts\start-neo4j.ps1"
+
 $services = @(
-    @{ Name = "API Gateway"; Path = "infrastructure/gateway"; EnvPort = 8080 },
     @{ Name = "Auth Service"; Path = "services/auth-service"; EnvPort = 3001 },
     @{ Name = "Organization Service"; Path = "services/organization-service"; EnvPort = 3002 },
     @{ Name = "Hotel Service"; Path = "services/hotel-service"; EnvPort = 3003 },
@@ -42,57 +57,83 @@ $services = @(
     @{ Name = "Analytics Service"; Path = "services/analytics-service"; EnvPort = 3008 },
     @{ Name = "Notification Service"; Path = "services/notification-service"; EnvPort = 3009 },
     @{ Name = "Workflow Service"; Path = "services/workflow-service"; EnvPort = 3010 },
-    @{ Name = "Pricing Engine"; Path = "services/pricing-engine-service"; EnvPort = 3011 },
-    @{ Name = "Revenue Management"; Path = "services/revenue-management-service"; EnvPort = 3012 }
+    @{ Name = "Pricing Engine Service"; Path = "services/pricing-engine-service"; EnvPort = 3011 },
+    @{ Name = "Revenue Management Service"; Path = "services/revenue-management-service"; EnvPort = 3012 }
 )
 
-Write-Host "Starting 12 Microservices and API Gateway in background..." -ForegroundColor Yellow
+Write-Host "Starting all 12 Microservices with 6-second compilation gaps..." -ForegroundColor Yellow
 foreach ($svc in $services) {
     Write-Host "  Configuring $($svc.Name)..."
     
     # 1. Clear previous service-specific variables to avoid contamination
-    [Environment]::SetEnvironmentVariable("PORT", $null, "Process")
-    [Environment]::SetEnvironmentVariable("DATABASE_URL", $null, "Process")
+    Set-EnvVar "PORT" $null
+    Set-EnvVar "DATABASE_URL" $null
 
     # 2. Load root configurations (.env and .env.local)
-    Load-EnvFile(".env")
-    Load-EnvFile(".env.local")
+    Load-EnvFile("$PSScriptRoot/.env")
+    Load-EnvFile("$PSScriptRoot/.env.local")
 
     # 3. Load specific service environment
-    Load-EnvFile("$($svc.Path)/.env")
+    Load-EnvFile("$PSScriptRoot/$($svc.Path)/.env")
 
     # 4. Enforce strict development parameters & local connections
-    [Environment]::SetEnvironmentVariable("PORT", $svc.EnvPort, "Process")
-    [Environment]::SetEnvironmentVariable("NODE_ENV", "development", "Process")
-    [Environment]::SetEnvironmentVariable("REDIS_URL", "redis://127.0.0.1:6379", "Process")
-    [Environment]::SetEnvironmentVariable("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/stayflexi_dev?schema=public", "Process")
-    [Environment]::SetEnvironmentVariable("SERVICE_KEY", "dev-service-key-32-chars-minimum", "Process")
+    Set-EnvVar "PORT" $svc.EnvPort
+    Set-EnvVar "NODE_ENV" "development"
+    Set-EnvVar "REDIS_URL" "redis://:redis_dev@127.0.0.1:6379"
+    Set-EnvVar "DATABASE_URL" "postgresql://postgres:postgres@localhost:5432/stayflexi_dev?schema=public"
+    Set-EnvVar "SERVICE_KEY" "dev-service-key-32-chars-minimum"
+    Set-EnvVar "JWT_SECRET" "dev_secret_replace_in_production_must_be_at_least_64_characters_long_abc123"
+    Set-EnvVar "JWT_REFRESH_SECRET" "your-super-secret-refresh-key-minimum-32-chars"
 
     # Local mappings for API gateway routing
-    [Environment]::SetEnvironmentVariable("SERVICE_AUTH_URL", "http://localhost:3001", "Process")
-    [Environment]::SetEnvironmentVariable("SERVICE_ORGANIZATION_URL", "http://localhost:3002", "Process")
-    [Environment]::SetEnvironmentVariable("SERVICE_HOTEL_URL", "http://localhost:3003", "Process")
-    [Environment]::SetEnvironmentVariable("SERVICE_INVENTORY_URL", "http://localhost:3004", "Process")
-    [Environment]::SetEnvironmentVariable("SERVICE_BOOKING_URL", "http://localhost:3005", "Process")
-    [Environment]::SetEnvironmentVariable("SERVICE_PAYMENT_URL", "http://localhost:3006", "Process")
-    [Environment]::SetEnvironmentVariable("SERVICE_OTA_URL", "http://localhost:3007", "Process")
-    [Environment]::SetEnvironmentVariable("SERVICE_ANALYTICS_URL", "http://localhost:3008", "Process")
-    [Environment]::SetEnvironmentVariable("SERVICE_NOTIFICATION_URL", "http://localhost:3009", "Process")
-    [Environment]::SetEnvironmentVariable("SERVICE_WORKFLOW_URL", "http://localhost:3010", "Process")
+    Set-EnvVar "SERVICE_AUTH_URL" "http://localhost:3001"
+    Set-EnvVar "SERVICE_ORGANIZATION_URL" "http://localhost:3002"
+    Set-EnvVar "SERVICE_HOTEL_URL" "http://localhost:3003"
+    Set-EnvVar "SERVICE_INVENTORY_URL" "http://localhost:3004"
+    Set-EnvVar "SERVICE_BOOKING_URL" "http://localhost:3005"
 
     # 5. Launch the process
-    Start-Process -NoNewWindow -FilePath "cmd" -ArgumentList "/c set NODE_OPTIONS=--max-old-space-size=512 && npm run dev" -WorkingDirectory $svc.Path
+    $absWorkingDir = Join-Path $PSScriptRoot $svc.Path
+    Start-Process -FilePath "cmd" -ArgumentList "/c set NODE_OPTIONS=--max-old-space-size=512&&npm run dev > stdout.log 2> stderr.log" -WorkingDirectory $absWorkingDir
+    Start-Sleep -Seconds 6
 }
+
+Write-Host "Waiting another 10 seconds for all subgraphs to finish compiling..." -ForegroundColor Yellow
+Start-Sleep -Seconds 10
+
+Write-Host "Starting API Gateway..." -ForegroundColor Yellow
+Set-EnvVar "PORT" $null
+Set-EnvVar "DATABASE_URL" $null
+Load-EnvFile("$PSScriptRoot/.env")
+Load-EnvFile("$PSScriptRoot/.env.local")
+
+Set-EnvVar "PORT" 8080
+Set-EnvVar "NODE_ENV" "development"
+Set-EnvVar "REDIS_URL" "redis://:redis_dev@127.0.0.1:6379"
+Set-EnvVar "DATABASE_URL" "postgresql://postgres:postgres@localhost:5432/stayflexi_dev?schema=public"
+Set-EnvVar "SERVICE_KEY" "dev-service-key-32-chars-minimum"
+Set-EnvVar "JWT_SECRET" "dev_secret_replace_in_production_must_be_at_least_64_characters_long_abc123"
+Set-EnvVar "JWT_REFRESH_SECRET" "your-super-secret-refresh-key-minimum-32-chars"
+
+Set-EnvVar "SERVICE_AUTH_URL" "http://localhost:3001"
+Set-EnvVar "SERVICE_ORGANIZATION_URL" "http://localhost:3002"
+Set-EnvVar "SERVICE_HOTEL_URL" "http://localhost:3003"
+Set-EnvVar "SERVICE_INVENTORY_URL" "http://localhost:3004"
+Set-EnvVar "SERVICE_BOOKING_URL" "http://localhost:3005"
+
+$gwWorkingDir = Join-Path $PSScriptRoot "infrastructure/gateway"
+Start-Process -FilePath "cmd" -ArgumentList "/c set NODE_OPTIONS=--max-old-space-size=512&&npm run dev > stdout.log 2> stderr.log" -WorkingDirectory $gwWorkingDir
+Start-Sleep -Seconds 6
 
 Write-Host "Starting Next.js Web Server..." -ForegroundColor Yellow
 # Clear gateway variables for next.js
-[Environment]::SetEnvironmentVariable("PORT", 3000, "Process")
-[Environment]::SetEnvironmentVariable("NODE_ENV", "development", "Process")
-Load-EnvFile(".env.local")
-Start-Process -NoNewWindow -FilePath "cmd" -ArgumentList "/c set NODE_OPTIONS=--max-old-space-size=512 && npm run dev" -WorkingDirectory "."
+Set-EnvVar "PORT" 3000
+Set-EnvVar "NODE_ENV" "development"
+Load-EnvFile("$PSScriptRoot/.env.local")
+Start-Process -FilePath "cmd" -ArgumentList "/c set NODE_OPTIONS=--max-old-space-size=512&&npm run dev > stdout.log 2> stderr.log" -WorkingDirectory $PSScriptRoot
 
-Write-Host "Waiting 25 seconds for services to compile and boot up..." -ForegroundColor Yellow
-Start-Sleep -Seconds 25
+Write-Host "Waiting 20 seconds for Next.js to compile and gateway to bind..." -ForegroundColor Yellow
+Start-Sleep -Seconds 20
 
 Write-Host "`n===================================================" -ForegroundColor Cyan
 Write-Host "  Port Status Verification Report" -ForegroundColor Cyan
@@ -107,4 +148,9 @@ Write-Host "===================================================" -ForegroundColo
     } else {
         Write-Host "  Port $p : OFFLINE" -ForegroundColor Red
     }
+}
+
+Write-Host "`nKeeping services alive. Do not stop this task." -ForegroundColor Yellow
+while ($true) {
+    Start-Sleep -Seconds 10
 }

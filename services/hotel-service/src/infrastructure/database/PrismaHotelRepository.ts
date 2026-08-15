@@ -19,7 +19,7 @@ function mapToHotel(raw: PrismaHotel): Hotel {
     organizationId: raw.organizationId,
     name: raw.name,
     slug: raw.slug,
-    address: raw.address,
+    address: raw.addressLine1,
     city: raw.city,
     state: raw.state,
     country: raw.country,
@@ -28,12 +28,12 @@ function mapToHotel(raw: PrismaHotel): Hotel {
     email: raw.email,
     website: raw.website,
     starRating: raw.starRating,
-    status: raw.status as HotelProps['status'],
+    status: (raw.status as any) || 'ACTIVE',
     timezone: raw.timezone,
     checkInTime: raw.checkInTime,
     checkOutTime: raw.checkOutTime,
-    metadata: raw.metadata as Record<string, unknown> | null,
-    createdById: raw.createdById,
+    metadata: null,
+    createdById: '',
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
     deletedAt: raw.deletedAt,
@@ -56,7 +56,7 @@ export class PrismaHotelRepository implements IHotelRepository {
 
   async findBySlug(slug: string): Promise<Hotel | null> {
     try {
-      const raw = await this.db.hotel.findUnique({ where: { slug } })
+      const raw = await this.db.hotel.findFirst({ where: { slug, deletedAt: null } })
       return raw ? mapToHotel(raw) : null
     } catch (err) {
       const mapped = fromPrismaError(err)
@@ -72,19 +72,19 @@ export class PrismaHotelRepository implements IHotelRepository {
           organizationId: data.organizationId,
           name: data.name,
           slug: data.slug,
-          address: data.address ?? null,
-          city: data.city,
+          addressLine1: data.address || '',
+          city: data.city || '',
           state: data.state ?? null,
-          country: data.country,
+          country: data.country || 'US',
           postalCode: data.postalCode ?? null,
-          phone: data.phone ?? null,
-          email: data.email ?? null,
+          phone: data.phone || '',
+          email: data.email || '',
           website: data.website ?? null,
-          starRating: data.starRating ?? null,
+          starRating: data.starRating ?? 3,
+          category: 'BOUTIQUE',
           timezone: data.timezone ?? 'UTC',
           checkInTime: data.checkInTime ?? '14:00',
           checkOutTime: data.checkOutTime ?? '11:00',
-          createdById: data.createdById ?? null,
         },
       })
       return mapToHotel(raw)
@@ -131,7 +131,7 @@ export class PrismaHotelRepository implements IHotelRepository {
         organizationId: filter.organizationId,
       }),
       ...(filter.status !== undefined && {
-        status: filter.status as HotelStatus,
+        status: filter.status as any,
       }),
     }
 

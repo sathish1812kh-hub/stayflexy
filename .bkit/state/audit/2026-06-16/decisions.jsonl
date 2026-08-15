@@ -1,0 +1,2 @@
+{"ts":"2026-06-16T15:29:06.439Z","event":"DENY","hook":"BeforeTool","tool":"write_file","decision":"deny","reason":"Matches deny pattern","filePath":".env","level_before":2,"level_after":2,"score_after":30}
+{"ts":"2026-06-16T17:43:24.780Z","event":"DENY","hook":"BeforeTool","tool":"write_file","decision":"deny","reason":"Matches deny pattern","filePath":"C:\\Stayflexi\\.env","level_before":2,"level_after":2,"score_after":20}

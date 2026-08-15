@@ -1,8 +1,29 @@
 import { builder } from '../builder'
 import { UnauthorizedError } from '@stayflexi/shared-errors'
 
-const DailyMetricRef = builder.objectRef<any>('DailyMetric')
-const KpiMetricsRef = builder.objectRef<any>('KpiMetrics')
+interface DailyMetricShape {
+  date: string
+  occupancyRate: number
+  adr: number
+  revpar: number
+  totalRevenue: number
+  bookingCount: number
+}
+
+interface KpiMetricsShape {
+  hotelId: string
+  organizationId: string
+  occupancyRate: number
+  adr: number
+  revpar: number
+  totalRevenue: number
+  totalBookings: number
+  cancellationRate: number
+  dailyMetrics?: DailyMetricShape[]
+}
+
+const DailyMetricRef = builder.objectRef<DailyMetricShape>('DailyMetric')
+const KpiMetricsRef = builder.objectRef<KpiMetricsShape>('KpiMetrics')
 
 builder.objectType(DailyMetricRef, {
   fields: (t) => ({
@@ -41,16 +62,19 @@ builder.queryFields((t) => ({
       startDate: t.arg.string({ required: true }),
       endDate: t.arg.string({ required: true }),
     },
-    resolve: async (_root, { hotelId, startDate, endDate }, ctx) => {
+    resolve: async (_root, { hotelId, startDate, endDate }, ctx): Promise<KpiMetricsShape> => {
       if (!ctx.organizationId) throw new UnauthorizedError('Unauthorized')
-      
-      const metrics = await ctx.getRevenueAnalytics.execute({
-        hotelId,
-        dateFrom: startDate,
-        dateTo: endDate,
-      }, ctx.organizationId)
-      
-      return metrics
+
+      const metrics = await ctx.getRevenueAnalytics.execute(
+        {
+          hotelId,
+          dateFrom: startDate,
+          dateTo: endDate,
+        },
+        ctx.organizationId,
+      )
+
+      return metrics as unknown as KpiMetricsShape
     },
   }),
 }))

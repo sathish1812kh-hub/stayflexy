@@ -1,8 +1,16 @@
 import { getPrismaClient } from '@stayflexi/shared-database'
 import type { PrismaClient } from '@prisma/client'
 import { AnalyticsReport } from '../../domain/entities/AnalyticsReport'
-import type { AnalyticsReportProps, ReportStatus, ReportType } from '../../domain/entities/AnalyticsReport'
-import type { IAnalyticsReportRepository, CreateReportData, UpdateReportData } from '../../domain/repositories/IAnalyticsReportRepository'
+import type {
+  AnalyticsReportProps,
+  ReportStatus,
+  ReportType,
+} from '../../domain/entities/AnalyticsReport'
+import type {
+  IAnalyticsReportRepository,
+  CreateReportData,
+  UpdateReportData,
+} from '../../domain/repositories/IAnalyticsReportRepository'
 
 // Forward-compat cast: AnalyticsReport Prisma model may not be in generated client
 // until `prisma generate` runs after migration. The `any` delegate is safe at runtime.
@@ -64,7 +72,9 @@ export class PrismaAnalyticsReportRepository implements IAnalyticsReportReposito
       where: { id },
       data: {
         reportStatus: data.reportStatus,
-        ...(data.reportData !== undefined && { reportData: data.reportData }),
+        ...(data.reportData !== undefined && {
+          reportData: data.reportData as unknown as Prisma.InputJsonValue,
+        }),
         ...(data.errorMessage !== undefined && { errorMessage: data.errorMessage }),
         ...(data.completedAt !== undefined && { completedAt: data.completedAt }),
       },
@@ -72,7 +82,11 @@ export class PrismaAnalyticsReportRepository implements IAnalyticsReportReposito
     return mapToEntity(record as Record<string, unknown>)
   }
 
-  async findByOrganization(organizationId: string, page: number, limit: number): Promise<AnalyticsReport[]> {
+  async findByOrganization(
+    organizationId: string,
+    page: number,
+    limit: number,
+  ): Promise<AnalyticsReport[]> {
     const records = await this.repo.findMany({
       where: { organizationId },
       orderBy: { createdAt: 'desc' },

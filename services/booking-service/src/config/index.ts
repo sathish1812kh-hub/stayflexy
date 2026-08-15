@@ -3,7 +3,10 @@ import { loadConfig, baseServiceConfigSchema } from '@stayflexi/shared-config'
 
 const bookingConfigSchema = baseServiceConfigSchema.extend({
   PORT: z.string().default('3005').transform(Number),
-  KAFKA_ENABLED: z.string().default('false').transform(v => v === 'true'),
+  KAFKA_ENABLED: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
   KAFKA_GROUP_ID: z.string().default('booking-service'),
   BOOKING_LOCK_TTL_MS: z.string().default('30000').transform(Number),
   BOOKING_LOCK_RETRY_COUNT: z.string().default('5').transform(Number),
@@ -20,5 +23,8 @@ const bookingConfigSchema = baseServiceConfigSchema.extend({
 export type BookingConfig = z.infer<typeof bookingConfigSchema>
 
 export function loadBookingConfig(): BookingConfig {
-  return loadConfig(bookingConfigSchema as z.ZodSchema<BookingConfig>, process.env as Record<string, string | undefined>)
+  return loadConfig(
+    bookingConfigSchema as unknown as z.ZodSchema<BookingConfig>,
+    process.env as Record<string, string | undefined>,
+  )
 }

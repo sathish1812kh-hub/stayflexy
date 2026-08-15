@@ -3,8 +3,11 @@ import { validate } from '@stayflexi/shared-validation'
 import { successResponse } from '@stayflexi/shared-types'
 import { UnauthorizedError, NotFoundError } from '@stayflexi/shared-errors'
 import {
-  analyticsQuerySchema, dashboardQuerySchema, forecastQuerySchema,
-  exportQuerySchema, generateReportSchema,
+  analyticsQuerySchema,
+  dashboardQuerySchema,
+  forecastQuerySchema,
+  exportQuerySchema,
+  generateReportSchema,
 } from '../../application/dtos/analytics.dto'
 import type { GetRevenueAnalytics } from '../../application/use-cases/GetRevenueAnalytics'
 import type { GetOccupancyAnalytics } from '../../application/use-cases/GetOccupancyAnalytics'
@@ -37,7 +40,12 @@ export class AnalyticsController {
 
   private getAuth(req: Request): { userId: string; orgId: string; correlationId: string } {
     const user = req.user
-    if (user) return { userId: user.userId, orgId: user.organizationId ?? '', correlationId: user.correlationId ?? '' }
+    if (user)
+      return {
+        userId: user.userId,
+        orgId: user.organizationId ?? '',
+        correlationId: user.correlationId ?? '',
+      }
     const userId = req.headers['x-user-id'] as string | undefined
     const orgId = req.headers['x-organization-id'] as string | undefined
     const correlationId = req.headers['x-correlation-id'] as string | undefined
@@ -51,7 +59,9 @@ export class AnalyticsController {
       const query = validate(analyticsQuerySchema, req.query)
       const result = await this.getRevenueAnalyticsUC.execute(query, orgId)
       res.json(successResponse(result, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getOccupancy = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -60,7 +70,9 @@ export class AnalyticsController {
       const query = validate(analyticsQuerySchema, req.query)
       const result = await this.getOccupancyAnalyticsUC.execute(query)
       res.json(successResponse(result, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getBookings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -69,7 +81,9 @@ export class AnalyticsController {
       const query = validate(analyticsQuerySchema, req.query)
       const result = await this.getBookingAnalyticsUC.execute(query, orgId)
       res.json(successResponse(result, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getOperations = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -78,7 +92,9 @@ export class AnalyticsController {
       const query = validate(analyticsQuerySchema, req.query)
       const result = await this.getOperationsAnalyticsUC.execute(query)
       res.json(successResponse(result, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getForecast = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -87,7 +103,9 @@ export class AnalyticsController {
       const query = forecastQuerySchema.parse(req.query)
       const result = await this.getForecastUC.execute(query)
       res.json(successResponse(result, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getFinancialReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -96,7 +114,9 @@ export class AnalyticsController {
       const query = validate(analyticsQuerySchema, req.query)
       const result = await this.getFinancialReportUC.execute(query, orgId)
       res.json(successResponse(result, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getOccupancyReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -105,7 +125,9 @@ export class AnalyticsController {
       const query = validate(analyticsQuerySchema, req.query)
       const result = await this.getOccupancyReportUC.execute(query)
       res.json(successResponse(result, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getOtaReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -114,7 +136,9 @@ export class AnalyticsController {
       const query = validate(analyticsQuerySchema, req.query)
       const result = await this.getOtaReportUC.execute(query)
       res.json(successResponse(result, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   exportReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -123,7 +147,9 @@ export class AnalyticsController {
       const query = exportQuerySchema.parse(req.query)
       const job = await this.exportGenerator.initiateExport(query, orgId)
       res.status(202).json(successResponse(job, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getExportStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -136,7 +162,9 @@ export class AnalyticsController {
         throw new NotFoundError(`Export job ${exportId} not found`)
       }
       res.json(successResponse(job, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getDashboard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -146,7 +174,9 @@ export class AnalyticsController {
       if (!this.getDashboardUC) throw new Error('Dashboard use-case not configured')
       const result = await this.getDashboardUC.execute(query.hotelId, orgId)
       res.json(successResponse(result, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   generateReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -154,9 +184,15 @@ export class AnalyticsController {
       const { userId, orgId, correlationId } = this.getAuth(req)
       const dto = validate(generateReportSchema, req.body)
       if (!this.generateReportUC) throw new Error('GenerateReport use-case not configured')
-      const report = await this.generateReportUC.execute(dto, orgId, userId)
+      const report = await this.generateReportUC.execute(
+        { ...dto, format: dto.format ?? 'json' },
+        orgId,
+        userId,
+      )
       res.status(202).json(successResponse(report.toJSON(), correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -167,6 +203,8 @@ export class AnalyticsController {
       if (!this.getReportUC) throw new Error('GetReport use-case not configured')
       const report = await this.getReportUC.execute(reportId, orgId)
       res.json(successResponse(report.toJSON(), correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 }

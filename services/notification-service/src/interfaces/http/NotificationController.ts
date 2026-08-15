@@ -6,6 +6,7 @@ import {
   sendNotificationDtoSchema,
   listNotificationsQuerySchema,
   createTemplateDtoSchema,
+  type ListNotificationsQuery,
 } from '../../application/dtos/notification.dto'
 import type { SendNotification } from '../../application/use-cases/SendNotification'
 import type { RetryNotification } from '../../application/use-cases/RetryNotification'
@@ -68,7 +69,10 @@ export class NotificationController {
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orgId, correlationId } = this.getAuth(req)
-      const query = validate(listNotificationsQuerySchema, req.query)
+      const query = validate(
+        listNotificationsQuerySchema as any,
+        req.query,
+      ) as ListNotificationsQuery
       const result = await this.listNotificationsUC.execute(orgId, {
         hotelId: query.hotelId,
         notificationType: query.notificationType,
@@ -128,7 +132,12 @@ export class NotificationController {
       const { correlationId } = this.getAuth(req)
       const templateType = req.query['type'] as string | undefined
       const templates = await this.templateRepo.findAll(templateType)
-      res.json(successResponse(templates.map((t) => t.toJSON()), correlationId))
+      res.json(
+        successResponse(
+          templates.map((t) => t.toJSON()),
+          correlationId,
+        ),
+      )
     } catch (err) {
       next(err)
     }

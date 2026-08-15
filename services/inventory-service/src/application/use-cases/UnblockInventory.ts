@@ -3,7 +3,7 @@ import { INVENTORY_EVENTS } from '@stayflexi/shared-events'
 import type { IEventPublisher } from '@stayflexi/shared-events'
 import type { IInventoryRepository } from '../../domain/repositories/IInventoryRepository'
 import type { IInventoryBlockRepository } from '../../domain/repositories/IInventoryBlockRepository'
-import type { DistributedLockService } from '../services/DistributedLockService'
+import { DistributedLockService } from '../services/DistributedLockService'
 import type { InventoryCache } from '../services/InventoryCache'
 import type { UnblockInventoryDto } from '../dtos/inventory.dto'
 import type { Logger } from '@stayflexi/shared-logger'
@@ -40,13 +40,13 @@ export class UnblockInventory {
     private readonly lockService: DistributedLockService,
     private readonly cache: InventoryCache,
     private readonly eventPublisher: IEventPublisher,
-    private readonly logger: Logger
+    private readonly logger: Logger,
   ) {}
 
   async execute(
     dto: UnblockInventoryDto,
     requestingOrgId: string,
-    correlationId?: string
+    correlationId?: string,
   ): Promise<UnblockResult> {
     const startDate = parseUTCDate(dto.startDate)
     const endDate = parseUTCDate(dto.endDate)
@@ -67,13 +67,13 @@ export class UnblockInventory {
         const inv = await this.inventoryRepo.findByRoomTypeAndDate(dto.roomTypeId, date)
         if (!inv) {
           throw new NotFoundError(
-            `No inventory record found for roomTypeId=${dto.roomTypeId} date=${formatDate(date)}`
+            `No inventory record found for roomTypeId=${dto.roomTypeId} date=${formatDate(date)}`,
           )
         }
 
         if (inv.blockedCount < dto.quantity) {
           throw new BadRequestError(
-            `Cannot unblock ${dto.quantity}: only ${inv.blockedCount} blocked on ${formatDate(date)}`
+            `Cannot unblock ${dto.quantity}: only ${inv.blockedCount} blocked on ${formatDate(date)}`,
           )
         }
 
@@ -106,7 +106,7 @@ export class UnblockInventory {
 
     this.logger.info(
       { roomTypeId: dto.roomTypeId, dates: unblockedDates.length, correlationId },
-      'Inventory unblocked'
+      'Inventory unblocked',
     )
 
     return {

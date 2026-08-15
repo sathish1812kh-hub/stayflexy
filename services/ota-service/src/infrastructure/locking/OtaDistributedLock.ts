@@ -28,7 +28,7 @@ export class OtaDistributedLock {
     let attempt = 0
 
     while (attempt < maxRetries) {
-      const result = await this.redis.set(key, token, 'NX', 'PX', ttlMs)
+      const result = await (this.redis.set as any)(key, token, 'PX', ttlMs, 'NX')
       if (result === 'OK') {
         this.logger.debug({ resource, token, attempt }, 'OTA lock acquired')
         return token
@@ -36,7 +36,7 @@ export class OtaDistributedLock {
       attempt++
       if (attempt < maxRetries) {
         const delayMs = Math.min(100 * Math.pow(2, attempt) + Math.random() * 50, 2000)
-        await new Promise<void>(resolve => setTimeout(resolve, delayMs))
+        await new Promise<void>((resolve) => setTimeout(resolve, delayMs))
       }
     }
 

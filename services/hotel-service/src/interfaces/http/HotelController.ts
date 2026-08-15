@@ -54,7 +54,7 @@ export class HotelController {
     private readonly getRoomUseCase: GetRoom,
     private readonly updateRoomUseCase: UpdateRoom,
     private readonly updateRoomStatusUseCase: UpdateRoomStatus,
-    private readonly listRoomsUseCase: ListRooms
+    private readonly listRoomsUseCase: ListRooms,
   ) {}
 
   private getAuthContext(req: Request): AuthContext {
@@ -77,7 +77,12 @@ export class HotelController {
     try {
       const { userId, orgId, correlationId } = this.getAuthContext(req)
       const dto = validate(createHotelDtoSchema, req.body)
-      const hotel = await this.createHotelUseCase.execute(dto, requireOrgId(orgId), userId, correlationId)
+      const hotel = await this.createHotelUseCase.execute(
+        dto,
+        requireOrgId(orgId),
+        userId,
+        correlationId,
+      )
       res.status(201).json({ ...successResponse(hotel.toJSON(), correlationId) })
     } catch (err) {
       next(err)
@@ -88,7 +93,10 @@ export class HotelController {
     try {
       const { orgId, role, correlationId } = this.getAuthContext(req)
       const id = req.params['id']
-      if (!id) { next(new Error('Missing id param')); return }
+      if (!id) {
+        next(new Error('Missing id param'))
+        return
+      }
       const hotel = await this.getHotelUseCase.execute(id, role === 'SUPER_ADMIN' ? null : orgId)
       res.json({ ...successResponse(hotel.toJSON(), correlationId) })
     } catch (err) {
@@ -100,10 +108,17 @@ export class HotelController {
     try {
       const { userId, orgId, role, correlationId } = this.getAuthContext(req)
       const id = req.params['id']
-      if (!id) { next(new Error('Missing id param')); return }
+      if (!id) {
+        next(new Error('Missing id param'))
+        return
+      }
       const dto = validate(updateHotelDtoSchema, req.body)
       const hotel = await this.updateHotelUseCase.execute(
-        id, dto, userId, role === 'SUPER_ADMIN' ? null : orgId, correlationId
+        id,
+        dto,
+        userId,
+        role === 'SUPER_ADMIN' ? null : orgId,
+        correlationId,
       )
       res.json({ ...successResponse(hotel.toJSON(), correlationId) })
     } catch (err) {
@@ -114,7 +129,10 @@ export class HotelController {
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orgId, role, correlationId } = this.getAuthContext(req)
-      const dto = validate(listHotelsDtoSchema, req.query as Record<string, string | undefined>)
+      const dto = validate(
+        listHotelsDtoSchema as any,
+        req.query as Record<string, string | undefined>,
+      ) as any
       const result = await this.listHotelsUseCase.execute(dto, orgId, role)
       res.json({
         success: true,
@@ -132,7 +150,11 @@ export class HotelController {
     try {
       const { orgId, correlationId } = this.getAuthContext(req)
       const dto = validate(createRoomTypeDtoSchema, req.body)
-      const roomType = await this.createRoomTypeUseCase.execute(dto, requireOrgId(orgId), correlationId)
+      const roomType = await this.createRoomTypeUseCase.execute(
+        dto,
+        requireOrgId(orgId),
+        correlationId,
+      )
       res.status(201).json({ ...successResponse(roomType.toJSON(), correlationId) })
     } catch (err) {
       next(err)
@@ -143,7 +165,10 @@ export class HotelController {
     try {
       const { orgId, correlationId } = this.getAuthContext(req)
       const id = req.params['id']
-      if (!id) { next(new Error('Missing id param')); return }
+      if (!id) {
+        next(new Error('Missing id param'))
+        return
+      }
       const roomType = await this.getRoomTypeUseCase.execute(id, requireOrgId(orgId))
       res.json({ ...successResponse(roomType.toJSON(), correlationId) })
     } catch (err) {
@@ -155,9 +180,17 @@ export class HotelController {
     try {
       const { orgId, correlationId } = this.getAuthContext(req)
       const id = req.params['id']
-      if (!id) { next(new Error('Missing id param')); return }
+      if (!id) {
+        next(new Error('Missing id param'))
+        return
+      }
       const dto = validate(updateRoomTypeDtoSchema, req.body)
-      const roomType = await this.updateRoomTypeUseCase.execute(id, dto, requireOrgId(orgId), correlationId)
+      const roomType = await this.updateRoomTypeUseCase.execute(
+        id,
+        dto,
+        requireOrgId(orgId),
+        correlationId,
+      )
       res.json({ ...successResponse(roomType.toJSON(), correlationId) })
     } catch (err) {
       next(err)
@@ -168,8 +201,14 @@ export class HotelController {
     try {
       const { orgId, correlationId } = this.getAuthContext(req)
       const hotelId = req.params['hotelId']
-      if (!hotelId) { next(new Error('Missing hotelId param')); return }
-      const dto = validate(listRoomTypesDtoSchema, req.query as Record<string, string | undefined>)
+      if (!hotelId) {
+        next(new Error('Missing hotelId param'))
+        return
+      }
+      const dto = validate(
+        listRoomTypesDtoSchema as any,
+        req.query as Record<string, string | undefined>,
+      ) as any
       const result = await this.listRoomTypesUseCase.execute(hotelId, dto, requireOrgId(orgId))
       res.json({
         success: true,
@@ -198,7 +237,10 @@ export class HotelController {
     try {
       const { orgId, correlationId } = this.getAuthContext(req)
       const id = req.params['id']
-      if (!id) { next(new Error('Missing id param')); return }
+      if (!id) {
+        next(new Error('Missing id param'))
+        return
+      }
       const room = await this.getRoomUseCase.execute(id, requireOrgId(orgId))
       res.json({ ...successResponse(room.toJSON(), correlationId) })
     } catch (err) {
@@ -210,7 +252,10 @@ export class HotelController {
     try {
       const { orgId, correlationId } = this.getAuthContext(req)
       const id = req.params['id']
-      if (!id) { next(new Error('Missing id param')); return }
+      if (!id) {
+        next(new Error('Missing id param'))
+        return
+      }
       const dto = validate(updateRoomDtoSchema, req.body)
       const room = await this.updateRoomUseCase.execute(id, dto, requireOrgId(orgId), correlationId)
       res.json({ ...successResponse(room.toJSON(), correlationId) })
@@ -223,10 +268,17 @@ export class HotelController {
     try {
       const { userId, orgId, correlationId } = this.getAuthContext(req)
       const id = req.params['id']
-      if (!id) { next(new Error('Missing id param')); return }
+      if (!id) {
+        next(new Error('Missing id param'))
+        return
+      }
       const dto = validate(updateRoomStatusDtoSchema, req.body)
       const room = await this.updateRoomStatusUseCase.execute(
-        id, dto, userId, requireOrgId(orgId), correlationId
+        id,
+        dto,
+        userId,
+        requireOrgId(orgId),
+        correlationId,
       )
       res.json({ ...successResponse(room.toJSON(), correlationId) })
     } catch (err) {
@@ -238,8 +290,14 @@ export class HotelController {
     try {
       const { orgId, correlationId } = this.getAuthContext(req)
       const hotelId = req.params['hotelId']
-      if (!hotelId) { next(new Error('Missing hotelId param')); return }
-      const dto = validate(listRoomsDtoSchema, req.query as Record<string, string | undefined>)
+      if (!hotelId) {
+        next(new Error('Missing hotelId param'))
+        return
+      }
+      const dto = validate(
+        listRoomsDtoSchema as any,
+        req.query as Record<string, string | undefined>,
+      ) as any
       const result = await this.listRoomsUseCase.execute(hotelId, dto, requireOrgId(orgId))
       res.json({
         success: true,

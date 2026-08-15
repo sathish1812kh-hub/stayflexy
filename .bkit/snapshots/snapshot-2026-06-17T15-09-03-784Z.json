@@ -1,0 +1,71 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2026-06-16T14:02:41.382Z",
+  "activeFeatures": [],
+  "features": {},
+  "primaryFeature": null,
+  "archivedFeatures": {},
+  "pipeline": {
+    "currentPhase": 1,
+    "level": "Dynamic",
+    "phaseHistory": []
+  },
+  "session": {
+    "startedAt": "2026-05-21T12:56:15.203Z",
+    "lastActivity": "2026-06-16T14:02:41.382Z",
+    "onboardingCompleted": false
+  },
+  "history": [
+    {
+      "timestamp": "2026-05-21T12:56:32.185Z",
+      "action": "session_end",
+      "feature": null,
+      "details": "Session ended"
+    },
+    {
+      "timestamp": "2026-05-21T12:56:33.024Z",
+      "action": "session_end",
+      "feature": null,
+      "details": "Session ended"
+    },
+    {
+      "timestamp": "2026-05-21T12:57:00.912Z",
+      "action": "session_end",
+      "feature": null,
+      "details": "Session ended"
+    },
+    {
+      "timestamp": "2026-05-21T12:57:01.631Z",
+      "action": "session_end",
+      "feature": null,
+      "details": "Session ended"
+    },
+    {
+      "timestamp": "2026-06-02T06:35:46.528Z",
+      "action": "session_end",
+      "feature": null,
+      "details": "Session ended"
+    },
+    {
+      "timestamp": "2026-06-02T06:35:46.962Z",
+      "action": "session_end",
+      "feature": null,
+      "details": "Session ended"
+    },
+    {
+      "timestamp": "2026-06-03T06:59:18.120Z",
+      "action": "session_end",
+      "feature": null,
+      "details": "Session ended"
+    },
+    {
+      "timestamp": "2026-06-03T06:59:18.679Z",
+      "action": "session_end",
+      "feature": null,
+      "details": "Session ended"
+    }
+  ],
+  "_snapshotTimestamp": "2026-06-17T15:09:03.785Z",
+  "_reason": "pre-compress",
+  "_jitPartial": false
+}

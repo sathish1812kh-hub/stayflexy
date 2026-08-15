@@ -73,3 +73,24 @@ model InventoryBlock {
   @@index([isActive])
   @@map("inventory_blocks")
 }
+
+// ─── InventoryReservation ─────────────────────────────────────────────────────
+
+model InventoryReservation {
+  id             String   @id @default(uuid())
+  inventoryId    String
+  hotelId        String
+  organizationId String
+  roomTypeId     String
+  bookingRef     String
+  quantity       Int      @default(1)
+  status         String   @default("ACTIVE")
+  correlationId  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([inventoryId])
+  @@index([hotelId])
+  @@index([bookingRef])
+  @@map("inventory_reservations")
+}

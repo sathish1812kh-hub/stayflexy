@@ -44,7 +44,7 @@ OrganizationRef.implement({
 builder.asEntity(OrganizationRef, {
   key: builder.selection<{ id: string }>('id'),
   resolveReference: async (orgRef, context) => {
-    const org = await context.getOrganization.execute(orgRef.id)
+    const org = await context.getOrganization.execute(orgRef.id, context.organizationId ?? null)
     return org.toJSON()
   },
 })
@@ -58,7 +58,7 @@ builder.queryFields((t) => ({
       id: t.arg.string({ required: true }),
     },
     resolve: async (_root, args, context) => {
-      const org = await context.getOrganization.execute(args.id)
+      const org = await context.getOrganization.execute(args.id, context.organizationId ?? null)
       return org.toJSON()
     },
   }),
@@ -68,8 +68,12 @@ builder.queryFields((t) => ({
       if (!context.userId) {
         throw new UnauthorizedError('Unauthorized session', 'UNAUTHORIZED')
       }
-      const list = await context.listOrganizations.execute(context.userId)
-      return list.map(org => org.toJSON())
+      const list = await context.listOrganizations.execute(
+        { page: 1, limit: 100 },
+        context.userId,
+        context.role ?? 'USER',
+      )
+      return list.data.map((org) => org.toJSON())
     },
   }),
 }))
@@ -87,17 +91,14 @@ builder.mutationFields((t) => ({
       if (!context.userId) {
         throw new UnauthorizedError('Unauthorized session', 'UNAUTHORIZED')
       }
-      const org = await context.createOrganization.execute({
-        name: args.name,
-        email: args.email,
-        country: args.country,
-        legalName: null,
-        phone: null,
-        website: null,
-        logoUrl: null,
-        ownerId: context.userId,
-        createdById: context.userId
-      })
+      const org = await context.createOrganization.execute(
+        {
+          name: args.name,
+          email: args.email,
+          country: args.country,
+        },
+        context.userId,
+      )
       return org.toJSON()
     },
   }),

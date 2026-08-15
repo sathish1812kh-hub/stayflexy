@@ -1,7 +1,5 @@
 import { builder, GraphQLContext } from '../builder'
 import { UnauthorizedError } from '@stayflexi/shared-errors'
-import { PaymentMethod, PaymentStatus } from '../../domain/entities/Payment'
-import { InvoiceStatus, InvoiceItemType } from '../../domain/entities/Invoice'
 
 // ─── Object Refs ──────────────────────────────────────────────────────────────
 
@@ -11,10 +9,10 @@ const PaymentRef = builder.objectRef<{
   hotelId: string
   bookingId: string
   paymentReference: string
-  paymentMethod: PaymentMethod
+  paymentMethod: string
   paymentProvider: string | null
   transactionId: string | null
-  paymentStatus: PaymentStatus
+  paymentStatus: string
   amount: number
   currency: string
   paidAt: Date | null
@@ -28,7 +26,7 @@ const PaymentRef = builder.objectRef<{
 const InvoiceItemRef = builder.objectRef<{
   id: string
   invoiceId: string
-  itemType: InvoiceItemType
+  itemType: string
   itemName: string
   quantity: number
   unitPrice: number
@@ -42,7 +40,7 @@ const InvoiceRef = builder.objectRef<{
   hotelId: string
   bookingId: string
   invoiceNumber: string
-  invoiceStatus: InvoiceStatus
+  invoiceStatus: string
   subtotal: number
   taxAmount: number
   discountAmount: number
@@ -172,12 +170,12 @@ builder.queryFields((t) => ({
     },
     resolve: async (_root: unknown, args: { hotelId: string }, context: GraphQLContext) => {
       const result = await context.paymentRepo.findByOrganization({
-        organizationId: context.organizationId ?? "",
+        organizationId: context.organizationId ?? '',
         hotelId: args.hotelId,
         page: 1,
         limit: 100,
       })
-      return result.data.map(p => p.toJSON())
+      return result.data.map((p) => p.toJSON())
     },
   }),
   invoice: t.field({
@@ -198,7 +196,7 @@ builder.queryFields((t) => ({
     },
     resolve: async (_root: unknown, args: { bookingId: string }, context: GraphQLContext) => {
       const invoicesList = await context.invoiceRepo.findByBookingId(args.bookingId)
-      return invoicesList.map(inv => inv.toJSON())
+      return invoicesList.map((inv) => inv.toJSON())
     },
   }),
 }))
@@ -217,23 +215,34 @@ builder.mutationFields((t) => ({
     },
     resolve: async (
       _root: unknown,
-      args: { hotelId: string; bookingId: string; paymentMethod: string; amount: number; currency: string },
-      context: GraphQLContext
+      args: {
+        hotelId: string
+        bookingId: string
+        paymentMethod: string
+        amount: number
+        currency: string
+      },
+      context: GraphQLContext,
     ) => {
       if (!context.userId || !context.organizationId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
 
       // Explicitly call the card transaction init saga
-      const payment = await context.initiatePayment.execute({
-        hotelId: args.hotelId,
-        bookingId: args.bookingId,
-        paymentMethod: args.paymentMethod as PaymentMethod,
-        amount: args.amount,
-        currency: args.currency,
-        paymentProvider: 'Stripe Terminal',
-        transactionId: `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-      }, context.organizationId, context.userId, context.correlationId)
+      const payment = await context.initiatePayment.execute(
+        {
+          hotelId: args.hotelId,
+          bookingId: args.bookingId,
+          paymentMethod: args.paymentMethod as any,
+          amount: args.amount,
+          currency: args.currency,
+          paymentProvider: 'Stripe Terminal',
+          transactionId: `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        },
+        context.organizationId,
+        context.userId,
+        context.correlationId,
+      )
 
       return payment.toJSON()
     },
@@ -250,27 +259,39 @@ builder.mutationFields((t) => ({
     },
     resolve: async (
       _root: unknown,
-      args: { hotelId: string; bookingId: string; currency: string; notes?: string | null; dueDate?: string | null; items: any[] },
-      context: GraphQLContext
+      args: {
+        hotelId: string
+        bookingId: string
+        currency: string
+        notes?: string | null
+        dueDate?: string | null
+        items: any[]
+      },
+      context: GraphQLContext,
     ) => {
       if (!context.userId || !context.organizationId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
 
-      const inv = await context.generateInvoice.execute({
-        hotelId: args.hotelId,
-        bookingId: args.bookingId,
-        currency: args.currency,
-        notes: args.notes ?? undefined,
-        dueDate: args.dueDate ? new Date(args.dueDate) : undefined,
-        items: args.items.map((item: any) => ({
-          itemType: item.itemType as InvoiceItemType,
-          itemName: item.itemName,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          taxRate: item.taxRate,
-        })),
-      }, context.organizationId, context.userId, context.correlationId)
+      const inv = await context.generateInvoice.execute(
+        {
+          hotelId: args.hotelId,
+          bookingId: args.bookingId,
+          currency: args.currency,
+          notes: args.notes ?? undefined,
+          dueDate: args.dueDate ? new Date(args.dueDate) : undefined,
+          items: args.items.map((item: any) => ({
+            itemType: item.itemType as any,
+            itemName: item.itemName,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            taxRate: item.taxRate,
+          })),
+        },
+        context.organizationId,
+        context.userId,
+        context.correlationId,
+      )
 
       return inv.toJSON()
     },
@@ -286,31 +307,36 @@ builder.mutationFields((t) => ({
     resolve: async (
       _root: unknown,
       args: { bookingId: string; amount: number; description: string; source: string },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const activeInvoices = await context.invoiceRepo.findByBookingId(args.bookingId)
       let inv = activeInvoices[0]
 
       if (!inv) {
-        inv = await context.generateInvoice.execute({
-          hotelId: "h1-resort-goa",
-          bookingId: args.bookingId,
-          currency: "USD",
-          notes: "Auto-generated guest ledger invoice",
-          items: [
-            {
-              itemType: 'ROOM_CHARGE',
-              itemName: 'Base Stay Room Charge (Micro-Allotment)',
-              quantity: 1,
-              unitPrice: 150.00,
-              taxRate: 0.12
-            }
-          ]
-        }, context.organizationId || "org-stayflexi", context.userId || "GUEST_SELF_SERVICE", context.correlationId)
+        inv = await context.generateInvoice.execute(
+          {
+            hotelId: 'h1-resort-goa',
+            bookingId: args.bookingId,
+            currency: 'USD',
+            notes: 'Auto-generated guest ledger invoice',
+            items: [
+              {
+                itemType: 'ROOM_CHARGE',
+                itemName: 'Base Stay Room Charge (Micro-Allotment)',
+                quantity: 1,
+                unitPrice: 150.0,
+                taxRate: 0.12,
+              },
+            ],
+          },
+          context.organizationId || 'org-stayflexi',
+          context.userId || 'GUEST_SELF_SERVICE',
+          context.correlationId,
+        )
       }
 
-      const { getPrismaClient } = await import('@stayflexi/shared-database');
-      const prisma = getPrismaClient();
+      const { getPrismaClient } = await import('@stayflexi/shared-database')
+      const prisma = getPrismaClient()
 
       // Insert service charge/upsell item into database invoice items table
       await prisma.invoiceItem.create({
@@ -321,28 +347,31 @@ builder.mutationFields((t) => ({
           quantity: 1,
           unitPrice: args.amount,
           totalPrice: args.amount,
-          taxRate: 0.05
-        }
-      });
+          taxRate: 0.05,
+        },
+      })
 
       // Recalculate invoice totals dynamically
-      const allItems = await prisma.invoiceItem.findMany({ where: { invoiceId: inv.id } });
-      const subtotal = allItems.reduce((acc, item) => acc + Number(item.totalPrice), 0);
-      const taxAmount = allItems.reduce((acc, item) => acc + (Number(item.totalPrice) * Number(item.taxRate)), 0);
-      const totalAmount = subtotal + taxAmount;
+      const allItems = await prisma.invoiceItem.findMany({ where: { invoiceId: inv.id } })
+      const subtotal = allItems.reduce((acc, item) => acc + Number(item.totalPrice), 0)
+      const taxAmount = allItems.reduce(
+        (acc, item) => acc + Number(item.totalPrice) * Number(item.taxRate),
+        0,
+      )
+      const totalAmount = subtotal + taxAmount
 
       await prisma.invoice.update({
         where: { id: inv.id },
         data: {
           subtotal,
           taxAmount,
-          totalAmount
-        }
-      });
+          totalAmount,
+        },
+      })
 
-      const updatedInvoice = await context.invoiceRepo.findById(inv.id);
-      if (!updatedInvoice) throw new Error("Recalculation failed");
-      return updatedInvoice.toJSON();
-    }
+      const updatedInvoice = await context.invoiceRepo.findById(inv.id)
+      if (!updatedInvoice) throw new Error('Recalculation failed')
+      return updatedInvoice.toJSON()
+    },
   }),
 }))

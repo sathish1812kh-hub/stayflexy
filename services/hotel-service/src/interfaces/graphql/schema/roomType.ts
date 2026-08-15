@@ -6,7 +6,6 @@ export const RoomTypeRef = builder.objectRef<RoomType>('RoomType')
 
 builder.objectType(RoomTypeRef, {
   name: 'RoomType',
-  key: builder.selection<{ id: string }>('id'),
   fields: (t) => ({
     id: t.exposeID('id'),
     hotelId: t.exposeString('hotelId'),
@@ -32,7 +31,7 @@ builder.objectType(RoomTypeRef, {
     isActive: t.exposeBoolean('isActive'),
     createdAt: t.expose('createdAt', { type: 'DateTime' }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
-    
+
     // Relation
     hotel: t.field({
       type: HotelRef,
@@ -44,7 +43,7 @@ builder.objectType(RoomTypeRef, {
   }),
 })
 
-builder.entityMapper(RoomTypeRef, {
+builder.asEntity(RoomTypeRef, {
   key: builder.selection<{ id: string }>('id'),
   resolveReference: async (key, context) => {
     if (!context.organizationId) {
@@ -122,7 +121,7 @@ builder.mutationFields((t) => ({
           amenities: args.amenities ?? undefined,
         },
         context.organizationId,
-        context.correlationId
+        context.correlationId,
       )
     },
   }),

@@ -13,40 +13,96 @@ import type { Logger } from '@stayflexi/shared-logger'
 jest.mock('@stayflexi/shared-database', () => ({
   getPrismaClient: () => ({
     roomType: {
-      findMany: jest.fn().mockResolvedValue([
-        { id: 'rt-1', basePrice: { toNumber: () => 150 } },
-      ]),
+      findMany: jest.fn().mockResolvedValue([{ id: 'rt-1', basePrice: { toNumber: () => 150 } }]),
     },
   }),
   Prisma: {},
 }))
 
-const makeBooking = (): Booking => new Booking({
-  id: 'booking-1', organizationId: 'org-1', hotelId: 'hotel-1', bookingNumber: 'BK-ABC-123',
-  status: 'CONFIRMED', source: 'DIRECT', primaryGuestId: 'guest-1',
-  amounts: { totalAmount: 300, taxAmount: 30, discountAmount: 0, finalAmount: 330, currency: 'USD' },
-  specialRequests: null, internalNotes: null, bookedById: 'user-1',
-  checkedInAt: null, checkedInById: null, checkedOutAt: null, checkedOutById: null,
-  cancelledAt: null, cancelledById: null, cancellationReason: null, cancellationNote: null,
-  createdAt: new Date(), updatedAt: new Date(), deletedAt: null,
-})
+const makeBooking = (): Booking =>
+  new Booking({
+    id: 'booking-1',
+    organizationId: 'org-1',
+    hotelId: 'hotel-1',
+    bookingNumber: 'BK-ABC-123',
+    status: 'CONFIRMED',
+    source: 'DIRECT',
+    primaryGuestId: 'guest-1',
+    amounts: {
+      totalAmount: 300,
+      taxAmount: 30,
+      discountAmount: 0,
+      finalAmount: 330,
+      currency: 'USD',
+    },
+    specialRequests: null,
+    internalNotes: null,
+    bookedById: 'user-1',
+    checkedInAt: null,
+    checkedInById: null,
+    checkedOutAt: null,
+    checkedOutById: null,
+    cancelledAt: null,
+    cancelledById: null,
+    cancellationReason: null,
+    cancellationNote: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+  })
 
 const makeFullBooking = (): FullBooking => ({
   booking: makeBooking(),
-  rooms: [new BookingRoom({ id: 'br-1', bookingId: 'booking-1', roomId: 'room-1', roomTypeId: 'rt-1', hotelId: 'hotel-1', checkInDate: new Date('2026-06-01'), checkOutDate: new Date('2026-06-03'), nightCount: 2, adultCount: 2, childCount: 0, roomRate: 150, totalRoomAmount: 300, status: 'RESERVED' })],
-  guests: [new BookingGuest({ id: 'guest-1', bookingId: 'booking-1', isPrimary: true, firstName: 'John', lastName: 'Doe', email: null, phone: null, nationality: null, governmentIdType: null, governmentIdNumber: null, dateOfBirth: null })],
+  rooms: [
+    new BookingRoom({
+      id: 'br-1',
+      bookingId: 'booking-1',
+      roomId: 'room-1',
+      roomTypeId: 'rt-1',
+      hotelId: 'hotel-1',
+      checkInDate: new Date('2026-06-01'),
+      checkOutDate: new Date('2026-06-03'),
+      nightCount: 2,
+      adultCount: 2,
+      childCount: 0,
+      roomRate: 150,
+      totalRoomAmount: 300,
+      status: 'RESERVED',
+    }),
+  ],
+  guests: [
+    new BookingGuest({
+      id: 'guest-1',
+      bookingId: 'booking-1',
+      isPrimary: true,
+      firstName: 'John',
+      lastName: 'Doe',
+      email: null,
+      phone: null,
+      nationality: null,
+      governmentIdType: null,
+      governmentIdNumber: null,
+      dateOfBirth: null,
+    }),
+  ],
 })
 
 const mockBookingRepo: jest.Mocked<IBookingRepository> = {
-  findById: jest.fn(), findByIdWithDetails: jest.fn(), findByBookingNumber: jest.fn(),
-  findByOrganization: jest.fn(), findOverlappingRoomBookings: jest.fn().mockResolvedValue([]),
+  findById: jest.fn(),
+  findByIdWithDetails: jest.fn(),
+  findByBookingNumber: jest.fn(),
+  findByOrganization: jest.fn(),
+  findOverlappingRoomBookings: jest.fn().mockResolvedValue([]),
   createWithDetails: jest.fn().mockResolvedValue(makeFullBooking()),
-  updateStatus: jest.fn(), updateRoomStatuses: jest.fn(), addAuditEntry: jest.fn(),
+  updateStatus: jest.fn(),
+  updateRoomStatuses: jest.fn(),
+  addAuditEntry: jest.fn(),
 }
 
 const mockInventoryRepo: jest.Mocked<IInventoryRepository> = {
   checkAvailability: jest.fn().mockResolvedValue(true),
-  getAvailabilityForRange: jest.fn(), reserveInventory: jest.fn().mockResolvedValue(undefined),
+  getAvailabilityForRange: jest.fn(),
+  reserveInventory: jest.fn().mockResolvedValue(undefined),
   releaseInventory: jest.fn(),
 }
 
@@ -59,29 +115,58 @@ const mockLock = {
 
 const mockPublisher: IEventPublisher = {
   publish: jest.fn().mockResolvedValue(undefined),
-  connect: jest.fn(), disconnect: jest.fn(), isConnected: () => false,
+  connect: jest.fn(),
+  disconnect: jest.fn(),
+  isConnected: () => false,
 }
 
-const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() } as unknown as Logger
+const mockLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+} as unknown as Logger
 
 const validDto = {
   hotelId: '00000000-0000-0000-0000-000000000001',
   checkInDate: '2026-06-01',
   checkOutDate: '2026-06-03',
-  rooms: [{ roomId: '00000000-0000-0000-0000-000000000002', roomTypeId: 'rt-1', adultCount: 2, childCount: 0 }],
+  rooms: [
+    {
+      roomId: '00000000-0000-0000-0000-000000000002',
+      roomTypeId: 'rt-1',
+      adultCount: 2,
+      childCount: 0,
+    },
+  ],
   guests: [{ firstName: 'John', lastName: 'Doe' }],
   source: 'DIRECT' as const,
   currency: 'USD',
 }
 
-const ctx = { organizationId: 'org-1', userId: 'user-1', maxAdvanceBookingDays: 365, maxRoomsPerBooking: 10 }
+const ctx = {
+  organizationId: 'org-1',
+  userId: 'user-1',
+  maxAdvanceBookingDays: 365,
+  maxRoomsPerBooking: 10,
+}
 
 describe('CreateBooking', () => {
   let useCase: CreateBooking
 
   beforeEach(() => {
     jest.clearAllMocks()
-    useCase = new CreateBooking(mockBookingRepo, mockInventoryRepo, mockLock, mockPublisher, mockLogger)
+    jest.mocked(mockLock.acquire).mockResolvedValue('lock-token')
+    mockBookingRepo.createWithDetails.mockResolvedValue(makeFullBooking())
+    mockBookingRepo.findOverlappingRoomBookings.mockResolvedValue([])
+    mockInventoryRepo.checkAvailability.mockResolvedValue(true)
+    useCase = new CreateBooking(
+      mockBookingRepo,
+      mockInventoryRepo,
+      mockLock,
+      mockPublisher,
+      mockLogger,
+    )
   })
 
   it('creates a booking successfully with distributed lock', async () => {
@@ -93,7 +178,21 @@ describe('CreateBooking', () => {
   })
 
   it('throws ConflictError when room has overlapping booking (overbooking prevention)', async () => {
-    const room = new BookingRoom({ id: 'br-existing', bookingId: 'other-booking', roomId: '00000000-0000-0000-0000-000000000002', roomTypeId: 'rt-1', hotelId: 'hotel-1', checkInDate: new Date('2026-06-02'), checkOutDate: new Date('2026-06-04'), nightCount: 2, adultCount: 1, childCount: 0, roomRate: 150, totalRoomAmount: 300, status: 'RESERVED' })
+    const room = new BookingRoom({
+      id: 'br-existing',
+      bookingId: 'other-booking',
+      roomId: '00000000-0000-0000-0000-000000000002',
+      roomTypeId: 'rt-1',
+      hotelId: 'hotel-1',
+      checkInDate: new Date('2026-06-02'),
+      checkOutDate: new Date('2026-06-04'),
+      nightCount: 2,
+      adultCount: 1,
+      childCount: 0,
+      roomRate: 150,
+      totalRoomAmount: 300,
+      status: 'RESERVED',
+    })
     mockBookingRepo.findOverlappingRoomBookings.mockResolvedValue([room])
     await expect(useCase.execute(validDto, ctx)).rejects.toThrow(ConflictError)
   })
@@ -121,7 +220,10 @@ describe('CreateBooking', () => {
 
   it('publishes booking.created event after successful creation', async () => {
     await useCase.execute(validDto, ctx)
-    await new Promise(resolve => setImmediate(resolve))
-    expect(mockPublisher.publish).toHaveBeenCalledWith('booking.events', expect.objectContaining({ eventType: 'booking.created' }))
+    await new Promise((resolve) => setImmediate(resolve))
+    expect(mockPublisher.publish).toHaveBeenCalledWith(
+      'booking.events',
+      expect.objectContaining({ eventType: 'booking.created' }),
+    )
   })
 })

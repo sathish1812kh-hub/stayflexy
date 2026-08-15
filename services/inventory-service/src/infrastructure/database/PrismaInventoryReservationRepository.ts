@@ -19,17 +19,16 @@ function mapToReservation(raw: PrismaReservation): InventoryReservation {
     correlationId: raw.correlationId,
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
-    releasedAt: raw.releasedAt,
+    releasedAt: (raw as any).releasedAt ?? null,
   })
 }
 
-export class PrismaInventoryReservationRepository
-  implements IInventoryReservationRepository {
+export class PrismaInventoryReservationRepository implements IInventoryReservationRepository {
   constructor(private readonly db: PrismaClient) {}
 
   async findByBookingRef(
     bookingRef: string,
-    organizationId: string
+    organizationId: string,
   ): Promise<InventoryReservation[]> {
     try {
       const records = await this.db.inventoryReservation.findMany({
@@ -57,13 +56,13 @@ export class PrismaInventoryReservationRepository
         for (const r of active) {
           await tx.inventory.update({
             where: { id: r.inventoryId },
-            data: { reservedCount: { decrement: r.quantity } },
+            data: { reservedInventory: { decrement: r.quantity } },
           })
         }
 
         await tx.inventoryReservation.updateMany({
           where: { bookingRef, organizationId, status: 'ACTIVE' },
-          data: { status: 'RELEASED', releasedAt: new Date() },
+          data: { status: 'RELEASED' },
         })
       })
 

@@ -12,11 +12,7 @@ export class WorkflowCache {
   }
 
   async setExecution(id: string, data: unknown): Promise<void> {
-    await this.redis.setex(
-      `stayflexi:workflow:exec:${id}`,
-      EXECUTION_TTL,
-      JSON.stringify(data),
-    )
+    await this.redis.setex(`stayflexi:workflow:exec:${id}`, EXECUTION_TTL, JSON.stringify(data))
   }
 
   async invalidateExecution(id: string): Promise<void> {
@@ -28,15 +24,11 @@ export class WorkflowCache {
   }
 
   async setIdempotencyResult(key: string, executionId: string): Promise<void> {
-    await this.redis.setex(
-      `stayflexi:workflow:idempotency:${key}`,
-      IDEMPOTENCY_TTL,
-      executionId,
-    )
+    await this.redis.setex(`stayflexi:workflow:idempotency:${key}`, IDEMPOTENCY_TTL, executionId)
   }
 
   async getExecutionLock(executionId: string): Promise<boolean> {
-    const result = await this.redis.set(
+    const result = await (this.redis.set as any)(
       `stayflexi:workflow:lock:${executionId}`,
       '1',
       'NX',

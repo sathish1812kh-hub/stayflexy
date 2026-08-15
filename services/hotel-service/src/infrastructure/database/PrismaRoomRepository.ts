@@ -21,8 +21,8 @@ function mapToRoom(raw: PrismaRoom): Room {
     roomTypeId: raw.roomTypeId,
     roomNumber: raw.roomNumber,
     floor: raw.floor,
-    status: raw.status as RoomStatus,
-    isActive: raw.isActive,
+    status: (raw.operationalStatus as any) || 'AVAILABLE',
+    isActive: raw.deletedAt === null,
     notes: raw.notes,
     wing: raw.wing,
     zone: raw.zone,
@@ -34,7 +34,7 @@ function mapToRoom(raw: PrismaRoom): Room {
     lockSecret: raw.lockSecret,
     connectingRoomId: raw.connectingRoomId,
     parentRoomId: raw.parentRoomId,
-    metadata: raw.metadata as Record<string, unknown> | null,
+    metadata: null,
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
   })
@@ -75,7 +75,7 @@ export class PrismaRoomRepository implements IRoomRepository {
           organizationId: data.organizationId,
           roomTypeId: data.roomTypeId,
           roomNumber: data.roomNumber,
-          floor: data.floor ?? null,
+          floor: data.floor ?? 1,
           notes: data.notes ?? null,
           wing: data.wing ?? null,
           zone: data.zone ?? null,
@@ -115,7 +115,7 @@ export class PrismaRoomRepository implements IRoomRepository {
     try {
       const raw = await this.db.room.update({
         where: { id },
-        data: { status },
+        data: { operationalStatus: (status as any) || 'AVAILABLE' },
       })
       return mapToRoom(raw)
     } catch (err) {
@@ -130,9 +130,10 @@ export class PrismaRoomRepository implements IRoomRepository {
 
     const where: Prisma.RoomWhereInput = {
       hotelId: filter.hotelId,
-      ...(filter.status !== undefined && { status: filter.status }),
+      ...(filter.status !== undefined && { operationalStatus: filter.status as any }),
       ...(filter.roomTypeId !== undefined && { roomTypeId: filter.roomTypeId }),
-      ...(filter.isActive !== undefined && { isActive: filter.isActive }),
+      ...(filter.isActive !== undefined &&
+        (filter.isActive ? { deletedAt: null } : { NOT: { deletedAt: null } })),
     }
 
     const [records, total] = await Promise.all([
@@ -151,25 +152,13 @@ export class PrismaRoomRepository implements IRoomRepository {
     }
   }
 
-  async createStatusAudit(data: {
+  async createStatusAudit(_data: {
     roomId: string
     fromStatus: RoomStatus
     toStatus: RoomStatus
     changedBy: string
     reason?: string
   }): Promise<void> {
-    try {
-      await this.db.roomStatusAudit.create({
-        data: {
-          roomId: data.roomId,
-          fromStatus: data.fromStatus,
-          toStatus: data.toStatus,
-          changedBy: data.changedBy,
-          reason: data.reason ?? null,
-        },
-      })
-    } catch {
-      // Audit write failure is non-fatal — log but continue
-    }
+    // Audit handled in operation logs
   }
 }

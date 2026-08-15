@@ -4,7 +4,6 @@
     "module": "commonjs",
     "lib": ["ES2022"],
     "outDir": "./dist",
-    "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
       "@stayflexi/shared-types": ["../../packages/shared-types/src/index.ts"],
@@ -29,7 +28,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "src/tests",
     "src/index.ts",
     "src/app.ts",
     "src/config.ts",

@@ -14,13 +14,13 @@ function mapToBlock(raw: PrismaBlock): InventoryBlock {
     id: raw.id,
     inventoryId: raw.inventoryId,
     hotelId: raw.hotelId,
-    organizationId: raw.organizationId,
+    organizationId: (raw as any).organizationId ?? '',
     reason: raw.reason as BlockReason,
     blockedById: raw.blockedById,
     quantity: raw.quantity,
     notes: raw.notes,
     isActive: raw.isActive,
-    correlationId: raw.correlationId,
+    correlationId: (raw as any).correlationId ?? null,
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
   })
@@ -35,13 +35,11 @@ export class PrismaInventoryBlockRepository implements IInventoryBlockRepository
         data: {
           inventoryId: data.inventoryId,
           hotelId: data.hotelId,
-          organizationId: data.organizationId,
           reason: data.reason,
           blockedById: data.blockedById,
           quantity: data.quantity,
           notes: data.notes ?? null,
           isActive: true,
-          correlationId: data.correlationId ?? null,
         },
       })
       return mapToBlock(raw)

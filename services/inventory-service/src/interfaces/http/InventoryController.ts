@@ -9,6 +9,12 @@ import {
   unblockInventoryDtoSchema,
   checkAvailabilityDtoSchema,
   getCalendarDtoSchema,
+  type ReserveInventoryDto,
+  type ReleaseInventoryDto,
+  type BlockInventoryDto,
+  type UnblockInventoryDto,
+  type CheckAvailabilityDto,
+  type GetCalendarDto,
 } from '../../application/dtos/inventory.dto'
 import type { ReserveInventory } from '../../application/use-cases/ReserveInventory'
 import type { ReleaseInventory } from '../../application/use-cases/ReleaseInventory'
@@ -31,7 +37,7 @@ export class InventoryController {
     private readonly blockUseCase: BlockInventory,
     private readonly unblockUseCase: UnblockInventory,
     private readonly checkAvailabilityUseCase: CheckAvailability,
-    private readonly getCalendarUseCase: GetAvailabilityCalendar
+    private readonly getCalendarUseCase: GetAvailabilityCalendar,
   ) {}
 
   private getAuthContext(req: Request): AuthContext {
@@ -47,7 +53,7 @@ export class InventoryController {
   reserve = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orgId, correlationId } = this.getAuthContext(req)
-      const dto = validate(reserveInventoryDtoSchema, req.body)
+      const dto = validate(reserveInventoryDtoSchema as any, req.body) as ReserveInventoryDto
       const result = await this.reserveUseCase.execute(dto, orgId, correlationId)
       res.status(201).json({ ...successResponse(result, correlationId) })
     } catch (err) {
@@ -58,7 +64,7 @@ export class InventoryController {
   release = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orgId, correlationId } = this.getAuthContext(req)
-      const dto = validate(releaseInventoryDtoSchema, req.body)
+      const dto = validate(releaseInventoryDtoSchema as any, req.body) as ReleaseInventoryDto
       const result = await this.releaseUseCase.execute(dto, orgId, correlationId)
       res.json({ ...successResponse(result, correlationId) })
     } catch (err) {
@@ -69,7 +75,7 @@ export class InventoryController {
   block = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { userId, orgId, correlationId } = this.getAuthContext(req)
-      const dto = validate(blockInventoryDtoSchema, req.body)
+      const dto = validate(blockInventoryDtoSchema as any, req.body) as BlockInventoryDto
       const result = await this.blockUseCase.execute(dto, orgId, userId, correlationId)
       res.status(201).json({ ...successResponse(result, correlationId) })
     } catch (err) {
@@ -80,7 +86,7 @@ export class InventoryController {
   unblock = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orgId, correlationId } = this.getAuthContext(req)
-      const dto = validate(unblockInventoryDtoSchema, req.body)
+      const dto = validate(unblockInventoryDtoSchema as any, req.body) as UnblockInventoryDto
       const result = await this.unblockUseCase.execute(dto, orgId, correlationId)
       res.json({ ...successResponse(result, correlationId) })
     } catch (err) {
@@ -91,7 +97,10 @@ export class InventoryController {
   checkAvailability = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { correlationId } = this.getAuthContext(req)
-      const dto = validate(checkAvailabilityDtoSchema, req.query as Record<string, string | undefined>)
+      const dto = validate(
+        checkAvailabilityDtoSchema as any,
+        req.query as Record<string, string | undefined>,
+      ) as CheckAvailabilityDto
       const result = await this.checkAvailabilityUseCase.execute(dto)
       res.json({ ...successResponse(result, correlationId) })
     } catch (err) {
@@ -102,7 +111,10 @@ export class InventoryController {
   getCalendar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { correlationId } = this.getAuthContext(req)
-      const dto = validate(getCalendarDtoSchema, req.query as Record<string, string | undefined>)
+      const dto = validate(
+        getCalendarDtoSchema as any,
+        req.query as Record<string, string | undefined>,
+      ) as GetCalendarDto
       const result = await this.getCalendarUseCase.execute(dto)
       res.json({ ...successResponse(result, correlationId) })
     } catch (err) {

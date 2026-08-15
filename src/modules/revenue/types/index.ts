@@ -1,78 +1,106 @@
 // FILE: src/modules/revenue/types/index.ts
 
 export interface RevenueMetric {
-  id: string;
-  organizationId: string;
-  hotelId: string;
-  metricDate: Date;
-  occupancyRate: number;
-  adr: number;
-  revpar: number;
-  totalRevenue: number;
-  bookingCount: number;
-  cancellationRate: number;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  organizationId: string
+  hotelId: string
+  metricDate: Date
+  occupancyRate: number
+  adr: number
+  revpar: number
+  totalRevenue: number
+  bookingCount: number
+  cancellationRate: number
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface CreateRevenueMetricData {
-  organizationId: string;
-  hotelId: string;
-  metricDate: Date;
-  occupancyRate: number;
-  adr: number;
-  revpar: number;
-  totalRevenue: number;
-  bookingCount: number;
-  cancellationRate: number;
+  organizationId: string
+  hotelId: string
+  metricDate: Date
+  occupancyRate: number
+  adr: number
+  revpar: number
+  totalRevenue: number
+  bookingCount: number
+  cancellationRate: number
 }
 
 export type UpdateRevenueMetricData = Partial<{
-  occupancyRate: number;
-  adr: number;
-  revpar: number;
-  totalRevenue: number;
-  bookingCount: number;
-  cancellationRate: number;
-}>;
+  occupancyRate: number
+  adr: number
+  revpar: number
+  totalRevenue: number
+  bookingCount: number
+  cancellationRate: number
+}>
 
 export interface RevenueMetricFilter {
-  organizationId?: string;
-  hotelId?: string;
-  startDate?: Date;
-  endDate?: Date;
-  page?: number;
-  limit?: number;
+  organizationId?: string
+  hotelId?: string
+  startDate?: Date
+  endDate?: Date
+  page?: number
+  limit?: number
 }
 
 export interface OccupancyResult {
-  hotelId: string;
-  date: Date;
-  totalRooms: number;
-  occupiedRooms: number;
-  occupancyRate: number;
+  hotelId: string
+  date: Date
+  totalRooms: number
+  occupiedRooms: number
+  occupancyRate: number
 }
 
 export interface ForecastPeriod {
-  date: Date;
-  forecastedOccupancy: number;
-  forecastedRevenue: number;
-  confidence: number;
+  date: Date
+  forecastedOccupancy: number
+  forecastedRevenue: number
+  confidence: number
 }
 
 export interface RevenueForecast {
-  hotelId: string;
-  forecastFrom: Date;
-  forecastTo: Date;
-  periods: ForecastPeriod[];
-  methodology: string;
+  hotelId: string
+  forecastFrom: Date
+  forecastTo: Date
+  periods: ForecastPeriod[]
+  methodology: string
 }
 
 export type SnapshotTypeType =
-  | "DAILY_BOOKING"
-  | "WEEKLY_BOOKING"
-  | "MONTHLY_BOOKING"
-  | "PAYMENT_SUMMARY"
-  | "OTA_PERFORMANCE"
-  | "HOUSEKEEPING_PERFORMANCE"
-  | "OPERATIONAL_SUMMARY";
+  | 'DAILY_BOOKING'
+  | 'WEEKLY_BOOKING'
+  | 'MONTHLY_BOOKING'
+  | 'PAYMENT_SUMMARY'
+  | 'OTA_PERFORMANCE'
+  | 'HOUSEKEEPING_PERFORMANCE'
+  | 'OPERATIONAL_SUMMARY'
+
+export interface CompetitorHotel {
+  id: string
+  organizationId: string
+  hotelId: string
+  name: string
+  location: string
+  starRating: number | null
+  pricingSegment: string
+  importance: string
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface CompetitorScrapedPrice {
+  id: string
+  organizationId: string
+  competitorHotelId: string
+  roomType: string
+  listedPrice: number
+  taxesIncluded: boolean
+  availability: boolean
+  checkInDate: Date
+  checkOutDate: Date
+  sourcePlatform: string
+  scrapedAt: Date
+}

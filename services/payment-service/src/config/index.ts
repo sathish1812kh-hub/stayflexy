@@ -3,7 +3,10 @@ import { loadConfig, baseServiceConfigSchema } from '@stayflexi/shared-config'
 
 const paymentConfigSchema = baseServiceConfigSchema.extend({
   PORT: z.string().default('3006').transform(Number),
-  KAFKA_ENABLED: z.string().default('false').transform(v => v === 'true'),
+  KAFKA_ENABLED: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
   KAFKA_GROUP_ID: z.string().default('payment-service'),
   IDEMPOTENCY_TTL_SECONDS: z.string().default('86400').transform(Number),
   PAYMENT_CACHE_TTL_SECONDS: z.string().default('300').transform(Number),
@@ -18,5 +21,8 @@ const paymentConfigSchema = baseServiceConfigSchema.extend({
 export type PaymentConfig = z.infer<typeof paymentConfigSchema>
 
 export function loadPaymentConfig(): PaymentConfig {
-  return loadConfig(paymentConfigSchema as z.ZodSchema<PaymentConfig>, process.env as Record<string, string | undefined>)
+  return loadConfig(
+    paymentConfigSchema as unknown as z.ZodSchema<PaymentConfig>,
+    process.env as Record<string, string | undefined>,
+  )
 }

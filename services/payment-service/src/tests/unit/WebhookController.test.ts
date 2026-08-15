@@ -19,11 +19,24 @@ function makeSignature(body: Buffer): string {
 
 function makePendingPayment(): Payment {
   return new Payment({
-    id: 'pay-1', organizationId: 'org-1', hotelId: 'hotel-1', bookingId: 'booking-1',
-    paymentReference: 'PAY-TEST-01', paymentMethod: 'CREDIT_CARD',
-    paymentProvider: null, transactionId: null, paymentStatus: 'PENDING',
-    amount: 500, currency: 'USD', paidAt: null, refundedAt: null, failureReason: null,
-    metadata: null, processedById: 'user-1', createdAt: new Date(), updatedAt: new Date(),
+    id: 'pay-1',
+    organizationId: 'org-1',
+    hotelId: 'hotel-1',
+    bookingId: 'booking-1',
+    paymentReference: 'PAY-TEST-01',
+    paymentMethod: 'CREDIT_CARD',
+    paymentProvider: null,
+    transactionId: null,
+    paymentStatus: 'PENDING',
+    amount: 500,
+    currency: 'USD',
+    paidAt: null,
+    refundedAt: null,
+    failureReason: null,
+    metadata: null,
+    processedById: 'user-1',
+    createdAt: new Date(),
+    updatedAt: new Date(),
   })
 }
 
@@ -54,10 +67,17 @@ const mockCache = {
 
 const mockPublisher: IEventPublisher = {
   publish: jest.fn().mockResolvedValue(undefined),
-  connect: jest.fn(), disconnect: jest.fn(), isConnected: () => false,
+  connect: jest.fn(),
+  disconnect: jest.fn(),
+  isConnected: () => false,
 }
 
-const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() } as unknown as Logger
+const mockLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+} as unknown as Logger
 
 function makeReq(rawBody: Buffer, signature?: string, extraHeaders: Record<string, string> = {}) {
   return {
@@ -85,14 +105,25 @@ describe('WebhookController', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockIdempotencyStore.get.mockResolvedValue(null)
+    mockIdempotencyStore.markProcessing.mockResolvedValue(true)
     controller = new WebhookController(
-      mockPaymentRepo, mockIdempotencyStore, mockCache, mockPublisher, mockLogger, WEBHOOK_SECRET
+      mockPaymentRepo,
+      mockIdempotencyStore,
+      mockCache,
+      mockPublisher,
+      mockLogger,
+      WEBHOOK_SECRET,
     )
     mockPaymentRepo.findByReference.mockResolvedValue(makePendingPayment())
   })
 
   it('returns 401 for missing signature', async () => {
-    const rawBody = makeRawBody({ eventId: 'evt-1', eventType: 'payment.captured', paymentReference: 'PAY-TEST-01' })
+    const rawBody = makeRawBody({
+      eventId: 'evt-1',
+      eventType: 'payment.captured',
+      paymentReference: 'PAY-TEST-01',
+    })
     const req = makeReq(rawBody, undefined, { 'x-webhook-signature': '' })
     const res = makeRes()
     const next = jest.fn()
@@ -101,7 +132,11 @@ describe('WebhookController', () => {
   })
 
   it('returns 401 for invalid signature', async () => {
-    const rawBody = makeRawBody({ eventId: 'evt-1', eventType: 'payment.captured', paymentReference: 'PAY-TEST-01' })
+    const rawBody = makeRawBody({
+      eventId: 'evt-1',
+      eventType: 'payment.captured',
+      paymentReference: 'PAY-TEST-01',
+    })
     const req = makeReq(rawBody, 'sha256=invalidsignature')
     const res = makeRes()
     await controller.handleWebhook(req as never, res as never, jest.fn())
@@ -109,25 +144,50 @@ describe('WebhookController', () => {
   })
 
   it('returns 200 and processes payment.captured', async () => {
-    const payload = { eventId: 'evt-2', eventType: 'payment.captured', paymentReference: 'PAY-TEST-01' }
+    const payload = {
+      eventId: 'evt-2',
+      eventType: 'payment.captured',
+      paymentReference: 'PAY-TEST-01',
+    }
     const rawBody = makeRawBody(payload)
     const req = makeReq(rawBody, makeSignature(rawBody))
     const res = makeRes()
     await controller.handleWebhook(req as never, res as never, jest.fn())
     expect(res.status).toHaveBeenCalledWith(200)
-    expect(mockPaymentRepo.updateStatus).toHaveBeenCalledWith('pay-1', 'SUCCESS', expect.any(Object))
+    expect(mockPaymentRepo.updateStatus).toHaveBeenCalledWith(
+      'pay-1',
+      'SUCCESS',
+      expect.any(Object),
+    )
   })
 
   it('returns 200 and processes payment.failed', async () => {
-    const payload = { eventId: 'evt-3', eventType: 'payment.failed', paymentReference: 'PAY-TEST-01', failureReason: 'Insufficient funds' }
+    const payload = {
+      eventId: 'evt-3',
+      eventType: 'payment.failed',
+      paymentReference: 'PAY-TEST-01',
+      failureReason: 'Insufficient funds',
+    }
     const rawBody = makeRawBody(payload)
-    await controller.handleWebhook(makeReq(rawBody, makeSignature(rawBody)) as never, makeRes() as never, jest.fn())
-    expect(mockPaymentRepo.updateStatus).toHaveBeenCalledWith('pay-1', 'FAILED', expect.objectContaining({ failureReason: 'Insufficient funds' }))
+    await controller.handleWebhook(
+      makeReq(rawBody, makeSignature(rawBody)) as never,
+      makeRes() as never,
+      jest.fn(),
+    )
+    expect(mockPaymentRepo.updateStatus).toHaveBeenCalledWith(
+      'pay-1',
+      'FAILED',
+      expect.objectContaining({ failureReason: 'Insufficient funds' }),
+    )
   })
 
   it('returns 409 when request is already being processed (PROCESSING)', async () => {
     mockIdempotencyStore.get.mockResolvedValue('PROCESSING')
-    const rawBody = makeRawBody({ eventId: 'evt-4', eventType: 'payment.captured', paymentReference: 'PAY-TEST-01' })
+    const rawBody = makeRawBody({
+      eventId: 'evt-4',
+      eventType: 'payment.captured',
+      paymentReference: 'PAY-TEST-01',
+    })
     const req = makeReq(rawBody)
     const res = makeRes()
     await controller.handleWebhook(req as never, res as never, jest.fn())
@@ -140,7 +200,11 @@ describe('WebhookController', () => {
       body: { success: true, data: { acknowledged: true, eventId: 'evt-5' } },
       createdAt: new Date().toISOString(),
     })
-    const rawBody = makeRawBody({ eventId: 'evt-5', eventType: 'payment.captured', paymentReference: 'PAY-TEST-01' })
+    const rawBody = makeRawBody({
+      eventId: 'evt-5',
+      eventType: 'payment.captured',
+      paymentReference: 'PAY-TEST-01',
+    })
     const req = makeReq(rawBody)
     const res = makeRes()
     await controller.handleWebhook(req as never, res as never, jest.fn())
@@ -149,11 +213,15 @@ describe('WebhookController', () => {
   })
 
   it('stores idempotency result after successful processing', async () => {
-    const rawBody = makeRawBody({ eventId: 'evt-6', eventType: 'payment.captured', paymentReference: 'PAY-TEST-01' })
+    const rawBody = makeRawBody({
+      eventId: 'evt-6',
+      eventType: 'payment.captured',
+      paymentReference: 'PAY-TEST-01',
+    })
     await controller.handleWebhook(makeReq(rawBody) as never, makeRes() as never, jest.fn())
     expect(mockIdempotencyStore.store).toHaveBeenCalledWith(
       'webhook:evt-6',
-      expect.objectContaining({ statusCode: 200 })
+      expect.objectContaining({ statusCode: 200 }),
     )
   })
 

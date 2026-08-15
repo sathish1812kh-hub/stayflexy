@@ -75,7 +75,14 @@ describe('LoginUser', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    useCase = new LoginUser(mockUserRepo, mockTokenService, mockBruteForce, mockPublisher, mockLogger)
+    mockBruteForce.isBlocked.mockResolvedValue(false)
+    useCase = new LoginUser(
+      mockUserRepo,
+      mockTokenService,
+      mockBruteForce,
+      mockPublisher,
+      mockLogger,
+    )
   })
 
   it('logs in successfully with valid credentials', async () => {
@@ -85,7 +92,7 @@ describe('LoginUser', () => {
     const result = await useCase.execute(
       { email: 'test@example.com', password: 'correct' },
       '127.0.0.1',
-      'Mozilla'
+      'Mozilla',
     )
 
     expect(result.accessToken).toBe('at')
@@ -99,7 +106,7 @@ describe('LoginUser', () => {
     jest.mocked(sharedAuth.verifyPassword).mockResolvedValue(false)
 
     await expect(
-      useCase.execute({ email: 'test@example.com', password: 'wrong' }, '127.0.0.1', 'Mozilla')
+      useCase.execute({ email: 'test@example.com', password: 'wrong' }, '127.0.0.1', 'Mozilla'),
     ).rejects.toThrow(UnauthorizedError)
 
     expect(mockBruteForce.recordFailure).toHaveBeenCalled()
@@ -110,7 +117,7 @@ describe('LoginUser', () => {
     mockUserRepo.findByEmail.mockResolvedValue(null)
 
     await expect(
-      useCase.execute({ email: 'no@example.com', password: 'pass' }, '127.0.0.1', 'Mozilla')
+      useCase.execute({ email: 'no@example.com', password: 'pass' }, '127.0.0.1', 'Mozilla'),
     ).rejects.toThrow(UnauthorizedError)
 
     expect(mockBruteForce.recordFailure).toHaveBeenCalled()
@@ -120,7 +127,7 @@ describe('LoginUser', () => {
     mockBruteForce.isBlocked.mockResolvedValue(true)
 
     await expect(
-      useCase.execute({ email: 'test@example.com', password: 'pass' }, '127.0.0.1', 'Mozilla')
+      useCase.execute({ email: 'test@example.com', password: 'pass' }, '127.0.0.1', 'Mozilla'),
     ).rejects.toThrow(ForbiddenError)
 
     // Should not even query the DB when blocked
@@ -132,7 +139,7 @@ describe('LoginUser', () => {
     jest.mocked(sharedAuth.verifyPassword).mockResolvedValue(true)
 
     await expect(
-      useCase.execute({ email: 'test@example.com', password: 'correct' }, '127.0.0.1', 'Mozilla')
+      useCase.execute({ email: 'test@example.com', password: 'correct' }, '127.0.0.1', 'Mozilla'),
     ).rejects.toThrow(ForbiddenError)
   })
 
@@ -140,7 +147,7 @@ describe('LoginUser', () => {
     mockUserRepo.findByEmail.mockResolvedValue(makeActiveUser({ deletedAt: new Date() }))
 
     await expect(
-      useCase.execute({ email: 'test@example.com', password: 'pass' }, '127.0.0.1', 'Mozilla')
+      useCase.execute({ email: 'test@example.com', password: 'pass' }, '127.0.0.1', 'Mozilla'),
     ).rejects.toThrow(UnauthorizedError)
   })
 
@@ -151,7 +158,7 @@ describe('LoginUser', () => {
     const result = await useCase.execute(
       { email: 'test@example.com', password: 'correct' },
       '127.0.0.1',
-      'Mozilla'
+      'Mozilla',
     )
 
     expect(result.user).toMatchObject({

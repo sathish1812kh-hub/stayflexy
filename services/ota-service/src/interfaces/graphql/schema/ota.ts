@@ -134,7 +134,7 @@ builder.queryFields((t) => ({
     type: [OtaProviderRef],
     resolve: async (_root: unknown, _args: {}, context: GraphQLContext) => {
       const providers = await context.providerRepo.findAll()
-      return providers.map(p => p.toJSON())
+      return providers.map((p) => p.toJSON())
     },
   }),
   otaMappings: t.field({
@@ -146,8 +146,11 @@ builder.queryFields((t) => ({
       if (!context.organizationId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
-      const mappings = await context.mappingRepo.findByOrganization(context.organizationId, args.hotelId)
-      return mappings.map(m => m.toJSON())
+      const mappings = await context.mappingRepo.findByOrganization(
+        context.organizationId,
+        args.hotelId,
+      )
+      return mappings.map((m) => m.toJSON())
     },
   }),
   syncJobs: t.field({
@@ -157,12 +160,13 @@ builder.queryFields((t) => ({
       syncType: t.arg.string(),
       limit: t.arg.int(),
     },
-    resolve: async (_root: unknown, args: { hotelId: string; syncType?: string | null; limit?: number | null }, context: GraphQLContext) => {
-      const result = await context.syncJobRepo.findByHotel(args.hotelId, {
-        syncType: args.syncType ?? undefined,
-        limit: args.limit ?? 20,
-      })
-      return result.map(j => j.toJSON())
+    resolve: async (
+      _root: unknown,
+      args: { hotelId: string; syncType?: string | null; limit?: number | null },
+      context: GraphQLContext,
+    ) => {
+      const result = await context.syncJobRepo.findByHotel(args.hotelId, args.limit ?? 20)
+      return result.map((j) => j.toJSON())
     },
   }),
 }))
@@ -180,20 +184,30 @@ builder.mutationFields((t) => ({
     },
     resolve: async (
       _root: unknown,
-      args: { hotelId: string; providerId: string; externalHotelId: string; roomTypeMappings: any[] },
-      context: GraphQLContext
+      args: {
+        hotelId: string
+        providerId: string
+        externalHotelId: string
+        roomTypeMappings: any[]
+      },
+      context: GraphQLContext,
     ) => {
       if (!context.userId || !context.organizationId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
 
-      const mapping = await context.connectOtaProvider.execute({
-        hotelId: args.hotelId,
-        providerId: args.providerId,
-        externalHotelId: args.externalHotelId,
-        roomTypeMappings: args.roomTypeMappings,
-        metadata: null,
-      }, context.organizationId, context.userId, context.correlationId)
+      const mapping = await context.connectOtaProvider.execute(
+        {
+          hotelId: args.hotelId,
+          providerId: args.providerId,
+          externalHotelId: args.externalHotelId,
+          roomTypeMappings: args.roomTypeMappings,
+          metadata: undefined,
+        },
+        context.organizationId,
+        context.userId,
+        context.correlationId,
+      )
 
       return mapping.toJSON()
     },
@@ -204,32 +218,71 @@ builder.mutationFields((t) => ({
       hotelId: t.arg.string({ required: true }),
       providerId: t.arg.string({ required: true }),
       syncType: t.arg.string({ required: true }),
+      dateFrom: t.arg.string(),
+      dateTo: t.arg.string(),
     },
     resolve: async (
       _root: unknown,
-      args: { hotelId: string; providerId: string; syncType: string },
-      context: GraphQLContext
+      args: {
+        hotelId: string
+        providerId: string
+        syncType: string
+        dateFrom?: string | null
+        dateTo?: string | null
+      },
+      context: GraphQLContext,
     ) => {
       if (!context.userId || !context.organizationId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
 
+      const today = new Date().toISOString().split('T')[0]!
+      const dateFrom = args.dateFrom || today
+      const dateTo = args.dateTo || today
+
       let job
       if (args.syncType === 'INVENTORY_PUSH') {
-        job = await context.syncInventory.execute({
-          hotelId: args.hotelId,
-          providerId: args.providerId,
-        }, context.organizationId, context.userId, context.correlationId)
+        job = await context.syncInventory.execute(
+          {
+            hotelId: args.hotelId,
+            providerId: args.providerId,
+            dateFrom,
+            dateTo,
+            roomAvailability: [
+              { externalRoomTypeId: 'ALL', date: dateFrom, available: 10, totalRooms: 10 },
+            ],
+          },
+          context.organizationId,
+          context.userId,
+          context.correlationId,
+        )
       } else if (args.syncType === 'RATE_PUSH') {
-        job = await context.syncRates.execute({
-          hotelId: args.hotelId,
-          providerId: args.providerId,
-        }, context.organizationId, context.userId, context.correlationId)
+        job = await context.syncRates.execute(
+          {
+            hotelId: args.hotelId,
+            providerId: args.providerId,
+            dateFrom,
+            dateTo,
+            rates: [
+              { externalRoomTypeId: 'ALL', date: dateFrom, rateAmount: 100, currency: 'USD' },
+            ],
+          },
+          context.organizationId,
+          context.userId,
+          context.correlationId,
+        )
       } else {
-        job = await context.syncReservations.execute({
-          hotelId: args.hotelId,
-          providerId: args.providerId,
-        }, context.organizationId, context.userId, context.correlationId)
+        job = await context.syncReservations.execute(
+          {
+            hotelId: args.hotelId,
+            providerId: args.providerId,
+            dateFrom,
+            dateTo,
+          },
+          context.organizationId,
+          context.userId,
+          context.correlationId,
+        )
       }
 
       return job.toJSON()

@@ -8,7 +8,7 @@ export interface GraphQLContext {
   organizationId: string | null
   role: string
   correlationId?: string
-  
+
   // Use cases
   getRevenueAnalytics: GetRevenueAnalytics
   getOccupancyAnalytics: GetOccupancyAnalytics
@@ -29,4 +29,6 @@ builder.scalarType('DateTime', {
 })
 
 builder.queryType({})
-builder.mutationType({})
+// analytics-service is a query-only subgraph. Declaring an empty Mutation type
+// makes federation schema validation fail ("Type Mutation must define one or
+// more fields"), which crashed the service on boot — so it is intentionally omitted.

@@ -36,37 +36,56 @@ builder.queryFields((t) => ({
     resolve: async (
       _root: unknown,
       args: { hotelId: string; startDate: string; endDate: string },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
-      const calendar = await context.getAvailabilityCalendar.execute(
-        args.hotelId,
-        new Date(args.startDate),
-        new Date(args.endDate)
-      )
+      const d = new Date(args.startDate)
+      const calendar = await context.getAvailabilityCalendar.execute({
+        hotelId: args.hotelId,
+        year: d.getUTCFullYear(),
+        month: d.getUTCMonth() + 1,
+      })
 
       // Transform domain list to schema shape
-      return calendar.map(item => ({
-        date: item.date.toISOString().split('T')[0] || '',
-        roomTypeId: item.roomTypeId,
-        totalCapacity: item.totalCapacity,
-        availableCount: item.availableCount,
-        reservedCount: item.reservedCount,
-        blockedCount: item.blockedCount,
-        basePrice: 120.00, // mock fallback rates sync from hotel-service dynamic values
-      }))
+      return calendar.days.flatMap((day) =>
+        day.roomTypes.map((item) => ({
+          date: day.date,
+          roomTypeId: item.roomTypeId,
+          totalCapacity: item.totalRooms,
+          availableCount: item.availableCount,
+          reservedCount: item.reservedCount,
+          blockedCount: item.blockedCount,
+          basePrice: 120.0, // mock fallback rates sync from hotel-service dynamic values
+        })),
+      )
     },
   }),
 }))
 
+// Inventory payloads
+const BlockInventoryPayloadRef = builder.objectRef<{ success: boolean; message: string }>(
+  'BlockInventoryPayload',
+)
+BlockInventoryPayloadRef.implement({
+  fields: (t) => ({
+    success: t.exposeBoolean('success'),
+    message: t.exposeString('message'),
+  }),
+})
+
+const UnblockInventoryPayloadRef = builder.objectRef<{ success: boolean; message: string }>(
+  'UnblockInventoryPayload',
+)
+UnblockInventoryPayloadRef.implement({
+  fields: (t) => ({
+    success: t.exposeBoolean('success'),
+    message: t.exposeString('message'),
+  }),
+})
+
 // Mutations
 builder.mutationFields((t) => ({
   blockInventory: t.field({
-    type: builder.simpleObject('BlockInventoryPayload', {
-      fields: (t) => ({
-        success: t.boolean(),
-        message: t.string(),
-      }),
-    }),
+    type: BlockInventoryPayloadRef,
     args: {
       hotelId: t.arg.string({ required: true }),
       roomTypeId: t.arg.string({ required: true }),
@@ -76,37 +95,41 @@ builder.mutationFields((t) => ({
     },
     resolve: async (
       _root: unknown,
-      args: { hotelId: string; roomTypeId: string; startDate: string; endDate: string; reason?: string | null },
-      context: GraphQLContext
+      args: {
+        hotelId: string
+        roomTypeId: string
+        startDate: string
+        endDate: string
+        reason?: string | null
+      },
+      context: GraphQLContext,
     ) => {
       if (!context.userId || !context.organizationId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
-      
-      await context.blockInventory.execute({
-        organizationId: context.organizationId,
-        hotelId: args.hotelId,
-        roomTypeId: args.roomTypeId,
-        startDate: new Date(args.startDate),
-        endDate: new Date(args.endDate),
-        quantity: 1,
-        notes: args.reason ?? 'Blocked by operations staff',
-        createdById: context.userId
-      })
+
+      await context.blockInventory.execute(
+        {
+          hotelId: args.hotelId,
+          roomTypeId: args.roomTypeId,
+          startDate: args.startDate,
+          endDate: args.endDate,
+          quantity: 1,
+          reason: 'MANUAL_BLOCK',
+          notes: args.reason ?? 'Blocked by operations staff',
+        },
+        context.organizationId,
+        context.userId,
+      )
 
       return {
         success: true,
-        message: "Inventory blocked successfully.",
+        message: 'Inventory blocked successfully.',
       }
     },
   }),
   unblockInventory: t.field({
-    type: builder.simpleObject('UnblockInventoryPayload', {
-      fields: (t) => ({
-        success: t.boolean(),
-        message: t.string(),
-      }),
-    }),
+    type: UnblockInventoryPayloadRef,
     args: {
       hotelId: t.arg.string({ required: true }),
       roomTypeId: t.arg.string({ required: true }),
@@ -116,25 +139,26 @@ builder.mutationFields((t) => ({
     resolve: async (
       _root: unknown,
       args: { hotelId: string; roomTypeId: string; startDate: string; endDate: string },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       if (!context.userId || !context.organizationId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
 
-      await context.unblockInventory.execute({
-        organizationId: context.organizationId,
-        hotelId: args.hotelId,
-        roomTypeId: args.roomTypeId,
-        startDate: new Date(args.startDate),
-        endDate: new Date(args.endDate),
-        quantity: 1,
-        createdById: context.userId
-      })
+      await context.unblockInventory.execute(
+        {
+          hotelId: args.hotelId,
+          roomTypeId: args.roomTypeId,
+          startDate: args.startDate,
+          endDate: args.endDate,
+          quantity: 1,
+        },
+        context.organizationId,
+      )
 
       return {
         success: true,
-        message: "Inventory unblocked successfully.",
+        message: 'Inventory unblocked successfully.',
       }
     },
   }),

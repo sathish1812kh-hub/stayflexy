@@ -1,7 +1,12 @@
 import { AddMember } from '../../application/use-cases/AddMember'
 import { Organization } from '../../domain/entities/Organization'
 import { Member } from '../../domain/entities/Member'
-import { NotFoundError, ForbiddenError, ConflictError, BadRequestError } from '@stayflexi/shared-errors'
+import {
+  NotFoundError,
+  ForbiddenError,
+  ConflictError,
+  BadRequestError,
+} from '@stayflexi/shared-errors'
 import type { IOrganizationRepository } from '../../domain/repositories/IOrganizationRepository'
 import type { IMemberRepository } from '../../domain/repositories/IMemberRepository'
 import type { IEventPublisher } from '@stayflexi/shared-events'
@@ -32,7 +37,9 @@ function makeOrg(ownerId = 'owner-1'): Organization {
   })
 }
 
-function makeMember(overrides: Partial<{ id: string; userId: string; isOwner: boolean; removedAt: Date | null }> = {}): Member {
+function makeMember(
+  overrides: Partial<{ id: string; userId: string; isOwner: boolean; removedAt: Date | null }> = {},
+): Member {
   return new Member({
     id: overrides.id ?? 'mem-1',
     organizationId: 'org-1',
@@ -109,38 +116,51 @@ describe('AddMember', () => {
       userId: 'new-user',
       isOwner: false,
     })
-    expect(result.userId).toBe('user-1') // fixture default
+    expect(result.userId).toBe('new-user')
   })
 
   it('throws NotFoundError when org does not exist', async () => {
     orgRepo.findById.mockResolvedValue(null)
 
-    await expect(
-      useCase.execute('org-1', { userId: 'new-user' }, 'owner-1')
-    ).rejects.toThrow(NotFoundError)
+    await expect(useCase.execute('org-1', { userId: 'new-user' }, 'owner-1')).rejects.toThrow(
+      NotFoundError,
+    )
   })
 
   it('throws NotFoundError when org is soft-deleted', async () => {
     const deleted = new Organization({
-      id: 'org-1', name: 'X', legalName: null, slug: 'x', plan: 'FREE', status: 'ACTIVE',
-      email: 'x@x.com', phone: null, website: null, logoUrl: null,
-      ownerId: 'owner-1', country: 'US', maxHotels: 1, metadata: null,
-      createdById: null, createdAt: new Date(), updatedAt: new Date(),
+      id: 'org-1',
+      name: 'X',
+      legalName: null,
+      slug: 'x',
+      plan: 'FREE',
+      status: 'ACTIVE',
+      email: 'x@x.com',
+      phone: null,
+      website: null,
+      logoUrl: null,
+      ownerId: 'owner-1',
+      country: 'US',
+      maxHotels: 1,
+      metadata: null,
+      createdById: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       deletedAt: new Date(),
     })
     orgRepo.findById.mockResolvedValue(deleted)
 
-    await expect(
-      useCase.execute('org-1', { userId: 'new-user' }, 'owner-1')
-    ).rejects.toThrow(NotFoundError)
+    await expect(useCase.execute('org-1', { userId: 'new-user' }, 'owner-1')).rejects.toThrow(
+      NotFoundError,
+    )
   })
 
   it('throws ForbiddenError when requester is not the owner', async () => {
     orgRepo.findById.mockResolvedValue(makeOrg('owner-1'))
 
-    await expect(
-      useCase.execute('org-1', { userId: 'new-user' }, 'not-owner')
-    ).rejects.toThrow(ForbiddenError)
+    await expect(useCase.execute('org-1', { userId: 'new-user' }, 'not-owner')).rejects.toThrow(
+      ForbiddenError,
+    )
 
     expect(memberRepo.create).not.toHaveBeenCalled()
   })
@@ -149,9 +169,9 @@ describe('AddMember', () => {
     orgRepo.findById.mockResolvedValue(makeOrg('owner-1'))
     memberRepo.countActiveByOrg.mockResolvedValue(500)
 
-    await expect(
-      useCase.execute('org-1', { userId: 'new-user' }, 'owner-1')
-    ).rejects.toThrow(BadRequestError)
+    await expect(useCase.execute('org-1', { userId: 'new-user' }, 'owner-1')).rejects.toThrow(
+      BadRequestError,
+    )
   })
 
   it('throws ConflictError when user is already an active member', async () => {
@@ -159,9 +179,9 @@ describe('AddMember', () => {
     memberRepo.countActiveByOrg.mockResolvedValue(2)
     memberRepo.findByOrgAndUser.mockResolvedValue(makeMember({ userId: 'existing-user' }))
 
-    await expect(
-      useCase.execute('org-1', { userId: 'existing-user' }, 'owner-1')
-    ).rejects.toThrow(ConflictError)
+    await expect(useCase.execute('org-1', { userId: 'existing-user' }, 'owner-1')).rejects.toThrow(
+      ConflictError,
+    )
   })
 
   it('publishes member.added event (fire-and-forget)', async () => {
@@ -175,7 +195,7 @@ describe('AddMember', () => {
 
     expect(mockPublisher.publish).toHaveBeenCalledWith(
       'organization.events',
-      expect.objectContaining({ eventType: 'organization.member.added', organizationId: 'org-1' })
+      expect.objectContaining({ eventType: 'organization.member.added', organizationId: 'org-1' }),
     )
   })
 
@@ -186,8 +206,6 @@ describe('AddMember', () => {
     memberRepo.findByOrgAndUser.mockResolvedValue(null)
     memberRepo.create.mockResolvedValue(makeMember())
 
-    await expect(
-      useCase.execute('org-1', { userId: 'new-user' }, 'owner-1')
-    ).resolves.toBeDefined()
+    await expect(useCase.execute('org-1', { userId: 'new-user' }, 'owner-1')).resolves.toBeDefined()
   })
 })

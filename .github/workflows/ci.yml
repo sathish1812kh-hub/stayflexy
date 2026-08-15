@@ -1,0 +1,53 @@
+name: Stayflexi Platform CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  validate:
+    name: Type-Check, Lint & Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Monorepo Type-Check (All 28 Packages)
+        run: |
+          npm run type-check
+          npm run type-check:all
+
+      - name: Lint Microservices & Packages
+        run: npm run lint:services
+
+      - name: Run Microservices Unit Tests
+        run: npm run test:services
+
+      - name: Run Platform Validation Test Suite
+        run: npm test --prefix platform-validation
+
+      - name: Production Build Check
+        run: npm run build
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: 1

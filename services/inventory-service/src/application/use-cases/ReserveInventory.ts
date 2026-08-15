@@ -2,7 +2,7 @@ import { BadRequestError, ForbiddenError, ConflictError } from '@stayflexi/share
 import { INVENTORY_EVENTS } from '@stayflexi/shared-events'
 import type { IEventPublisher } from '@stayflexi/shared-events'
 import type { IInventoryRepository } from '../../domain/repositories/IInventoryRepository'
-import type { DistributedLockService } from '../services/DistributedLockService'
+import { DistributedLockService } from '../services/DistributedLockService'
 import type { InventoryCache } from '../services/InventoryCache'
 import type { ReserveInventoryDto } from '../dtos/inventory.dto'
 import type { Logger } from '@stayflexi/shared-logger'
@@ -43,13 +43,13 @@ export class ReserveInventory {
     private readonly lockService: DistributedLockService,
     private readonly cache: InventoryCache,
     private readonly eventPublisher: IEventPublisher,
-    private readonly logger: Logger
+    private readonly logger: Logger,
   ) {}
 
   async execute(
     dto: ReserveInventoryDto,
     requestingOrgId: string,
-    correlationId?: string
+    correlationId?: string,
   ): Promise<ReserveResult> {
     const checkIn = parseUTCDate(dto.checkInDate)
     const checkOut = parseUTCDate(dto.checkOutDate)
@@ -87,7 +87,7 @@ export class ReserveInventory {
         if (!inv.canReserve(dto.quantity)) {
           throw new ConflictError(
             `Overbooking prevented for ${formatDate(date)}: available=${inv.availableCount}, requested=${dto.quantity}`,
-            'OVERBOOKING_PREVENTED'
+            'OVERBOOKING_PREVENTED',
           )
         }
       }
@@ -142,7 +142,7 @@ export class ReserveInventory {
         quantity: dto.quantity,
         correlationId,
       },
-      'Inventory reserved'
+      'Inventory reserved',
     )
 
     return {

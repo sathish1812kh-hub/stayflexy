@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stayflexi V5.2 Orchestrator Architecture — Production Systems Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090b11;
+            --bg-card: #111422;
+            --primary: #6366f1;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --accent: #f43f5e;
+            --accent-green: #10b981;
+            --accent-blue: #0ea5e9;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #202538;
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            padding: 3rem 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 28px;
+            padding: 4rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 3rem;
+        }
+
+        header h1 {
+            font-family: var(--font-display);
+            font-size: 3.2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            font-weight: 300;
+        }
+
+        .badge-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .badge-system {
+            background: rgba(99, 102, 241, 0.1);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 0.35rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 4rem;
+            margin-bottom: 2rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 32px;
+            background: var(--primary-gradient);
+            border-radius: 4px;
+        }
+
+        .intro-lead {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 1.5rem;
+        }
+
+        /* Risk Grid */
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .risk-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .risk-card:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.02);
+            transform: translateY(-4px);
+        }
+
+        .risk-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .risk-card .icon-shield {
+            color: var(--accent);
+        }
+
+        .risk-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .risk-card .solution {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: #a7f3d0;
+        }
+
+        /* Diagram Styles */
+        .diagram-container {
+            background: #06070c;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            margin-bottom: 4rem;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        /* 12-Phases Grid */
+        .phases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .phase-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .phase-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-gradient);
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .phase-number {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #a855f7;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .phase-title {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.75rem;
+        }
+
+        .phase-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
+            flex-grow: 1;
+        }
+
+        .phase-operation {
+            background: #090b11;
+            padding: 0.85rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #38bdf8;
+            border: 1px solid #1e293b;
+        }
+
+        .tool-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #1e1b4b;
+            color: #c7d2fe;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid #312e81;
+        }
+
+        /* Software Breakdown Section */
+        .software-section {
+            background: #090a0f;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        .software-card {
+            border-bottom: 1px solid var(--border-color);
+            padding: 2.5rem 0;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2.5rem;
+        }
+
+        .software-card:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .software-card:first-child {
+            padding-top: 0;
+        }
+
+        .software-meta h3 {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .software-meta .tech-role {
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .software-desc h4 {
+            font-family: var(--font-display);
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .software-desc p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .advantages-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .advantage-item {
+            background: #111422;
+            border: 1px solid #202538;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .advantage-item strong {
+            color: #fff;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Print formatting */
+        @media print {
+            body {
+                background: #fff;
+                color: #000;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                width: 100%;
+            }
+            header h1 {
+                background: none;
+                color: #000;
+                -webkit-text-fill-color: initial;
+            }
+            .phase-card, .risk-card, .software-section {
+                border: 1px solid #ddd;
+                background: #fff;
+                page-break-inside: avoid;
+            }
+            .phase-title, .software-meta h3, .software-desc h4 {
+                color: #000;
+            }
+            .tool-badge {
+                border: 1px solid #aaa;
+                background: #eee;
+                color: #000;
+            }
+            .diagram-container {
+                border: none;
+                background: #fff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Stayflexi Unified Orchestrator</h1>
+            <p>Production-Grade DevOps Pipeline & Risk Management Framework</p>
+            <div class="badge-container">
+                <span class="badge-system">Zero Production Runtime Overhead</span>
+                <span class="badge-system">100% Isolated Dev/CI Checks</span>
+                <span class="badge-system">Continuous Graph Memory</span>
+            </div>
+        </header>
+
+        <p class="intro-lead">
+            This document outlines the architectural blueprints of the V5.2 Unified Autonomous Software Intelligence Orchestrator. Designed specifically for Stayflexi's distributed microservice topology, this framework eliminates structural drifts, minimizes regression risks, and guarantees deployment integrity before any code reaches production.
+        </p>
+
+        <!-- Section 1: Risk Minimization -->
+        <h2 class="section-title">Production Risk Minimization Framework</h2>
+        <div class="risk-grid">
+            <!-- Risk 1 -->
+            <div class="risk-card">
+                <h3><span class="icon-shield">⚠️</span> Stale Context / Agent Amnesia</h3>
+                <p><strong>The Risk</strong>: Standard AI coding agents operate statelessly. If the system restarts or limits context windows, the agent loses track of pending tasks, previous logic choices, and local drift, leading to regression bugs.</p>
+                <div class="solution">
+                    <strong>Mitigation</strong>: Double-buffered recovery states (Phase 12) coupled with Git HEAD verification (Phase 0). If git branch commit logs do not match <code>current-state.md</code>, execution is frozen until synchronized.
+                </div>
+            </div>
+            <!-- Risk 2 -->
+            <div class="risk-card">
+                <h3><span class="icon-shield">⚠️</span> Brittle Database Cascades</h3>
+                <p><strong>The Risk</strong>: Stayflexi splits its database logically across 16 schemas. Altering columns in tables (like User, Organization, or Booking) without cascade validation can result in orphaned rows or database locking in production.</p>
+                <div class="solution">
+                    <strong>Mitigation</strong>: Continuous AST parsing via <strong>Tree-sitter</strong> and Neo4j schema check. Automatically analyzes foreign key cascade constraints before committing database migrations.
+                </div>
+            </div>
+            <!-- Risk 3 -->
+            <div class="risk-card">
+                <h3><span class="icon-shield">⚠️</span> Port & Dependency Collisions</h3>
+                <p><strong>The Risk</strong>: Running background microservices and telemetry scrapers can occupy ports, collide with local processes, or bloat production Docker images with dev-only binaries.</p>
+                <div class="solution">
+                    <strong>Mitigation</strong>: Decoupled orchestration. Tooling runs on background containers and local python environments. Production Dockerfiles use multi-stage builds containing zero devDependencies.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Flow Diagram -->
+        <h2 class="section-title">Orchestrator Architecture & Data Flow</h2>
+        <div class="diagram-container">
+            <svg width="1000" height="420" viewBox="0 0 1000 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="1000" height="420" rx="16" fill="#05060b" stroke="#202538"/>
+                
+                <!-- Columns -->
+                <rect x="30" y="40" width="180" height="340" rx="10" fill="#0b0c14" stroke="#1c2030"/>
+                <text x="120" y="70" text-anchor="middle" font-family="Outfit" font-size="13" font-weight="700" fill="#a5b4fc">1. WORKSPACE INPUT</text>
+                
+                <rect x="250" y="40" width="200" height="340" rx="10" fill="#0b0c14" stroke="#1c2030"/>
+                <text x="350" y="70" text-anchor="middle" font-family="Outfit" font-size="13" font-weight="700" fill="#a5b4fc">2. CODE EXTRACTION</text>
+
+                <rect x="490" y="40" width="220" height="340" rx="10" fill="#0b0c14" stroke="#1c2030"/>
+                <text x="600" y="70" text-anchor="middle" font-family="Outfit" font-size="13" font-weight="700" fill="#a5b4fc">3. RELATIONAL GRAPH</text>
+
+                <rect x="750" y="40" width="220" height="340" rx="10" fill="#0b0c14" stroke="#1c2030"/>
+                <text x="860" y="70" text-anchor="middle" font-family="Outfit" font-size="13" font-weight="700" fill="#a5b4fc">4. VERIFICATION GATE</text>
+
+                <!-- Arrows -->
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366f1"/>
+                    </marker>
+                </defs>
+
+                <!-- Nodes -->
+                <rect x="45" y="100" width="150" height="60" rx="8" fill="#131626" stroke="#24293f"/>
+                <text x="120" y="125" text-anchor="middle" font-family="Outfit" font-size="12" font-weight="600" fill="#fff">Workspace Drift</text>
+                <text x="120" y="142" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" fill="#9ca3af">Git Commit / Save</text>
+
+                <rect x="45" y="240" width="150" height="60" rx="8" fill="#131626" stroke="#24293f"/>
+                <text x="120" y="265" text-anchor="middle" font-family="Outfit" font-size="12" font-weight="600" fill="#fff">Playwright CDP</text>
+                <text x="120" y="282" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" fill="#9ca3af">Browsers on Port 9223</text>
+
+                <rect x="270" y="100" width="160" height="60" rx="8" fill="#1e1b4b" stroke="#312e81"/>
+                <text x="350" y="125" text-anchor="middle" font-family="Outfit" font-size="12" font-weight="600" fill="#c7d2fe">Graphify CLI</text>
+                <text x="350" y="142" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" fill="#9ca3af">JSON AST & Doc Scrapes</text>
+
+                <rect x="270" y="240" width="160" height="60" rx="8" fill="#1e1b4b" stroke="#312e81"/>
+                <text x="350" y="265" text-anchor="middle" font-family="Outfit" font-size="12" font-weight="600" fill="#c7d2fe">Tree-sitter Parser</text>
+                <text x="350" y="142" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" fill="#9ca3af">Prisma Syntax trees</text>
+
+                <rect x="510" y="100" width="180" height="60" rx="8" fill="#062f25" stroke="#064e3b"/>
+                <text x="600" y="125" text-anchor="middle" font-family="Outfit" font-size="12" font-weight="600" fill="#a7f3d0">Neo4j (Port 7687)</text>
+                <text x="600" y="142" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" fill="#9ca3af">Database & Service Nodes</text>
+
+                <rect x="510" y="240" width="180" height="60" rx="8" fill="#062f25" stroke="#064e3b"/>
+                <text x="600" y="265" text-anchor="middle" font-family="Outfit" font-size="12" font-weight="600" fill="#a7f3d0">Graphiti Memory</text>
+                <text x="600" y="282" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" fill="#9ca3af">Decisions & Git Logs</text>
+
+                <rect x="770" y="170" width="180" height="80" rx="8" fill="#4c0519" stroke="#881337"/>
+                <text x="860" y="195" text-anchor="middle" font-family="Outfit" font-size="13" font-weight="600" fill="#fecdd3">sync-task.ps1</text>
+                <text x="860" y="215" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" fill="#fda4af">Compares Commit hash</text>
+                <text x="860" y="232" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="9" fill="#fda4af">Validates Schema Sync</text>
+
+                <!-- Connector lines -->
+                <path d="M 195 130 L 262 130" stroke="#6366f1" stroke-width="2" marker-end="url(#arrow)"/>
+                <path d="M 195 270 L 262 270" stroke="#6366f1" stroke-width="2" marker-end="url(#arrow)"/>
+                <path d="M 430 130 L 502 130" stroke="#6366f1" stroke-width="2" marker-end="url(#arrow)"/>
+                <path d="M 430 270 L 502 270" stroke="#6366f1" stroke-width="2" marker-end="url(#arrow)"/>
+                <path d="M 690 130 L 760 190" stroke="#6366f1" stroke-width="2" marker-end="url(#arrow)"/>
+                <path d="M 690 270 L 760 230" stroke="#6366f1" stroke-width="2" marker-end="url(#arrow)"/>
+            </svg>
+        </div>
+
+        <!-- Section 3: Phase Details -->
+        <h2 class="section-title">Phase Execution Details & Software Mapping</h2>
+        <div class="phases-grid">
+            <!-- Phase 0 -->
+            <div class="phase-card">
+                <div>
+                    <div class="phase-header">
+                        <span class="phase-number">Phase 0</span>
+                        <span class="tool-badge">Git CLI</span>
+                    </div>
+                    <h3 class="phase-title">Context Reconstruction</h3>
+                    <p class="phase-desc">Validates active workspace version against parent commit to block execution on outdated files.</p>
+                </div>
+                <div class="phase-operation">git rev-parse HEAD</div>
+            </div>
+            <!-- Phase 1 -->
+            <div class="phase-card">
+                <div>
+                    <div class="phase-header">
+                        <span class="phase-number">Phase 1</span>
+                        <span class="tool-badge">Graphify</span>
+                    </div>
+                    <h3 class="phase-title">Discovery Scan</h3>
+                    <p class="phase-desc">Performs high-speed directory inspection to build code element and dependency maps.</p>
+                </div>
+                <div class="phase-operation">python graphify-out/step2.py</div>
+            </div>
+            <!-- Phase 2 -->
+            <div class="phase-card">
+                <div>
+                    <div class="phase-header">
+                        <span class="phase-number">Phase 2</span>
+                        <span class="tool-badge">Tree-sitter</span>
+                    </div>
+                    <h3 class="phase-title">Knowledge Modeling</h3>
+                    <p class="phase-desc">Parses TypeScript routes, classes, and Prisma models into syntax tree caches.</p>
+                </div>
+                <div class="phase-operation">npx tree-sitter parse [file]</div>
+            </div>
+            <!-- Phase 3 -->
+            <div class="phase-card">
+                <div>
+                    <div class="phase-header">
+                        <span class="phase-number">Phase 3</span>
+                        <span class="tool-badge">Neo4j</span>
+                    </div>
+                    <h3 class="phase-title">Neo4j Graphing</h3>
+                    <p class="phase-desc">Feeds parsed classes and routes into Neo4j nodes to map structural codebase connections.</p>
+                </div>
+                <div class="phase-operation">bolt://localhost:7687</div>
+            </div>
+            <!-- Phase 4 -->
+            <div class="phase-card">
+                <div>
+                    <div class="phase-header">
+                        <span class="phase-number">Phase 4</span>
+                        <span class="tool-badge">Graphiti</span>
+                    </div>
+                    <h3 class="phase-title">Semantic Memory</h3>
+                    <p class="phase-desc">Ingests unstructured logs, Git commits, and code decisions into the Graphiti memory registry.</p>
+                </div>
+                <div class="phase-operation">python -c "import graphiti"</div>
+            </div>
+            <!-- Phase 5 -->
+            <div class="phase-card">
+                <div>
+                    <div class="phase-header">
+                        <span class="phase-number">Phase 5</span>
+                        <span class="tool-badge">Pothos / Prisma</span>
+                    </div>
+                    <h3 class="phase-title">Resolver Synchronization</h3>
+                    <p class="phase-desc">Compiles schemas and verifies API resolver endpoints compile without TypeScript errors.</p>
+                </div>
+                <div class="phase-operation">npm run db:generate</div>
+            </div>
+            <!-- Phase 6 -->
+            <div class="phase-card">
+                <div>
+                    <div class="phase-header">
+                        <span class="phase-number">Phase 6</span>
+                        <span class="tool-badge">Playwright</span>
+                    </div>
+                    <h3 class="phase-title">Browser E2E Telemetry</h3>
+                    <p class="phase-desc">Launches headless Chromium instances with active CDP debuggers to scrape DOM states.</p>
+                </div>
+                <div class="phase-operation">playwright test --project=api</div>
+            </div>
+            <!-- Phase 11 -->
+            <div class="phase-card">
+                <div>
+                    <div class="phase-header">
+                        <span class="phase-number">Phase 11</span>
+                        <span class="tool-badge">sync-task.ps1</span>
+                    </div>
+                    <h3 class="phase-title">Mandatory Sync Gate</h3>
+                    <p class="phase-desc">Verifies that database, memory, and code repositories match, updating the state recovery files.</p>
+                </div>
+                <div class="phase-operation">.\sync-task.ps1</div>
+            </div>
+        </div>
+
+        <!-- Section 4: Software In-Depth -->
+        <h2 class="section-title">Software In-Depth & Enterprise Rationale</h2>
+        <div class="software-section">
+            <!-- Tree-sitter -->
+            <div class="software-card">
+                <div class="software-meta">
+                    <h3>Tree-sitter</h3>
+                    <span class="tech-role">Syntax Tree Parser</span>
+                </div>
+                <div class="software-desc">
+                    <h4>Why We Use It</h4>
+                    <p>Standard text parsing using Regular Expressions (regex/grep) is brittle and results in false positives when locating references. Tree-sitter parses the source code into a syntax tree (AST) in milliseconds, allowing accurate extraction of models and imports.</p>
+                    <div class="advantages-grid">
+                        <div class="advantage-item">
+                            <strong>Prisma Relationship Mapping</strong>
+                            Maps schema foreign keys and verify cascades automatically.
+                        </div>
+                        <div class="advantage-item">
+                            <strong>Incremental Compilation</strong>
+                            Only parses modified files, ensuring zero performance lag.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphiti -->
+            <div class="software-card">
+                <div class="software-meta">
+                    <h3>Graphiti</h3>
+                    <span class="tech-role">Semantic Memory Layer</span>
+                </div>
+                <div class="software-desc">
+                    <h4>Why We Use It</h4>
+                    <p>Microservice structures and database configurations define *what* the application is, but git commits and decisions explain *why* it was built. Graphiti processes unstructured logs and decisions to build an AI memory graph.</p>
+                    <div class="advantages-grid">
+                        <div class="advantage-item">
+                            <strong>Stateless Context Recovery</strong>
+                            Enables coding agents to recover full task contexts across sessions instantly.
+                        </div>
+                        <div class="advantage-item">
+                            <strong>Git-Commit Association</strong>
+                            Links specific commit hashes directly to the code components they modified.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Neo4j -->
+            <div class="software-card">
+                <div class="software-meta">
+                    <h3>Neo4j</h3>
+                    <span class="tech-role">Knowledge Graph Database</span>
+                </div>
+                <div class="software-desc">
+                    <h4>Why We Use It</h4>
+                    <p>Tracing imports and routes across 11 microservices requires complex recursive queries. Relational databases like Postgres require nested JOINs that are too slow. Neo4j allows executing multi-hop dependency queries in milliseconds.</p>
+                    <div class="advantages-grid">
+                        <div class="advantage-item">
+                            <strong>Impact Analysis</strong>
+                            Queries database-to-route dependencies instantly using Cypher.
+                        </div>
+                        <div class="advantage-item">
+                            <strong>Live State Tracking</strong>
+                            Stores structural code components as nodes (Services, Endpoints, Tables).
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphify -->
+            <div class="software-card">
+                <div class="software-meta">
+                    <h3>Graphify</h3>
+                    <span class="tech-role">Static Analysis Scanner</span>
+                </div>
+                <div class="software-desc">
+                    <h4>Why We Use It</h4>
+                    <p>Provides a lightweight static directory analysis. By keeping its scanning logic inside python helper scripts, we avoid loading heavy compiler libraries directly into Node process runtimes.</p>
+                    <div class="advantages-grid">
+                        <div class="advantage-item">
+                            <strong>JSON AST Caches</strong>
+                            Stores static file definitions under <code>graphify-out/</code>.
+                        </div>
+                        <div class="advantage-item">
+                            <strong>Obsidian Integration</strong>
+                            Generates obsidian documentation files of methods and variables.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -5,7 +5,11 @@ import rateLimit from 'express-rate-limit'
 import { getPrismaClient } from '@stayflexi/shared-database'
 import { createRequestLogger } from '@stayflexi/shared-logger'
 import type { Logger } from '@stayflexi/shared-logger'
-import { MetricsRegistry, createHttpMetricsMiddleware, createMetricsHandler } from '@stayflexi/shared-observability'
+import {
+  MetricsRegistry,
+  createHttpMetricsMiddleware,
+  createMetricsHandler,
+} from '@stayflexi/shared-observability'
 import type Redis from 'ioredis'
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
@@ -42,7 +46,7 @@ import { GetReport } from './application/use-cases/GetReport'
 export function createApp(
   config: AnalyticsConfig,
   redis: Redis,
-  logger: Logger
+  logger: Logger,
 ): express.Application {
   const db = getPrismaClient(config.DATABASE_URL)
 
@@ -51,13 +55,24 @@ export function createApp(
   const snapshotRepo = new PrismaAnalyticsSnapshotRepository(db)
   const reportRepo = new PrismaAnalyticsReportRepository(db)
   const cache = new AnalyticsCache(redis)
-  
+
   const kpiCalculator = new KpiCalculator(db, logger)
-  const reportAggregator = new ReportAggregator(db, revenueMetricRepo, snapshotRepo, kpiCalculator, logger)
+  const reportAggregator = new ReportAggregator(
+    db,
+    revenueMetricRepo,
+    snapshotRepo,
+    kpiCalculator,
+    logger,
+  )
   const exportGenerator = new ExportGenerator(reportAggregator, cache, logger)
 
   // Use Cases Instantiations
-  const getRevenueAnalytics = new GetRevenueAnalytics(revenueMetricRepo, kpiCalculator, cache, logger)
+  const getRevenueAnalytics = new GetRevenueAnalytics(
+    revenueMetricRepo,
+    kpiCalculator,
+    cache,
+    logger,
+  )
   const getOccupancyAnalytics = new GetOccupancyAnalytics(kpiCalculator, cache, logger)
   const getBookingAnalytics = new GetBookingAnalytics(db, cache, logger)
   const getOperationsAnalytics = new GetOperationsAnalytics(db, logger)
@@ -79,37 +94,49 @@ export function createApp(
     getFinancialReport,
     getOccupancyReport,
     getOtaReport,
+    exportGenerator,
     getDashboard,
     generateReport,
     getReport,
-    exportGenerator
   )
 
   // Express Setup
   const registry = new MetricsRegistry()
   const app = express()
-  
+
   app.disable('x-powered-by')
   app.set('trust proxy', 1)
   app.use(helmet())
-  app.use(cors({
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-Id', 'X-User-Id', 'X-Organization-Id', 'X-User-Role', 'X-Service-Key'],
-  }))
+  app.use(
+    cors({
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Correlation-Id',
+        'X-User-Id',
+        'X-Organization-Id',
+        'X-User-Role',
+        'X-Service-Key',
+      ],
+    }),
+  )
   app.use(express.json({ limit: '1mb' }))
   app.use(correlationMiddleware)
   app.use(createRequestLogger(logger))
   app.use(createHttpMetricsMiddleware(registry) as unknown as express.RequestHandler)
   app.get('/metrics', createMetricsHandler(registry) as unknown as express.RequestHandler)
-  
-  app.use(rateLimit({
-    windowMs: config.RATE_LIMIT_WINDOW_MS,
-    max: config.RATE_LIMIT_MAX_REQUESTS,
-    standardHeaders: true,
-    legacyHeaders: false,
-    skip: (req) => req.path.startsWith('/health') || req.path === '/metrics',
-  }))
+
+  app.use(
+    rateLimit({
+      windowMs: config.RATE_LIMIT_WINDOW_MS,
+      max: config.RATE_LIMIT_MAX_REQUESTS,
+      standardHeaders: true,
+      legacyHeaders: false,
+      skip: (req) => req.path.startsWith('/health') || req.path === '/metrics',
+    }),
+  )
 
   app.use((req, res, next) => {
     if (req.path.startsWith('/api/v1/')) return authMiddleware(req, res, next)
@@ -119,7 +146,12 @@ export function createApp(
   // Inline Health Router
   const startTime = Date.now()
   app.get('/health/live', (_req, res) => {
-    res.json({ status: 'alive', service: 'analytics-service', uptime: Date.now() - startTime, timestamp: new Date().toISOString() })
+    res.json({
+      status: 'alive',
+      service: 'analytics-service',
+      uptime: Date.now() - startTime,
+      timestamp: new Date().toISOString(),
+    })
   })
   app.get('/health/ready', async (_req, res) => {
     const checks: Record<string, string> = {}
@@ -168,12 +200,15 @@ export function createApp(
             getReport,
           }
         },
-      })
+      }),
     )
   })
 
   app.use((_req, res) => {
-    res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 } })
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 },
+    })
   })
   app.use(createErrorHandler(logger))
 

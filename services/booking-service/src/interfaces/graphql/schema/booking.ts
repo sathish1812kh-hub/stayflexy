@@ -76,7 +76,7 @@ SmartKeyRef.implement({
     bookingId: t.exposeString('bookingId'),
     accessCode: t.exposeString('accessCode'),
     expiresAt: t.exposeString('expiresAt'),
-  })
+  }),
 })
 
 // AIChatMessage shape representing concierge chatbot responses
@@ -95,9 +95,8 @@ AIChatMessageRef.implement({
     suggestedActions: t.exposeStringList('suggestedActions'),
     action: t.exposeString('action', { nullable: true }),
     actionPayload: t.exposeString('actionPayload', { nullable: true }),
-  })
+  }),
 })
-
 
 // Booking shape representing guest stays
 const BookingRef = builder.objectRef<{
@@ -147,20 +146,28 @@ BookingRef.implement({
     }),
     isHourly: t.boolean({
       resolve: (parent: any) => {
-        return parent.specialRequests?.includes('HOURLY_STAY') || parent.internalNotes?.includes('HOURLY_STAY') || false;
-      }
+        return (
+          parent.specialRequests?.includes('HOURLY_STAY') ||
+          parent.internalNotes?.includes('HOURLY_STAY') ||
+          false
+        )
+      },
     }),
     checkInTime: t.string({
       nullable: true,
       resolve: (parent: any) => {
-        return parent.checkedInAt ? parent.checkedInAt.toISOString() : (parent.specialRequests?.match(/IN:(\S+)/)?.[1] || null);
-      }
+        return parent.checkedInAt
+          ? parent.checkedInAt.toISOString()
+          : parent.specialRequests?.match(/IN:(\S+)/)?.[1] || null
+      },
     }),
     checkOutTime: t.string({
       nullable: true,
       resolve: (parent: any) => {
-        return parent.checkedOutAt ? parent.checkedOutAt.toISOString() : (parent.specialRequests?.match(/OUT:(\S+)/)?.[1] || null);
-      }
+        return parent.checkedOutAt
+          ? parent.checkedOutAt.toISOString()
+          : parent.specialRequests?.match(/OUT:(\S+)/)?.[1] || null
+      },
     }),
   }),
 })
@@ -169,7 +176,7 @@ BookingRef.implement({
 builder.asEntity(BookingRef, {
   key: builder.selection<{ id: string }>('id'),
   resolveReference: async (bookingRef, context: GraphQLContext) => {
-    const b = await context.getBooking.execute(bookingRef.id, context.organizationId ?? "")
+    const b = await context.getBooking.execute(bookingRef.id, context.organizationId ?? '')
     return {
       id: b.booking.id,
       organizationId: b.booking.organizationId,
@@ -201,7 +208,7 @@ builder.queryFields((t) => ({
       id: t.arg.string({ required: true }),
     },
     resolve: async (_root: unknown, args: { id: string }, context: GraphQLContext) => {
-      const b = await context.getBooking.execute(args.id, context.organizationId ?? "")
+      const b = await context.getBooking.execute(args.id, context.organizationId ?? '')
       return {
         id: b.booking.id,
         organizationId: b.booking.organizationId,
@@ -229,12 +236,15 @@ builder.queryFields((t) => ({
       hotelId: t.arg.string({ required: true }),
     },
     resolve: async (_root: unknown, args: { hotelId: string }, context: GraphQLContext) => {
-      const result = await context.searchBookings.execute({
-        hotelId: args.hotelId,
-        page: 1,
-        limit: 100,
-      }, context.organizationId ?? "")
-      return result.data.map(b => ({
+      const result = await context.searchBookings.execute(
+        {
+          hotelId: args.hotelId,
+          page: 1,
+          limit: 100,
+        },
+        context.organizationId ?? '',
+      )
+      return result.data.map((b) => ({
         id: b.booking.id,
         organizationId: b.booking.organizationId,
         hotelId: b.booking.hotelId,
@@ -261,19 +271,21 @@ builder.queryFields((t) => ({
       token: t.arg.string({ required: true }),
     },
     resolve: async (_root: unknown, args: { token: string }, context: GraphQLContext) => {
-      let bookingId = args.token;
+      let bookingId = args.token
       try {
-        const jwt = await import('jsonwebtoken');
-        const secret = process.env.JWT_SECRET || 'dev_secret_replace_in_production_must_be_at_least_64_characters_long_abc123';
-        const decoded = jwt.verify(args.token, secret) as { bookingId: string };
+        const jwt = await import('jsonwebtoken')
+        const secret =
+          process.env['JWT_SECRET'] ||
+          'dev_secret_replace_in_production_must_be_at_least_64_characters_long_abc123'
+        const decoded = jwt.verify(args.token, secret) as { bookingId: string }
         if (decoded.bookingId) {
-          bookingId = decoded.bookingId;
+          bookingId = decoded.bookingId
         }
       } catch (err) {
         // Fallback to token as bookingId directly for local mock usage
       }
 
-      const b = await context.getBooking.execute(bookingId, context.organizationId ?? "");
+      const b = await context.getBooking.execute(bookingId, context.organizationId ?? '')
       return {
         id: b.booking.id,
         organizationId: b.booking.organizationId,
@@ -292,8 +304,8 @@ builder.queryFields((t) => ({
         updatedAt: b.booking.updatedAt,
         rooms: b.rooms,
         guests: b.guests,
-      };
-    }
+      }
+    },
   }),
 }))
 
@@ -321,69 +333,108 @@ builder.mutationFields((t) => ({
     resolve: async (
       _root: unknown,
       args: {
-        hotelId: string;
-        firstName: string;
-        lastName: string;
-        email?: string | null;
-        phone?: string | null;
-        nationality?: string | null;
-        governmentIdType?: string | null;
-        governmentIdNumber?: string | null;
-        dateOfBirth?: string | null;
-        roomTypeId: string;
-        checkIn: string;
-        checkOut: string;
-        baseRate?: number | null;
-        discount?: number | null;
-        notes?: string | null;
+        hotelId: string
+        firstName: string
+        lastName: string
+        email?: string | null
+        phone?: string | null
+        nationality?: string | null
+        governmentIdType?: string | null
+        governmentIdNumber?: string | null
+        dateOfBirth?: string | null
+        roomTypeId: string
+        checkIn: string
+        checkOut: string
+        baseRate?: number | null
+        discount?: number | null
+        notes?: string | null
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       if (!context.userId || !context.organizationId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
 
-      const rateVal = args.baseRate ?? 150.00;
-      const discountVal = args.discount ?? 0.0;
-      
+      const rateVal = args.baseRate ?? 150.0
+      const discountVal = args.discount ?? 0.0
+
       const start = new Date(args.checkIn)
       const end = new Date(args.checkOut)
-      const nights = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
+      const nights = Math.max(
+        1,
+        Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)),
+      )
       const subtotal = rateVal * nights
       const taxVal = Math.max(0, subtotal - discountVal) * 0.12
       const finalVal = Math.max(0, subtotal - discountVal) + taxVal
 
       // Combine metadata into specialRequests/notes to keep logs
-      const combinedNotes = args.notes ? `${args.notes} | RATE:${rateVal} | DISCOUNT:${discountVal} | TAX:${taxVal}` : `RATE:${rateVal} | DISCOUNT:${discountVal} | TAX:${taxVal}`
+      const combinedNotes = args.notes
+        ? `${args.notes} | RATE:${rateVal} | DISCOUNT:${discountVal} | TAX:${taxVal}`
+        : `RATE:${rateVal} | DISCOUNT:${discountVal} | TAX:${taxVal}`
 
-      const b = await context.createBooking.execute({
-        hotelId: args.hotelId,
-        organizationId: context.organizationId,
-        guest: {
-          firstName: args.firstName,
-          lastName: args.lastName,
-          email: args.email ?? null,
-          phone: args.phone ?? null,
-        },
-        rooms: [
-          {
+      // Bookings are made by room TYPE, but the domain locks per room and the
+      // booking_rooms.roomId FK requires a concrete room. Auto-assign the first
+      // non-blocked room of the requested type in this hotel.
+      const { getPrismaClient } = await import('@stayflexi/shared-database')
+      const prisma = getPrismaClient()
+      const assignedRoom =
+        (await prisma.room.findFirst({
+          where: {
+            hotelId: args.hotelId,
             roomTypeId: args.roomTypeId,
-            checkIn: start,
-            checkOut: end,
-            occupancy: 2,
-            roomRate: rateVal,
-          }
-        ],
-        source: 'DIRECT',
-        specialRequests: combinedNotes,
-        internalNotes: null,
-        bookedById: context.userId,
-      })
+            operationalStatus: 'AVAILABLE',
+            deletedAt: null,
+          } as any,
+          orderBy: { roomNumber: 'asc' },
+        })) ??
+        (await prisma.room.findFirst({
+          where: { hotelId: args.hotelId, roomTypeId: args.roomTypeId, deletedAt: null } as any,
+          orderBy: { roomNumber: 'asc' },
+        }))
+      if (!assignedRoom) {
+        throw new Error('No rooms exist for the requested room type in this hotel')
+      }
+
+      // Build the DTO in the exact shape CreateBooking.execute reads (top-level
+      // checkInDate/checkOutDate, guests[] array, rooms[] with a concrete roomId)
+      // and pass the required booking context — both were previously mismatched,
+      // which is why every booking failed with "Invalid date format".
+      const b = await context.createBooking.execute(
+        {
+          hotelId: args.hotelId,
+          checkInDate: args.checkIn,
+          checkOutDate: args.checkOut,
+          rooms: [
+            {
+              roomId: assignedRoom.id,
+              roomTypeId: args.roomTypeId,
+              adultCount: 2,
+              childCount: 0,
+            },
+          ],
+          guests: [
+            {
+              firstName: args.firstName,
+              lastName: args.lastName,
+              email: args.email ?? undefined,
+              phone: args.phone ?? undefined,
+            },
+          ],
+          source: 'DIRECT',
+          specialRequests: combinedNotes,
+          currency: 'USD',
+        } as any,
+        {
+          organizationId: context.organizationId,
+          userId: context.userId,
+          correlationId: context.correlationId,
+          maxAdvanceBookingDays: 365,
+          maxRoomsPerBooking: 10,
+        } as any,
+      )
 
       // Directly update the DB fields for precise data integrity!
-      const { getPrismaClient } = await import('@stayflexi/shared-database');
-      const prisma = getPrismaClient();
-
       // Update primary Guest details
       if (b.guests && b.guests[0]) {
         await prisma.bookingGuest.update({
@@ -397,7 +448,7 @@ builder.mutationFields((t) => ({
             governmentIdType: (args.governmentIdType as any) || null,
             governmentIdNumber: args.governmentIdNumber ?? null,
             dateOfBirth: args.dateOfBirth ? new Date(args.dateOfBirth) : null,
-          }
+          },
         })
       }
 
@@ -409,7 +460,7 @@ builder.mutationFields((t) => ({
           discountAmount: discountVal,
           taxAmount: taxVal,
           finalAmount: finalVal,
-        }
+        },
       })
 
       const updated = await context.getBooking.execute(b.booking.id, context.organizationId)
@@ -443,12 +494,16 @@ builder.mutationFields((t) => ({
     resolve: async (
       _root: unknown,
       args: { bookingId: string; roomId: string },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       if (!context.userId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
-      const b = await context.checkIn.execute(args.bookingId, args.roomId, context.userId)
+      const { booking: b } = await context.checkIn.execute(
+        args.bookingId,
+        context.userId,
+        context.organizationId ?? '',
+      )
       return {
         id: b.id,
         organizationId: b.organizationId,
@@ -473,15 +528,15 @@ builder.mutationFields((t) => ({
     args: {
       bookingId: t.arg.string({ required: true }),
     },
-    resolve: async (
-      _root: unknown,
-      args: { bookingId: string },
-      context: GraphQLContext
-    ) => {
+    resolve: async (_root: unknown, args: { bookingId: string }, context: GraphQLContext) => {
       if (!context.userId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
-      const b = await context.checkOut.execute(args.bookingId, context.userId)
+      const { booking: b } = await context.checkOut.execute(
+        args.bookingId,
+        context.userId,
+        context.organizationId ?? '',
+      )
       return {
         id: b.id,
         organizationId: b.organizationId,
@@ -510,15 +565,20 @@ builder.mutationFields((t) => ({
     resolve: async (
       _root: unknown,
       args: { bookingId: string; reason?: string | null },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       if (!context.userId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
-      const b = await context.cancelBooking.execute(args.bookingId, context.userId, {
-        reason: 'GUEST_REQUEST',
-        note: args.reason ?? 'Guest requested cancellation',
-      })
+      const { booking: b } = await context.cancelBooking.execute(
+        args.bookingId,
+        {
+          cancellationReason: 'GUEST_REQUEST',
+          cancellationNote: args.reason ?? 'Guest requested cancellation',
+        },
+        context.userId,
+        context.organizationId ?? '',
+      )
       return {
         id: b.id,
         organizationId: b.organizationId,
@@ -551,61 +611,58 @@ builder.mutationFields((t) => ({
     resolve: async (
       _root: unknown,
       args: {
-        bookingId: string;
-        documentBase64: string;
-        signatureBase64: string;
-        governmentIdType?: string | null;
-        governmentIdNumber?: string | null;
-        nationality?: string | null;
+        bookingId: string
+        documentBase64: string
+        signatureBase64: string
+        governmentIdType?: string | null
+        governmentIdNumber?: string | null
+        nationality?: string | null
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
-      const b = await context.getBooking.execute(args.bookingId, context.organizationId ?? "");
+      const b = await context.getBooking.execute(args.bookingId, context.organizationId ?? '')
       if (!b) {
-        throw new Error("Booking not found");
+        throw new Error('Booking not found')
       }
 
-      // Check-in requires a room assignment; select the first allocated room or a default fallback
-      const firstRoomId = b.rooms && b.rooms[0]?.roomId ? b.rooms[0].roomId : "unassigned_room_id";
-
-      // Execute check-in usecase
-      const checkedInBooking = await context.checkIn.execute(
+      // Execute check-in usecase (CheckIn resolves the booking's rooms itself)
+      await context.checkIn.execute(
         args.bookingId,
-        firstRoomId,
-        context.userId || "GUEST_SELF_SERVICE"
-      );
+        context.userId || 'GUEST_SELF_SERVICE',
+        context.organizationId ?? '',
+      )
 
       // Update Guest Record with ID snapshot details using database client
-      const { getPrismaClient } = await import('@stayflexi/shared-database');
-      const prisma = getPrismaClient();
+      const { getPrismaClient } = await import('@stayflexi/shared-database')
+      const prisma = getPrismaClient()
       if (b.guests && b.guests[0]) {
         await prisma.bookingGuest.update({
           where: { id: b.guests[0].id },
           data: {
-            nationality: args.nationality ?? "US",
-            governmentIdType: (args.governmentIdType as any) || "PASSPORT",
-            governmentIdNumber: args.governmentIdNumber ?? "CONTACTLESS_OCR",
-          }
-        });
+            nationality: args.nationality ?? 'US',
+            governmentIdType: (args.governmentIdType as any) || 'PASSPORT',
+            governmentIdNumber: args.governmentIdNumber ?? 'CONTACTLESS_OCR',
+          },
+        })
       }
 
       // Record high-resolution audit log event in database
       await prisma.bookingAudit.create({
         data: {
           bookingId: args.bookingId,
-          eventType: "CONTACTLESS_CHECK_IN",
+          eventType: 'CHECKED_IN',
           eventDescription: `Guest completed self-check-in via contactless MagicLink. Documents uploaded.`,
-          performedById: context.userId || "GUEST_SELF_SERVICE",
+          performedById: context.userId || 'GUEST_SELF_SERVICE',
           metadata: {
-            governmentIdType: args.governmentIdType || "PASSPORT",
+            governmentIdType: args.governmentIdType || 'PASSPORT',
             nationality: args.nationality,
             hasSignature: !!args.signatureBase64,
             hasDocument: !!args.documentBase64,
-          }
-        }
-      });
+          },
+        },
+      })
 
-      const updated = await context.getBooking.execute(args.bookingId, context.organizationId ?? "");
+      const updated = await context.getBooking.execute(args.bookingId, context.organizationId ?? '')
       return {
         id: updated.booking.id,
         organizationId: updated.booking.organizationId,
@@ -624,8 +681,8 @@ builder.mutationFields((t) => ({
         updatedAt: updated.booking.updatedAt,
         rooms: updated.rooms,
         guests: updated.guests,
-      };
-    }
+      }
+    },
   }),
   createHourlyBooking: t.field({
     type: BookingRef,
@@ -641,7 +698,7 @@ builder.mutationFields((t) => ({
       dateOfBirth: t.arg.string(),
       roomTypeId: t.arg.string({ required: true }),
       startTime: t.arg.string({ required: true }), // ISO Timestamp
-      endTime: t.arg.string({ required: true }),   // ISO Timestamp
+      endTime: t.arg.string({ required: true }), // ISO Timestamp
       baseRate: t.arg.float(),
       discount: t.arg.float(),
       notes: t.arg.string(),
@@ -649,70 +706,82 @@ builder.mutationFields((t) => ({
     resolve: async (
       _root: unknown,
       args: {
-        hotelId: string;
-        firstName: string;
-        lastName: string;
-        email?: string | null;
-        phone?: string | null;
-        nationality?: string | null;
-        governmentIdType?: string | null;
-        governmentIdNumber?: string | null;
-        dateOfBirth?: string | null;
-        roomTypeId: string;
-        startTime: string;
-        endTime: string;
-        baseRate?: number | null;
-        discount?: number | null;
-        notes?: string | null;
+        hotelId: string
+        firstName: string
+        lastName: string
+        email?: string | null
+        phone?: string | null
+        nationality?: string | null
+        governmentIdType?: string | null
+        governmentIdNumber?: string | null
+        dateOfBirth?: string | null
+        roomTypeId: string
+        startTime: string
+        endTime: string
+        baseRate?: number | null
+        discount?: number | null
+        notes?: string | null
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       if (!context.userId || !context.organizationId) {
         throw new UnauthorizedError('Unauthorized session context', 'UNAUTHORIZED')
       }
 
-      const rateVal = args.baseRate ?? 45.00;
-      const discountVal = args.discount ?? 0.0;
+      const rateVal = args.baseRate ?? 45.0
+      const discountVal = args.discount ?? 0.0
       const checkInDate = new Date(args.startTime)
       const checkOutDate = new Date(args.endTime)
-      
-      const subtotal = rateVal; // Hourly flat base rate override
+
+      const subtotal = rateVal // Hourly flat base rate override
       const taxVal = Math.max(0, subtotal - discountVal) * 0.12
       const finalVal = Math.max(0, subtotal - discountVal) + taxVal
 
       // Embed "HOURLY_STAY IN:startTime OUT:endTime" inside the specialRequests field
-      const hourlyMetadata = `HOURLY_STAY IN:${args.startTime} OUT:${args.endTime}`;
-      const pricingMetadata = `RATE:${rateVal} | DISCOUNT:${discountVal} | TAX:${taxVal}`;
-      const combinedNotes = args.notes 
-        ? `${args.notes} | ${hourlyMetadata} | ${pricingMetadata}` 
-        : `${hourlyMetadata} | ${pricingMetadata}`;
+      const hourlyMetadata = `HOURLY_STAY IN:${args.startTime} OUT:${args.endTime}`
+      const pricingMetadata = `RATE:${rateVal} | DISCOUNT:${discountVal} | TAX:${taxVal}`
+      const combinedNotes = args.notes
+        ? `${args.notes} | ${hourlyMetadata} | ${pricingMetadata}`
+        : `${hourlyMetadata} | ${pricingMetadata}`
 
       // Call standard createBooking use case
-      const b = await context.createBooking.execute({
-        hotelId: args.hotelId,
-        organizationId: context.organizationId,
-        guest: {
-          firstName: args.firstName,
-          lastName: args.lastName,
-          email: args.email ?? null,
-          phone: args.phone ?? null,
+      const b = await context.createBooking.execute(
+        {
+          hotelId: args.hotelId,
+          checkInDate: args.startTime.slice(0, 10),
+          checkOutDate: args.endTime.slice(0, 10),
+          source: 'DIRECT',
+          currency: 'USD',
+          rooms: [
+            {
+              roomId: args.roomTypeId,
+              roomTypeId: args.roomTypeId,
+              adultCount: 1,
+              childCount: 0,
+            },
+          ],
+          guests: [
+            {
+              firstName: args.firstName,
+              lastName: args.lastName,
+              email: args.email ?? undefined,
+              phone: args.phone ?? undefined,
+            },
+          ],
+          specialRequests: combinedNotes,
         },
-        rooms: [
-          {
-            roomTypeId: args.roomTypeId,
-            checkIn: checkInDate,
-            checkOut: checkOutDate,
-            occupancy: 2,
-            roomRate: rateVal,
-          }
-        ],
-        notes: combinedNotes,
-        bookedById: context.userId
-      })
+        {
+          organizationId: context.organizationId,
+          userId: context.userId,
+          maxAdvanceBookingDays: 365,
+          maxRoomsPerBooking: 10,
+          correlationId: context.correlationId,
+        },
+      )
 
       // Directly update the DB fields for precise data integrity!
-      const { getPrismaClient } = await import('@stayflexi/shared-database');
-      const prisma = getPrismaClient();
+      const { getPrismaClient } = await import('@stayflexi/shared-database')
+      const prisma = getPrismaClient()
 
       // Update primary Guest details
       if (b.guests && b.guests[0]) {
@@ -727,7 +796,7 @@ builder.mutationFields((t) => ({
             governmentIdType: (args.governmentIdType as any) || null,
             governmentIdNumber: args.governmentIdNumber ?? null,
             dateOfBirth: args.dateOfBirth ? new Date(args.dateOfBirth) : null,
-          }
+          },
         })
       }
 
@@ -739,7 +808,7 @@ builder.mutationFields((t) => ({
           discountAmount: discountVal,
           taxAmount: taxVal,
           finalAmount: finalVal,
-        }
+        },
       })
 
       const updated = await context.getBooking.execute(b.booking.id, context.organizationId)
@@ -762,20 +831,16 @@ builder.mutationFields((t) => ({
         rooms: updated.rooms,
         guests: updated.guests,
       }
-    }
+    },
   }),
   generateSmartKey: t.field({
     type: SmartKeyRef,
     args: {
       bookingId: t.arg.string({ required: true }),
     },
-    resolve: async (
-      _root: unknown,
-      args: { bookingId: string },
-      context: GraphQLContext
-    ) => {
-      const b = await context.getBooking.execute(args.bookingId, context.organizationId ?? "")
-      if (!b) throw new Error("Booking not found")
+    resolve: async (_root: unknown, args: { bookingId: string }, context: GraphQLContext) => {
+      const b = await context.getBooking.execute(args.bookingId, context.organizationId ?? '')
+      if (!b) throw new Error('Booking not found')
 
       // Extract existing SMART_KEY if already generated to preserve keycode consistency
       const existingMatch = b.booking.specialRequests?.match(/SMART_KEY:(\d{3}\s\d{3})/)
@@ -787,30 +852,30 @@ builder.mutationFields((t) => ({
           .toString()
           .replace(/(\d{3})(\d{3})/, '$1 $2')
 
-        const { getPrismaClient } = await import('@stayflexi/shared-database');
-        const prisma = getPrismaClient();
-        const updatedNotes = b.booking.specialRequests 
-          ? `${b.booking.specialRequests} | SMART_KEY:${accessCode}` 
+        const { getPrismaClient } = await import('@stayflexi/shared-database')
+        const prisma = getPrismaClient()
+        const updatedNotes = b.booking.specialRequests
+          ? `${b.booking.specialRequests} | SMART_KEY:${accessCode}`
           : `SMART_KEY:${accessCode}`
 
         await prisma.booking.update({
           where: { id: args.bookingId },
-          data: { specialRequests: updatedNotes }
+          data: { specialRequests: updatedNotes },
         })
       }
 
       const id = `key-${Math.random().toString(36).substr(2, 9)}`
-      const expiresAt = b.booking.checkedOutAt 
-        ? b.booking.checkedOutAt.toISOString() 
+      const expiresAt = b.booking.checkedOutAt
+        ? b.booking.checkedOutAt.toISOString()
         : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
 
       return {
         id,
         bookingId: args.bookingId,
         accessCode,
-        expiresAt
+        expiresAt,
       }
-    }
+    },
   }),
   sendFlexiAIChat: t.field({
     type: AIChatMessageRef,
@@ -818,112 +883,168 @@ builder.mutationFields((t) => ({
       bookingId: t.arg.string(),
       message: t.arg.string({ required: true }),
     },
-    resolve: async (_root: unknown, args: { bookingId?: string | null; message: string }, context: GraphQLContext) => {
+    resolve: async (
+      _root: unknown,
+      args: { bookingId?: string | null; message: string },
+      context: GraphQLContext,
+    ) => {
       const msg = args.message.toLowerCase()
-      let reply = args.bookingId 
-        ? "Hello! I am your Flexi AI Concierge. How can I help you with your stay today?"
-        : "Hello! I am Flexi AI, your Stayflexi Operations & BI Assistant. How can I help you today?"
+      let reply = args.bookingId
+        ? 'Hello! I am your Flexi AI Concierge. How can I help you with your stay today?'
+        : 'Hello! I am Flexi AI, your Stayflexi Operations & BI Assistant. How can I help you today?'
       let suggestions: string[] = args.bookingId
-        ? ["Upgrade Room", "Order Food", "View Folio"]
-        : ["Revenue Report", "Block Room 103", "Occupancy Analytics"]
+        ? ['Upgrade Room', 'Order Food', 'View Folio']
+        : ['Revenue Report', 'Block Room 103', 'Occupancy Analytics']
       let action: string | null = null
       let actionPayload: string | null = null
 
       if (args.bookingId) {
-        if (msg.includes('hourly') || msg.includes('flexi') || msg.includes('fractional') || msg.includes('slot')) {
-          reply = "Stayflexi offers flexible hourly stays! You can rent rooms in 3, 6, or 12 hour slots. Would you like to check room availability for an hourly stay?"
-          suggestions = ["Book 3 Hours", "Book 6 Hours", "View Hourly Rates"]
-        } else if (msg.includes('upgrade') || msg.includes('room type') || msg.includes('deluxe') || msg.includes('executive')) {
-          reply = "We have high-end Deluxe and Executive suites available for upgrades! You can purchase early room check-in or switch room types instantly."
-          suggestions = ["Upgrade to Deluxe", "See Elite Villas"]
-          action = "upgrade_room"
-        } else if (msg.includes('food') || msg.includes('menu') || msg.includes('room service') || msg.includes('eat') || msg.includes('dinner')) {
-          reply = "Our 24/7 kitchen serves authentic Goa dishes, Club Sandwiches, and custom cocktails. Orders post directly to your room folio ledger."
-          suggestions = ["View Food Menu", "Order Breakfast"]
-          action = "order_food"
-        } else if (msg.includes('key') || msg.includes('lock') || msg.includes('code') || msg.includes('door')) {
-          reply = "Once check-in is complete and invoice payments are validated, your secure smart lock digital code will instantly reveal."
-          suggestions = ["Reveal Smart Key", "View Check-In Details"]
-          action = "reveal_key"
-        } else if (msg.includes('checkout') || msg.includes('check out') || msg.includes('bill') || msg.includes('folio') || msg.includes('invoice')) {
-          reply = "You can review your room ledger invoice, add charges, or complete checkout self-service securely in the Guest Portal."
-          suggestions = ["View Invoice Folio", "Checkout Room"]
-          action = "checkout"
+        if (
+          msg.includes('hourly') ||
+          msg.includes('flexi') ||
+          msg.includes('fractional') ||
+          msg.includes('slot')
+        ) {
+          reply =
+            'Stayflexi offers flexible hourly stays! You can rent rooms in 3, 6, or 12 hour slots. Would you like to check room availability for an hourly stay?'
+          suggestions = ['Book 3 Hours', 'Book 6 Hours', 'View Hourly Rates']
+        } else if (
+          msg.includes('upgrade') ||
+          msg.includes('room type') ||
+          msg.includes('deluxe') ||
+          msg.includes('executive')
+        ) {
+          reply =
+            'We have high-end Deluxe and Executive suites available for upgrades! You can purchase early room check-in or switch room types instantly.'
+          suggestions = ['Upgrade to Deluxe', 'See Elite Villas']
+          action = 'upgrade_room'
+        } else if (
+          msg.includes('food') ||
+          msg.includes('menu') ||
+          msg.includes('room service') ||
+          msg.includes('eat') ||
+          msg.includes('dinner')
+        ) {
+          reply =
+            'Our 24/7 kitchen serves authentic Goa dishes, Club Sandwiches, and custom cocktails. Orders post directly to your room folio ledger.'
+          suggestions = ['View Food Menu', 'Order Breakfast']
+          action = 'order_food'
+        } else if (
+          msg.includes('key') ||
+          msg.includes('lock') ||
+          msg.includes('code') ||
+          msg.includes('door')
+        ) {
+          reply =
+            'Once check-in is complete and invoice payments are validated, your secure smart lock digital code will instantly reveal.'
+          suggestions = ['Reveal Smart Key', 'View Check-In Details']
+          action = 'reveal_key'
+        } else if (
+          msg.includes('checkout') ||
+          msg.includes('check out') ||
+          msg.includes('bill') ||
+          msg.includes('folio') ||
+          msg.includes('invoice')
+        ) {
+          reply =
+            'You can review your room ledger invoice, add charges, or complete checkout self-service securely in the Guest Portal.'
+          suggestions = ['View Invoice Folio', 'Checkout Room']
+          action = 'checkout'
         }
       } else {
-        if (msg.includes('revenue') || msg.includes('report') || msg.includes('sales') || msg.includes('analytics') || msg.includes('earn')) {
-          reply = "Based on the latest Supergraph aggregated subgraphs, our gross revenue for May 2026 is **$24,850.00** with an occupancy rate of **82.5%**. Deluxe Pool-View rooms contributed 65% of the total revenue."
-          suggestions = ["Revenue by Room Type", "Show Occupancy Details", "Export Report"]
-          action = "navigate"
-          actionPayload = JSON.stringify({ target: "/console" })
+        if (
+          msg.includes('revenue') ||
+          msg.includes('report') ||
+          msg.includes('sales') ||
+          msg.includes('analytics') ||
+          msg.includes('earn')
+        ) {
+          reply =
+            'Based on the latest Supergraph aggregated subgraphs, our gross revenue for May 2026 is **$24,850.00** with an occupancy rate of **82.5%**. Deluxe Pool-View rooms contributed 65% of the total revenue.'
+          suggestions = ['Revenue by Room Type', 'Show Occupancy Details', 'Export Report']
+          action = 'navigate'
+          actionPayload = JSON.stringify({ target: '/console' })
         } else if (msg.includes('block') || msg.includes('inventory') || msg.includes('close')) {
-          reply = "I can help you block room inventory. Which room or room category would you like to hold?"
-          suggestions = ["Block Room 103", "Block Deluxe Pool-View", "Show Rooms Grid"]
+          reply =
+            'I can help you block room inventory. Which room or room category would you like to hold?'
+          suggestions = ['Block Room 103', 'Block Deluxe Pool-View', 'Show Rooms Grid']
           if (msg.includes('103')) {
-            action = "block_inventory"
-            actionPayload = JSON.stringify({ roomNumber: "103" })
+            action = 'block_inventory'
+            actionPayload = JSON.stringify({ roomNumber: '103' })
           }
-        } else if (msg.includes('occupancy') || msg.includes('occupied') || msg.includes('status')) {
-          reply = "Our current occupancy rate is **82.5%** with 6 rooms occupied and 2 available rooms. Housekeeping is currently deep cleaning Room 103."
-          suggestions = ["Show Rooms Grid", "View Clean Statuses"]
-          action = "navigate"
-          actionPayload = JSON.stringify({ target: "/inventory" })
+        } else if (
+          msg.includes('occupancy') ||
+          msg.includes('occupied') ||
+          msg.includes('status')
+        ) {
+          reply =
+            'Our current occupancy rate is **82.5%** with 6 rooms occupied and 2 available rooms. Housekeeping is currently deep cleaning Room 103.'
+          suggestions = ['Show Rooms Grid', 'View Clean Statuses']
+          action = 'navigate'
+          actionPayload = JSON.stringify({ target: '/inventory' })
         } else if (msg.includes('review') || msg.includes('reply') || msg.includes('ota')) {
-          reply = "Navigating to the consolidated guest reviews dashboard. I've initialized the AI responder copilot to draft replies."
-          suggestions = ["Review Console", "Pending Reviews"]
-          action = "navigate_app"
-          actionPayload = JSON.stringify({ app: "reviews", reviewId: "rev-1" })
+          reply =
+            "Navigating to the consolidated guest reviews dashboard. I've initialized the AI responder copilot to draft replies."
+          suggestions = ['Review Console', 'Pending Reviews']
+          action = 'navigate_app'
+          actionPayload = JSON.stringify({ app: 'reviews', reviewId: 'rev-1' })
         }
       }
 
-      const apiKey = process.env['GEMINI_API_KEY'] || "AQ.Ab8RN6If54EHgak6M7m6gynnaapjEH_3N2__KeIFLekSr5X8Tw"
+      const apiKey =
+        process.env['GEMINI_API_KEY'] || 'AQ.Ab8RN6If54EHgak6M7m6gynnaapjEH_3N2__KeIFLekSr5X8Tw'
       if (apiKey) {
         try {
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: args.message }] }],
-              systemInstruction: {
-                parts: [{
-                  text: args.bookingId
-                    ? "You are the Flexi AI Concierge for Stayflexi guests. Assist guests with flexible hourly stays (3, 6, 12 hours at $45/hour), room upgrades (Deluxe, Executive suites), ordering food (24/7 kitchen, Goa dishes, Club Sandwiches, custom cocktails, posted directly to room folio), smart key digital codes (revealed after check-in and payment), reviewing room invoice/folio, and self-service checkout. Be professional, friendly, and concise. You must respond with a JSON object matching this schema: { content: string, suggestedActions: string[], action: string | null, actionPayload: string | null }. If the guest requests a room upgrade, set action to 'upgrade_room'. If ordering food or viewing food catalog/menu, set action to 'order_food'. If requesting keys or lock code, set action to 'reveal_key'. If requesting self-checkout or settling folio, set action to 'checkout'. Otherwise set action to null."
-                    : "You are Flexi AI, the official Operations & Business Intelligence Assistant for Stayflexi. You assist hotel staff in controlling operations and getting real-time insights. You can explain how to perform tasks, summarize revenue/occupancy data, block rooms, or modify reservations. Suggest 2-4 appropriate operational actions for staff as quick-reply buttons (e.g., 'Revenue Report', 'Block Room 103', 'Occupancy Analytics', 'Show Rooms Grid'). Keep responses highly professional, direct, and operational. You must respond with a JSON object matching this schema: { content: string, suggestedActions: string[], action: string | null, actionPayload: string | null }. If the staff asks to block Room 103, set action to 'block_inventory' and actionPayload to '{\"roomNumber\":\"103\"}'. If staff wants to view the rooms grid or check inventory, set action to 'navigate' and actionPayload to '{\"target\":\"/inventory\"}'. If staff wants to view revenue or sales analytics, set action to 'navigate' and actionPayload to '{\"target\":\"/console\"}' or 'navigate_app' with payload '{\"app\":\"revenue\"}'. If staff wants to view guest reviews, set action to 'navigate_app' and actionPayload to '{\"app\":\"reviews\",\"reviewId\":\"rev-1\"}'. Otherwise set action to null."
-                }]
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
               },
-              generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                  type: "OBJECT",
-                  properties: {
-                    content: { type: "STRING" },
-                    suggestedActions: {
-                      type: "ARRAY",
-                      items: { type: "STRING" }
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: args.message }] }],
+                systemInstruction: {
+                  parts: [
+                    {
+                      text: args.bookingId
+                        ? "You are the Flexi AI Concierge for Stayflexi guests. Assist guests with flexible hourly stays (3, 6, 12 hours at $45/hour), room upgrades (Deluxe, Executive suites), ordering food (24/7 kitchen, Goa dishes, Club Sandwiches, custom cocktails, posted directly to room folio), smart key digital codes (revealed after check-in and payment), reviewing room invoice/folio, and self-service checkout. Be professional, friendly, and concise. You must respond with a JSON object matching this schema: { content: string, suggestedActions: string[], action: string | null, actionPayload: string | null }. If the guest requests a room upgrade, set action to 'upgrade_room'. If ordering food or viewing food catalog/menu, set action to 'order_food'. If requesting keys or lock code, set action to 'reveal_key'. If requesting self-checkout or settling folio, set action to 'checkout'. Otherwise set action to null."
+                        : "You are Flexi AI, the official Operations & Business Intelligence Assistant for Stayflexi. You assist hotel staff in controlling operations and getting real-time insights. You can explain how to perform tasks, summarize revenue/occupancy data, block rooms, or modify reservations. Suggest 2-4 appropriate operational actions for staff as quick-reply buttons (e.g., 'Revenue Report', 'Block Room 103', 'Occupancy Analytics', 'Show Rooms Grid'). Keep responses highly professional, direct, and operational. You must respond with a JSON object matching this schema: { content: string, suggestedActions: string[], action: string | null, actionPayload: string | null }. If the staff asks to block Room 103, set action to 'block_inventory' and actionPayload to '{\"roomNumber\":\"103\"}'. If staff wants to view the rooms grid or check inventory, set action to 'navigate' and actionPayload to '{\"target\":\"/inventory\"}'. If staff wants to view revenue or sales analytics, set action to 'navigate' and actionPayload to '{\"target\":\"/console\"}' or 'navigate_app' with payload '{\"app\":\"revenue\"}'. If staff wants to view guest reviews, set action to 'navigate_app' and actionPayload to '{\"app\":\"reviews\",\"reviewId\":\"rev-1\"}'. Otherwise set action to null.",
                     },
-                    action: { type: "STRING" },
-                    actionPayload: { type: "STRING" }
+                  ],
+                },
+                generationConfig: {
+                  responseMimeType: 'application/json',
+                  responseSchema: {
+                    type: 'OBJECT',
+                    properties: {
+                      content: { type: 'STRING' },
+                      suggestedActions: {
+                        type: 'ARRAY',
+                        items: { type: 'STRING' },
+                      },
+                      action: { type: 'STRING' },
+                      actionPayload: { type: 'STRING' },
+                    },
+                    required: ['content', 'suggestedActions'],
                   },
-                  required: ["content", "suggestedActions"]
-                }
-              }
-            })
-          });
+                },
+              }),
+            },
+          )
 
           if (response.ok) {
-            const data = (await response.json()) as any;
-            const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            const data = (await response.json()) as any
+            const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text
             if (textResponse) {
-              const parsed = JSON.parse(textResponse);
+              const parsed = JSON.parse(textResponse)
               return {
                 role: 'ASSISTANT',
                 content: parsed.content,
                 suggestedActions: parsed.suggestedActions,
                 action: parsed.action || null,
                 actionPayload: parsed.actionPayload || null,
-              };
+              }
             }
           }
         } catch (err) {
@@ -938,6 +1059,6 @@ builder.mutationFields((t) => ({
         action,
         actionPayload,
       }
-    }
+    },
   }),
 }))

@@ -35,7 +35,7 @@ function mapToRoomType(raw: PrismaRoomType): RoomType {
     extraGuestPrice: Number(raw.extraGuestPrice),
     maxExtraBeds: raw.maxExtraBeds,
     amenities: raw.amenities as string[] | null,
-    isActive: raw.isActive,
+    isActive: raw.status === 'ACTIVE' && raw.deletedAt === null,
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
   })
@@ -57,8 +57,8 @@ export class PrismaRoomTypeRepository implements IRoomTypeRepository {
 
   async findByHotelAndName(hotelId: string, name: string): Promise<RoomType | null> {
     try {
-      const raw = await this.db.roomType.findUnique({
-        where: { hotelId_name: { hotelId, name } },
+      const raw = await this.db.roomType.findFirst({
+        where: { hotelId, name, deletedAt: null },
       })
       return raw ? mapToRoomType(raw) : null
     } catch (err) {
@@ -70,11 +70,18 @@ export class PrismaRoomTypeRepository implements IRoomTypeRepository {
 
   async create(data: CreateRoomTypeData): Promise<RoomType> {
     try {
+      const slug =
+        (data as any).slug ||
+        data.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
       const raw = await this.db.roomType.create({
         data: {
           hotelId: data.hotelId,
           organizationId: data.organizationId,
           name: data.name,
+          slug,
           description: data.description ?? null,
           basePrice: data.basePrice,
           maxOccupancy: data.maxOccupancy,
@@ -88,10 +95,10 @@ export class PrismaRoomTypeRepository implements IRoomTypeRepository {
           minOccupancy: data.minOccupancy ?? 1,
           absoluteMax: data.absoluteMax ?? 3,
           hourlyPrice: data.hourlyPrice ?? null,
-          extraBedPrice: data.extraBedPrice ?? 0.00,
-          extraGuestPrice: data.extraGuestPrice ?? 0.00,
+          extraBedPrice: data.extraBedPrice ?? 0.0,
+          extraGuestPrice: data.extraGuestPrice ?? 0.0,
           maxExtraBeds: data.maxExtraBeds ?? 0,
-          amenities: data.amenities ?? null,
+          amenities: data.amenities ?? [],
         },
       })
       return mapToRoomType(raw)

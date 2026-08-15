@@ -4,7 +4,11 @@ import helmet from 'helmet'
 import type { IEventPublisher } from '@stayflexi/shared-events'
 import type { Logger } from '@stayflexi/shared-logger'
 import { createRequestLogger } from '@stayflexi/shared-logger'
-import { MetricsRegistry, createHttpMetricsMiddleware, createMetricsHandler } from '@stayflexi/shared-observability'
+import {
+  MetricsRegistry,
+  createHttpMetricsMiddleware,
+  createMetricsHandler,
+} from '@stayflexi/shared-observability'
 import { getPrismaClient } from '@stayflexi/shared-database'
 import type Redis from 'ioredis'
 import { ApolloServer } from '@apollo/server'
@@ -55,7 +59,7 @@ export function createApp(
   config: HotelConfig,
   redis: Redis,
   eventPublisher: IEventPublisher,
-  logger: Logger
+  logger: Logger,
 ): express.Application {
   const db = getPrismaClient(config.DATABASE_URL)
 
@@ -90,7 +94,7 @@ export function createApp(
     roomRepo,
     roomCache,
     eventPublisher,
-    logger
+    logger,
   )
   const listRooms = new ListRooms(hotelRepo, roomRepo)
 
@@ -108,7 +112,7 @@ export function createApp(
     getRoom,
     updateRoom,
     updateRoomStatus,
-    listRooms
+    listRooms,
   )
 
   // Express app
@@ -130,7 +134,7 @@ export function createApp(
         'X-User-Role',
         'X-Service-Key',
       ],
-    })
+    }),
   )
   app.use(express.json({ limit: '5mb' }))
   const registry = new MetricsRegistry()
@@ -186,11 +190,14 @@ export function createApp(
             },
           }
         },
-      })
+      }),
     )
   })
 
-  app.use((_req, res) => {
+  app.use((req, res, next) => {
+    if (req.path === '/graphql') {
+      return next()
+    }
     res.status(404).json({
       success: false,
       error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 },

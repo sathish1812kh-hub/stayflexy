@@ -7,7 +7,11 @@ import { schema } from './graphql/schema'
 import type { IEventPublisher } from '@stayflexi/shared-events'
 import type { Logger } from '@stayflexi/shared-logger'
 import { createRequestLogger } from '@stayflexi/shared-logger'
-import { MetricsRegistry, createHttpMetricsMiddleware, createMetricsHandler } from '@stayflexi/shared-observability'
+import {
+  MetricsRegistry,
+  createHttpMetricsMiddleware,
+  createMetricsHandler,
+} from '@stayflexi/shared-observability'
 import { getPrismaClient } from '@stayflexi/shared-database'
 import type Redis from 'ioredis'
 
@@ -40,7 +44,7 @@ export function createApp(
   config: AuthConfig,
   redis: Redis,
   eventPublisher: IEventPublisher,
-  logger: Logger
+  logger: Logger,
 ): express.Application {
   const db = getPrismaClient(config.DATABASE_URL)
 
@@ -51,7 +55,7 @@ export function createApp(
   const bruteForce = new BruteForceProtector(
     redis,
     config.BRUTE_FORCE_MAX_ATTEMPTS,
-    config.BRUTE_FORCE_WINDOW_SECONDS
+    config.BRUTE_FORCE_WINDOW_SECONDS,
   )
 
   // Application services
@@ -61,7 +65,7 @@ export function createApp(
     config.JWT_SECRET,
     config.JWT_REFRESH_SECRET,
     config.JWT_ACCESS_EXPIRES_IN,
-    REFRESH_EXPIRES_IN_MS
+    REFRESH_EXPIRES_IN_MS,
   )
 
   // Use cases
@@ -70,7 +74,7 @@ export function createApp(
     tokenService,
     eventPublisher,
     logger,
-    config.BCRYPT_ROUNDS
+    config.BCRYPT_ROUNDS,
   )
   const loginUser = new LoginUser(userRepo, tokenService, bruteForce, eventPublisher, logger)
   const logoutUser = new LogoutUser(tokenRepo, sessionCache, logger)
@@ -83,7 +87,7 @@ export function createApp(
     loginUser,
     logoutUser,
     refreshTokens,
-    getCurrentUser
+    getCurrentUser,
   )
 
   // Express app
@@ -93,14 +97,14 @@ export function createApp(
   app.use(
     helmet({
       hsts: { maxAge: 31536000, includeSubDomains: true },
-    })
+    }),
   )
   app.use(
     cors({
       credentials: true,
       methods: ['GET', 'POST', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-Id'],
-    })
+    }),
   )
   app.use(express.json({ limit: '1mb' }))
   const registry = new MetricsRegistry()
@@ -125,13 +129,11 @@ export function createApp(
         context: async ({ req }) => {
           const userId = req.headers['x-user-id'] as string | undefined
           const orgId = req.headers['x-organization-id'] as string | undefined
-          const role = req.headers['x-user-role'] as string | undefined
           const correlationId = req.headers['x-correlation-id'] as string | undefined
 
           return {
             userId: userId ?? null,
             organizationId: orgId ?? null,
-            role: role ?? 'FRONT_DESK',
             correlationId,
             registerUser,
             loginUser,
@@ -140,12 +142,15 @@ export function createApp(
             getCurrentUser,
           }
         },
-      })
+      }),
     )
   })
 
   // 404 handler
-  app.use((_req, res) => {
+  app.use((req, res, next) => {
+    if (req.path === '/graphql') {
+      return next()
+    }
     res.status(404).json({
       success: false,
       error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 },

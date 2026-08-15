@@ -5,7 +5,11 @@ import rateLimit from 'express-rate-limit'
 import { getPrismaClient } from '@stayflexi/shared-database'
 import { createRequestLogger } from '@stayflexi/shared-logger'
 import type { Logger } from '@stayflexi/shared-logger'
-import { MetricsRegistry, createHttpMetricsMiddleware, createMetricsHandler } from '@stayflexi/shared-observability'
+import {
+  MetricsRegistry,
+  createHttpMetricsMiddleware,
+  createMetricsHandler,
+} from '@stayflexi/shared-observability'
 import type { IEventPublisher } from '@stayflexi/shared-events'
 import type Redis from 'ioredis'
 
@@ -32,7 +36,7 @@ export function createApp(
   config: NotificationConfig,
   redis: Redis,
   eventPublisher: IEventPublisher,
-  logger: Logger
+  logger: Logger,
 ): express.Application {
   const db = getPrismaClient(config.DATABASE_URL)
 
@@ -44,8 +48,21 @@ export function createApp(
   const templateRenderer = new TemplateRenderer()
 
   // Use Cases Instantiations
-  const sendNotification = new SendNotification(notificationRepo, templateRepo, providerFactory, templateRenderer, cache, eventPublisher, logger)
-  const retryNotification = new RetryNotification(notificationRepo, providerFactory, logger)
+  const sendNotification = new SendNotification(
+    notificationRepo,
+    templateRepo,
+    providerFactory,
+    templateRenderer,
+    cache,
+    eventPublisher,
+    logger,
+  )
+  const retryNotification = new RetryNotification(
+    notificationRepo,
+    providerFactory,
+    eventPublisher,
+    logger,
+  )
   const getNotification = new GetNotification(notificationRepo)
   const listNotifications = new ListNotifications(notificationRepo)
 
@@ -55,34 +72,46 @@ export function createApp(
     retryNotification,
     getNotification,
     listNotifications,
-    templateRepo
+    templateRepo,
   )
 
   // Express Setup
   const registry = new MetricsRegistry()
   const app = express()
-  
+
   app.disable('x-powered-by')
   app.set('trust proxy', 1)
   app.use(helmet())
-  app.use(cors({
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-Id', 'X-User-Id', 'X-Organization-Id', 'X-User-Role', 'X-Service-Key'],
-  }))
+  app.use(
+    cors({
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Correlation-Id',
+        'X-User-Id',
+        'X-Organization-Id',
+        'X-User-Role',
+        'X-Service-Key',
+      ],
+    }),
+  )
   app.use(express.json({ limit: '1mb' }))
   app.use(correlationMiddleware)
   app.use(createRequestLogger(logger))
   app.use(createHttpMetricsMiddleware(registry) as unknown as express.RequestHandler)
   app.get('/metrics', createMetricsHandler(registry) as unknown as express.RequestHandler)
-  
-  app.use(rateLimit({
-    windowMs: config.RATE_LIMIT_WINDOW_MS,
-    max: config.RATE_LIMIT_MAX_REQUESTS,
-    standardHeaders: true,
-    legacyHeaders: false,
-    skip: (req) => req.path.startsWith('/health') || req.path === '/metrics',
-  }))
+
+  app.use(
+    rateLimit({
+      windowMs: config.RATE_LIMIT_WINDOW_MS,
+      max: config.RATE_LIMIT_MAX_REQUESTS,
+      standardHeaders: true,
+      legacyHeaders: false,
+      skip: (req) => req.path.startsWith('/health') || req.path === '/metrics',
+    }),
+  )
 
   app.use((req, res, next) => {
     if (req.path.startsWith('/api/v1/')) return authMiddleware(req, res, next)
@@ -92,7 +121,12 @@ export function createApp(
   // Inline Health Router
   const startTime = Date.now()
   app.get('/health/live', (_req, res) => {
-    res.json({ status: 'alive', service: 'notification-service', uptime: Date.now() - startTime, timestamp: new Date().toISOString() })
+    res.json({
+      status: 'alive',
+      service: 'notification-service',
+      uptime: Date.now() - startTime,
+      timestamp: new Date().toISOString(),
+    })
   })
   app.get('/health/ready', async (_req, res) => {
     const checks: Record<string, string> = {}
@@ -117,7 +151,10 @@ export function createApp(
   app.use(createNotificationApiRouter(controller))
 
   app.use((_req, res) => {
-    res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 } })
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 },
+    })
   })
   app.use(createErrorHandler(logger))
 

@@ -11,7 +11,6 @@ export const HotelRef = builder.objectRef<Hotel>('Hotel')
 
 builder.objectType(HotelRef, {
   name: 'Hotel',
-  key: builder.selection<{ id: string }>('id'),
   fields: (t) => ({
     id: t.exposeID('id'),
     organizationId: t.exposeString('organizationId'),
@@ -32,7 +31,7 @@ builder.objectType(HotelRef, {
     checkOutTime: t.exposeString('checkOutTime'),
     createdAt: t.expose('createdAt', { type: 'DateTime' }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
-    
+
     // Nested relations loaded via DataLoaders to prevent N+1 queries
     roomTypes: t.field({
       type: [RoomTypeRef],
@@ -49,7 +48,7 @@ builder.objectType(HotelRef, {
   }),
 })
 
-builder.entityMapper(HotelRef, {
+builder.asEntity(HotelRef, {
   key: builder.selection<{ id: string }>('id'),
   resolveReference: async (key, context) => {
     const orgId = context.role === 'SUPER_ADMIN' ? null : context.organizationId
@@ -79,7 +78,7 @@ builder.queryFields((t) => ({
       const result = await context.listHotels.execute(
         { page: page ?? 1, limit: limit ?? 100 },
         context.organizationId,
-        context.role
+        context.role,
       )
       return result.data
     },
@@ -113,15 +112,15 @@ builder.mutationFields((t) => ({
       return context.createHotel.execute(
         {
           name: args.name,
-          address: args.address ?? null,
+          address: args.address ?? undefined,
           city: args.city,
-          state: args.state ?? null,
+          state: args.state ?? undefined,
           country: args.country,
-          postalCode: args.postalCode ?? null,
-          phone: args.phone ?? null,
-          email: args.email ?? null,
-          website: args.website ?? null,
-          starRating: args.starRating ?? null,
+          postalCode: args.postalCode ?? undefined,
+          phone: args.phone ?? undefined,
+          email: args.email ?? undefined,
+          website: args.website ?? undefined,
+          starRating: args.starRating ?? undefined,
           timezone: args.timezone ?? 'UTC',
           checkInTime: args.checkInTime ?? '14:00',
           checkOutTime: args.checkOutTime ?? '11:00',
@@ -129,7 +128,7 @@ builder.mutationFields((t) => ({
         },
         context.organizationId,
         context.userId,
-        context.correlationId
+        context.correlationId,
       )
     },
   }),

@@ -1,7 +1,7 @@
 import express from 'express'
 import Redis from 'ioredis'
 import { createSecurityMiddleware } from './middleware/security'
-import { createAuthMiddleware } from './middleware/auth'
+import { createAuthMiddleware, createGraphQLAuthMiddleware } from './middleware/auth'
 import { tracingMiddleware } from './middleware/tracing'
 import { createRateLimitMiddleware } from './middleware/rateLimit'
 import { registerRoutes } from './router'
@@ -19,13 +19,21 @@ export function createGatewayApp(config: GatewayConfig, redis: Redis): express.A
   app.disable('x-powered-by')
   app.use(express.json({ limit: '10mb' }))
   app.use(tracingMiddleware)
-  app.use(...(createSecurityMiddleware(config.cors.origins) as [express.RequestHandler, ...express.RequestHandler[]]))
+  app.use(
+    ...(createSecurityMiddleware(config.cors.origins) as [
+      express.RequestHandler,
+      ...express.RequestHandler[],
+    ]),
+  )
 
   // Health checks before auth and rate limiting
   app.use('/health', createHealthRouter(redis, new Date()))
 
   // Rate limiting on all /api routes
-  app.use('/api', createRateLimitMiddleware(redis, config.rateLimit.windowMs, config.rateLimit.maxRequests))
+  app.use(
+    '/api',
+    createRateLimitMiddleware(redis, config.rateLimit.windowMs, config.rateLimit.maxRequests),
+  )
 
   // JWT authentication on all /api routes
   app.use('/api', createAuthMiddleware(config.jwtSecret, config.serviceKey))
@@ -42,10 +50,6 @@ export function createGatewayApp(config: GatewayConfig, redis: Redis): express.A
         { name: 'organizations', url: `${config.services.organization}/graphql` },
         { name: 'bookings', url: `${config.services.booking}/graphql` },
         { name: 'inventory', url: `${config.services.inventory}/graphql` },
-        { name: 'payments', url: `${config.services.payment}/graphql` },
-        { name: 'ota', url: `${config.services.ota}/graphql` },
-        { name: 'workflows', url: `${config.services.workflow}/graphql` },
-        { name: 'analytics', url: `${config.services.analytics}/graphql` },
       ],
     }),
     buildService({ url }) {
@@ -55,9 +59,11 @@ export function createGatewayApp(config: GatewayConfig, redis: Redis): express.A
           const ctx = context as Record<string, string | undefined>
           if (request.http) {
             if (ctx['userId']) request.http.headers.set('x-user-id', ctx['userId'])
-            if (ctx['organizationId']) request.http.headers.set('x-organization-id', ctx['organizationId'])
+            if (ctx['organizationId'])
+              request.http.headers.set('x-organization-id', ctx['organizationId'])
             if (ctx['role']) request.http.headers.set('x-user-role', ctx['role'])
-            if (ctx['correlationId']) request.http.headers.set('x-correlation-id', ctx['correlationId'])
+            if (ctx['correlationId'])
+              request.http.headers.set('x-correlation-id', ctx['correlationId'])
             request.http.headers.set('x-service-key', config.serviceKey)
           }
         },
@@ -72,7 +78,7 @@ export function createGatewayApp(config: GatewayConfig, redis: Redis): express.A
   void apolloServer.start().then(() => {
     app.use(
       '/graphql',
-      createAuthMiddleware(config.jwtSecret, config.serviceKey),
+      createGraphQLAuthMiddleware(config.jwtSecret, config.serviceKey),
       expressMiddleware(apolloServer, {
         context: async ({ req }: { req: express.Request }) => {
           const userId = req.headers['x-user-id'] as string | undefined
@@ -87,12 +93,15 @@ export function createGatewayApp(config: GatewayConfig, redis: Redis): express.A
             correlationId,
           }
         },
-      })
+      }),
     )
   })
 
   // 404 fallback
-  app.use((_req, res) => {
+  app.use((req, res, next) => {
+    if (req.path === '/graphql') {
+      return next()
+    }
     res.status(404).json({
       success: false,
       error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 },

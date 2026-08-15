@@ -27,12 +27,9 @@ export class BookingCreationSaga {
     private readonly bookingRepo: IBookingRepository,
     private readonly inventoryRepo: IInventoryRepository,
     private readonly eventPublisher: IEventPublisher,
-    private readonly logger: Logger
+    private readonly logger: Logger,
   ) {
-    this.steps = [
-      this.createReserveInventoryStep(),
-      this.createPublishEventStep(),
-    ]
+    this.steps = [this.createReserveInventoryStep(), this.createPublishEventStep()]
   }
 
   async execute(ctx: BookingSagaContext): Promise<void> {
@@ -46,7 +43,7 @@ export class BookingCreationSaga {
     } catch (err) {
       this.logger.error({ err, bookingId: ctx.bookingId }, 'Saga step failed, compensating')
       for (const step of [...executed].reverse()) {
-        await step.compensate(ctx).catch(compErr => {
+        await step.compensate(ctx).catch((compErr) => {
           this.logger.error({ compErr, step: step.name }, 'Compensation failed')
         })
       }
@@ -58,18 +55,49 @@ export class BookingCreationSaga {
     return {
       name: 'ReserveInventory',
       execute: async (ctx) => {
-        for (const roomTypeId of ctx.roomTypeIds) {
-          await this.inventoryRepo.reserveInventory(roomTypeId, ctx.organizationId, ctx.hotelId, ctx.checkInDate, ctx.checkOutDate)
+        const reserved: string[] = []
+        try {
+          for (const roomTypeId of ctx.roomTypeIds) {
+            await this.inventoryRepo.reserveInventory(
+              roomTypeId,
+              ctx.organizationId,
+              ctx.hotelId,
+              ctx.checkInDate,
+              ctx.checkOutDate,
+            )
+            reserved.push(roomTypeId)
+          }
+        } catch (err) {
+          for (const roomTypeId of reserved) {
+            await this.inventoryRepo
+              .releaseInventory(roomTypeId, ctx.checkInDate, ctx.checkOutDate)
+              .catch(() => undefined)
+          }
+          await this.bookingRepo
+            .updateStatus(ctx.bookingId, 'CANCELLED', {
+              cancelledAt: new Date(),
+              cancelledById: 'saga-compensator',
+              cancellationReason: 'HOTEL_REQUEST',
+              cancellationNote: 'Inventory reservation failed',
+            })
+            .catch(() => undefined)
+          throw err
         }
       },
       compensate: async (ctx) => {
         for (const roomTypeId of ctx.roomTypeIds) {
-          await this.inventoryRepo.releaseInventory(roomTypeId, ctx.checkInDate, ctx.checkOutDate).catch(() => undefined)
+          await this.inventoryRepo
+            .releaseInventory(roomTypeId, ctx.checkInDate, ctx.checkOutDate)
+            .catch(() => undefined)
         }
-        await this.bookingRepo.updateStatus(ctx.bookingId, 'CANCELLED', {
-          cancelledAt: new Date(), cancelledById: 'saga-compensator',
-          cancellationReason: 'HOTEL_REQUEST', cancellationNote: 'Inventory reservation failed',
-        }).catch(() => undefined)
+        await this.bookingRepo
+          .updateStatus(ctx.bookingId, 'CANCELLED', {
+            cancelledAt: new Date(),
+            cancelledById: 'saga-compensator',
+            cancellationReason: 'HOTEL_REQUEST',
+            cancellationNote: 'Inventory reservation failed',
+          })
+          .catch(() => undefined)
       },
     }
   }

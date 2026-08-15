@@ -24,16 +24,27 @@ function toDomain(raw: any): ForecastDataPoint {
 }
 
 export class PrismaForecastRepository {
-  private get repo() { return (this.db as AnyClient)['forecastDataPoint'] }
+  private get repo() {
+    return (this.db as AnyClient)['forecastDataPoint']
+  }
 
   constructor(private readonly db: PrismaClient) {}
 
-  async findByHotelAndDate(hotelId: string, forecastDate: string): Promise<ForecastDataPoint | null> {
-    const raw = await this.repo.findUnique({ where: { hotelId_forecastDate: { hotelId, forecastDate } } })
+  async findByHotelAndDate(
+    hotelId: string,
+    forecastDate: string,
+  ): Promise<ForecastDataPoint | null> {
+    const raw = await this.repo.findUnique({
+      where: { hotelId_forecastDate: { hotelId, forecastDate } },
+    })
     return raw ? toDomain(raw) : null
   }
 
-  async findByHotelAndDateRange(hotelId: string, from: string, to: string): Promise<ForecastDataPoint[]> {
+  async findByHotelAndDateRange(
+    hotelId: string,
+    from: string,
+    to: string,
+  ): Promise<ForecastDataPoint[]> {
     const rows = await this.repo.findMany({
       where: { hotelId, forecastDate: { gte: from, lte: to } },
       orderBy: { forecastDate: 'asc' },
@@ -41,12 +52,17 @@ export class PrismaForecastRepository {
     return rows.map(toDomain)
   }
 
-  async upsertMany(data: Omit<ForecastDataPointProps, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<number> {
+  async upsertMany(
+    data: Omit<ForecastDataPointProps, 'id' | 'createdAt' | 'updatedAt'>[],
+  ): Promise<number> {
     let count = 0
     for (const d of data) {
       await this.repo.upsert({
         where: { hotelId_forecastDate: { hotelId: d.hotelId, forecastDate: d.forecastDate } },
-        create: d,
+        create: {
+          ...d,
+          eventImpact: d.eventImpact as any,
+        },
         update: {
           projectedOccupancy: d.projectedOccupancy,
           projectedAdr: d.projectedAdr,

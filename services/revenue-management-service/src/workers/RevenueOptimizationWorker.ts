@@ -20,7 +20,11 @@ export class RevenueOptimizationWorker {
     private readonly logger: Logger,
   ) {}
 
-  async runOptimizationCycle(hotelId: string, organizationId: string, targetPeriod: string): Promise<void> {
+  async runOptimizationCycle(
+    hotelId: string,
+    organizationId: string,
+    targetPeriod: string,
+  ): Promise<void> {
     const target = await this.targetRepo.findByHotelAndPeriod(hotelId, targetPeriod)
     if (!target || !target.belongsToOrganization(organizationId)) return
 
@@ -47,12 +51,14 @@ export class RevenueOptimizationWorker {
         targetDate: forecastProps.forecastDate,
         basePrice: forecastProps.projectedAdr,
         currentOccupancy: forecastProps.projectedOccupancy,
-        forecast: forecastProps,
+        forecast: forecast,
         target: targetProps,
       })
 
-      totalProjectedRevenue += result.recommendation.recommendedPrice * forecastProps.totalRooms * forecastProps.projectedOccupancy
-      totalProjectedRevPar += result.recommendation.recommendedPrice * forecastProps.projectedOccupancy
+      totalProjectedRevenue +=
+        result.recommendation.recommendedPrice * forecastProps.projectedOccupancy
+      totalProjectedRevPar +=
+        result.recommendation.recommendedPrice * forecastProps.projectedOccupancy
       totalProjectedOccupancy += forecastProps.projectedOccupancy
     }
 
@@ -61,32 +67,39 @@ export class RevenueOptimizationWorker {
     const avgAdr = avgOccupancy > 0 ? avgRevPar / avgOccupancy : 0
 
     setImmediate(() => {
-      void this.eventPublisher.publish('pricing.events', {
-        eventType: REVENUE_EVENTS.REVENUE_OPTIMIZED,
-        aggregateId: hotelId,
-        aggregateType: 'RevenueTarget',
-        organizationId,
-        payload: {
-          hotelId,
+      void this.eventPublisher
+        .publish('pricing.events', {
+          eventType: REVENUE_EVENTS.REVENUE_OPTIMIZED,
+          aggregateId: hotelId,
+          aggregateType: 'RevenueTarget',
           organizationId,
-          targetPeriod,
-          projectedRevenue: Math.round(totalProjectedRevenue * 100) / 100,
-          projectedRevPar: Math.round(avgRevPar * 100) / 100,
-          projectedOccupancy: Math.round(avgOccupancy * 10000) / 10000,
-          recommendedAdr: Math.round(avgAdr * 100) / 100,
-        },
-      }).catch(() => {})
+          payload: {
+            hotelId,
+            organizationId,
+            targetPeriod,
+            projectedRevenue: Math.round(totalProjectedRevenue * 100) / 100,
+            projectedRevPar: Math.round(avgRevPar * 100) / 100,
+            projectedOccupancy: Math.round(avgOccupancy * 10000) / 10000,
+            recommendedAdr: Math.round(avgAdr * 100) / 100,
+          },
+        })
+        .catch(() => {})
     })
 
-    this.logger.info({
-      hotelId,
-      targetPeriod,
-      projectedRevPar: Math.round(avgRevPar * 100) / 100,
-      avgOccupancy: Math.round(avgOccupancy * 100),
-    }, 'Revenue optimization cycle completed')
+    this.logger.info(
+      {
+        hotelId,
+        targetPeriod,
+        projectedRevPar: Math.round(avgRevPar * 100) / 100,
+        avgOccupancy: Math.round(avgOccupancy * 100),
+      },
+      'Revenue optimization cycle completed',
+    )
   }
 
-  get isRunning(): boolean { return this.running }
+  get isRunning(): boolean {
+    return this.running
+  }
 
   start(): void {
     this.running = true

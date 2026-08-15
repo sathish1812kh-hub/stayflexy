@@ -53,7 +53,7 @@ export class AnalyticsEventConsumer {
   static createKafka(config: AnalyticsConfig): Kafka {
     return new Kafka({
       clientId: 'analytics-service-consumer',
-      brokers: config.KAFKA_BROKERS.split(',').map(b => b.trim()),
+      brokers: config.KAFKA_BROKERS.split(',').map((b) => b.trim()),
       retry: { retries: 5, initialRetryTime: 1000 },
       connectionTimeout: 5000,
     })
@@ -67,15 +67,19 @@ export class AnalyticsEventConsumer {
       fromBeginning: false,
     })
     this.started = true
-    this.logger.info('AnalyticsEventConsumer started — subscribed to booking/payment/inventory/ota events')
+    this.logger.info(
+      'AnalyticsEventConsumer started — subscribed to booking/payment/inventory/ota events',
+    )
 
-    this.consumer.run({
-      eachMessage: async (payload: EachMessagePayload) => {
-        await this.processMessage(payload)
-      },
-    }).catch(err => {
-      this.logger.error({ err }, 'AnalyticsEventConsumer run-loop error')
-    })
+    this.consumer
+      .run({
+        eachMessage: async (payload: EachMessagePayload) => {
+          await this.processMessage(payload)
+        },
+      })
+      .catch((err) => {
+        this.logger.error({ err }, 'AnalyticsEventConsumer run-loop error')
+      })
   }
 
   async stop(): Promise<void> {
@@ -106,7 +110,7 @@ export class AnalyticsEventConsumer {
     } catch (err) {
       this.logger.error(
         { err, eventType: envelope.eventType, aggregateId: envelope.aggregateId, topic },
-        'Failed to process analytics event'
+        'Failed to process analytics event',
       )
     }
   }
@@ -117,7 +121,9 @@ export class AnalyticsEventConsumer {
     // Deduplicate by externalEventId — skip if already processed
     const analyticsEventModel = (this.db as AnyClient)['analyticsEvent']
     if (analyticsEventModel) {
-      const exists = await analyticsEventModel.findUnique({ where: { externalEventId: eventId } }).catch(() => null)
+      const exists = await analyticsEventModel
+        .findUnique({ where: { externalEventId: eventId } })
+        .catch(() => null)
       if (exists) {
         this.logger.debug({ eventId, eventType }, 'Skipping duplicate analytics event')
         return
@@ -131,22 +137,24 @@ export class AnalyticsEventConsumer {
     if (analyticsEventModel) {
       const analyticsType = EVENT_TYPE_MAP[eventType]
       if (analyticsType) {
-        await analyticsEventModel.create({
-          data: {
-            organizationId,
-            hotelId: hotelId ?? null,
-            eventType: analyticsType,
-            externalEventId: eventId,
-            eventData: payload,
-            processedAt: new Date(),
-          },
-        }).catch((err: unknown) => {
-          // P2002 = unique constraint violation — duplicate, safe to ignore
-          const code = (err as Record<string, unknown>)['code']
-          if (code !== 'P2002') {
-            this.logger.warn({ err, eventId }, 'Failed to store analytics event')
-          }
-        })
+        await analyticsEventModel
+          .create({
+            data: {
+              organizationId,
+              hotelId: hotelId ?? null,
+              eventType: analyticsType as unknown as EventType,
+              externalEventId: eventId,
+              eventData: payload as Prisma.InputJsonValue,
+              processedAt: new Date(),
+            },
+          })
+          .catch((err: unknown) => {
+            // P2002 = unique constraint violation — duplicate, safe to ignore
+            const code = (err as Record<string, unknown>)['code']
+            if (code !== 'P2002') {
+              this.logger.warn({ err: err as Error, eventId }, 'Failed to store analytics event')
+            }
+          })
       }
     }
 
@@ -165,13 +173,14 @@ export class AnalyticsEventConsumer {
   }
 
   private shouldTriggerAggregation(eventType: string): boolean {
-    return [
+    const list: string[] = [
       SUBSCRIBED_EVENTS.BOOKING_CREATED,
       SUBSCRIBED_EVENTS.BOOKING_CANCELLED,
       SUBSCRIBED_EVENTS.BOOKING_CHECKED_OUT,
       SUBSCRIBED_EVENTS.PAYMENT_COMPLETED,
       SUBSCRIBED_EVENTS.PAYMENT_REFUNDED,
-    ].includes(eventType as typeof SUBSCRIBED_EVENTS[keyof typeof SUBSCRIBED_EVENTS])
+    ]
+    return list.includes(eventType)
   }
 
   private async triggerAggregation(hotelId: string, organizationId: string): Promise<void> {
@@ -179,7 +188,12 @@ export class AnalyticsEventConsumer {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
 
-      const kpis = await this.kpiCalculator.calculateKpis(hotelId, organizationId, today, new Date())
+      const kpis = await this.kpiCalculator.calculateKpis(
+        hotelId,
+        organizationId,
+        today,
+        new Date(),
+      )
       await this.revenueMetricRepo.upsert({
         organizationId,
         hotelId,

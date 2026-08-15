@@ -1,6 +1,7 @@
 import pino from 'pino'
 import pinoHttp from 'pino-http'
 import type { IncomingMessage, ServerResponse } from 'http'
+import { randomUUID } from 'crypto'
 
 export interface LoggerOptions {
   level?: 'debug' | 'info' | 'warn' | 'error'
@@ -9,12 +10,17 @@ export interface LoggerOptions {
   environment?: string
 }
 
+export interface TraceContext {
+  traceId: string
+  spanId: string
+  correlationId: string
+  parentSpanId?: string
+}
+
 export type Logger = pino.Logger
 
 export function createLogger(options: LoggerOptions): Logger {
-  const isDev =
-    (options.environment ?? process.env['NODE_ENV'] ?? 'development') ===
-    'development'
+  const isDev = (options.environment ?? process.env['NODE_ENV'] ?? 'development') === 'development'
   return pino({
     name: options.serviceName,
     level: options.level ?? (isDev ? 'debug' : 'info'),
@@ -38,27 +44,90 @@ export function createLogger(options: LoggerOptions): Logger {
   })
 }
 
-export function createRequestLogger(
-  logger: Logger
-): ReturnType<typeof pinoHttp> {
+/**
+ * Extracts distributed trace context from HTTP headers or generates fresh IDs.
+ */
+export function extractTraceHeaders(
+  headers: Record<string, string | string[] | undefined>,
+): TraceContext {
+  const getHeader = (key: string): string | undefined => {
+    const val = headers[key.toLowerCase()] ?? headers[key]
+    return Array.isArray(val) ? val[0] : val
+  }
+
+  const correlationId = getHeader('x-correlation-id') ?? getHeader('x-request-id') ?? randomUUID()
+
+  // Support W3C traceparent (version-traceid-parentid-traceflags)
+  const traceparent = getHeader('traceparent')
+  let traceId = getHeader('x-trace-id')
+  let parentSpanId: string | undefined
+
+  if (traceparent && traceparent.startsWith('00-')) {
+    const parts = traceparent.split('-')
+    if (parts.length >= 4) {
+      traceId = parts[1]
+      parentSpanId = parts[2]
+    }
+  }
+
+  traceId = traceId ?? correlationId
+  const spanId = randomUUID().replace(/-/g, '').slice(0, 16)
+
+  return {
+    traceId,
+    spanId,
+    correlationId,
+    parentSpanId,
+  }
+}
+
+/**
+ * Injects distributed trace context into outbound HTTP request headers.
+ */
+export function injectTraceHeaders(
+  headers: Record<string, string>,
+  context: TraceContext,
+): Record<string, string> {
+  headers['x-correlation-id'] = context.correlationId
+  headers['x-trace-id'] = context.traceId
+  headers['x-span-id'] = context.spanId
+  headers['traceparent'] = `00-${context.traceId.padEnd(32, '0')}-${context.spanId}-01`
+  return headers
+}
+
+/**
+ * Creates a child logger with bound trace context for contextualized logging.
+ */
+export function withTraceContext(logger: Logger, context: TraceContext): Logger {
+  return logger.child({
+    traceId: context.traceId,
+    spanId: context.spanId,
+    correlationId: context.correlationId,
+    parentSpanId: context.parentSpanId,
+  })
+}
+
+export function createRequestLogger(logger: Logger): ReturnType<typeof pinoHttp> {
   return pinoHttp({
     logger,
-    customLogLevel: (_req: any, res: any) => {
+    customLogLevel: (_req: IncomingMessage, res: ServerResponse) => {
       if (res.statusCode >= 500) return 'error'
       if (res.statusCode >= 400) return 'warn'
       return 'info'
     },
-    customSuccessMessage: (req: any, res: any) =>
+    customSuccessMessage: (req: IncomingMessage, res: ServerResponse) =>
       `${req.method} ${req.url} ${res.statusCode}`,
-    customReceivedMessage: (req: any) => `Incoming ${req.method} ${req.url}`,
+    customReceivedMessage: (req: IncomingMessage) => `Incoming ${req.method} ${req.url}`,
     serializers: {
-      req: (req: Record<string, unknown>) => ({
-        method: req['method'],
-        url: req['url'],
-        correlationId: (
-          req['headers'] as Record<string, unknown>
-        )?.['x-correlation-id'],
-      }),
+      req: (req: Record<string, unknown>) => {
+        const headers = (req['headers'] as Record<string, unknown>) ?? {}
+        return {
+          method: req['method'],
+          url: req['url'],
+          correlationId: headers['x-correlation-id'],
+          traceId: headers['x-trace-id'],
+        }
+      },
       res: (res: Record<string, unknown>) => ({
         statusCode: res['statusCode'],
       }),

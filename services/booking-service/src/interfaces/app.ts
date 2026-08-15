@@ -6,7 +6,11 @@ import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
 import { schema } from './graphql/schema'
 import { createRequestLogger } from '@stayflexi/shared-logger'
-import { MetricsRegistry, createHttpMetricsMiddleware, createMetricsHandler } from '@stayflexi/shared-observability'
+import {
+  MetricsRegistry,
+  createHttpMetricsMiddleware,
+  createMetricsHandler,
+} from '@stayflexi/shared-observability'
 import { createEventPublisher } from '@stayflexi/shared-events'
 import { getPrismaClient } from '@stayflexi/shared-database'
 import type { Logger } from '@stayflexi/shared-logger'
@@ -41,7 +45,7 @@ export function createApp(
   config: BookingConfig,
   redis: Redis,
   eventPublisher: IEventPublisher,
-  logger: Logger
+  logger: Logger,
 ): express.Application {
   const db = getPrismaClient(config.DATABASE_URL)
 
@@ -50,7 +54,12 @@ export function createApp(
   const inventoryRepo = new PrismaInventoryRepository(db)
   const cache = new BookingCache(redis, config.BOOKING_CACHE_TTL_SECONDS)
   const idempotencyStore = new IdempotencyStore(redis, config.IDEMPOTENCY_TTL_SECONDS)
-  const lock = new RedisDistributedLock(redis, config.BOOKING_LOCK_TTL_MS, config.BOOKING_LOCK_RETRY_COUNT, config.BOOKING_LOCK_RETRY_DELAY_MS)
+  const lock = new RedisDistributedLock(
+    redis,
+    config.BOOKING_LOCK_TTL_MS,
+    config.BOOKING_LOCK_RETRY_COUNT,
+    config.BOOKING_LOCK_RETRY_DELAY_MS,
+  )
 
   // Use cases
   const createBooking = new CreateBooking(bookingRepo, inventoryRepo, lock, eventPublisher, logger)
@@ -62,20 +71,43 @@ export function createApp(
   const patchBooking = new PatchBooking(bookingRepo, cache, logger)
 
   // Controller
-  const controller = new BookingController(createBooking, getBooking, cancelBooking, checkIn, checkOut, searchBookings, patchBooking, config)
+  const controller = new BookingController(
+    createBooking,
+    getBooking,
+    cancelBooking,
+    checkIn,
+    checkOut,
+    searchBookings,
+    patchBooking,
+    config,
+  )
 
   const app = express()
   app.disable('x-powered-by')
   app.set('trust proxy', 1)
   app.use(helmet())
-  app.use(cors({ credentials: true, methods: ['GET', 'POST', 'PATCH', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-Id', 'Idempotency-Key'] }))
+  app.use(
+    cors({
+      credentials: true,
+      methods: ['GET', 'POST', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-Id', 'Idempotency-Key'],
+    }),
+  )
   app.use(express.json({ limit: '2mb' }))
   const registry = new MetricsRegistry()
   app.use(correlationMiddleware)
   app.use(createRequestLogger(logger))
   app.use(createHttpMetricsMiddleware(registry) as unknown as express.RequestHandler)
   app.get('/metrics', createMetricsHandler(registry) as unknown as express.RequestHandler)
-  app.use(rateLimit({ windowMs: config.RATE_LIMIT_WINDOW_MS, max: config.RATE_LIMIT_MAX_REQUESTS, standardHeaders: true, legacyHeaders: false, skip: (req) => req.path.startsWith('/health') || req.path === '/metrics' }))
+  app.use(
+    rateLimit({
+      windowMs: config.RATE_LIMIT_WINDOW_MS,
+      max: config.RATE_LIMIT_MAX_REQUESTS,
+      standardHeaders: true,
+      legacyHeaders: false,
+      skip: (req) => req.path.startsWith('/health') || req.path === '/metrics',
+    }),
+  )
 
   app.use((req, res, next) => {
     if (req.path.startsWith('/api/v1/')) return authMiddleware(req, res, next)
@@ -112,11 +144,19 @@ export function createApp(
             searchBookings,
           }
         },
-      })
+      }),
     )
   })
 
-  app.use((_req, res) => { res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 } }) })
+  app.use((req, res, next) => {
+    if (req.path === '/graphql') {
+      return next()
+    }
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 },
+    })
+  })
   app.use(errorHandler)
 
   return app
