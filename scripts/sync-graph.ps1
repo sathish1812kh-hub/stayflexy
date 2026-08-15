@@ -32,33 +32,41 @@ $currentCommit = (git rev-parse HEAD).Trim()
 $currentBranch = (git rev-parse --abbrev-ref HEAD).Trim()
 $timestamp = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
 
-Write-Host "`n[1/3] Syncing Git Commit Node ($currentCommit)..." -ForegroundColor Yellow
-
-$cypherQuery = @"
-MERGE (c:GitCommit {hash: '$currentCommit'})
-SET c.branch = '$currentBranch',
-    c.syncedAt = '$timestamp',
-    c.project = 'Stayflexi'
-RETURN c.hash AS syncedCommit;
-"@
-
-$jdk21 = "C:\Stayflexi\.tools\jdk-21"
-if (Test-Path $jdk21) {
-    $env:JAVA_HOME = $jdk21
-    $env:PATH = "$jdk21\bin;$env:PATH"
+$zuluJdk = "C:\Users\Sathish\.Neo4jDesktop2\Cache\runtime\zulu21.50.19-ca-jre21.0.11-win_x64"
+if (Test-Path $zuluJdk) {
+    $env:JAVA_HOME = $zuluJdk
+    $env:PATH = "$zuluJdk\bin;$env:PATH"
+} elseif (Test-Path "C:\Stayflexi\.tools\jdk-21") {
+    $env:JAVA_HOME = "C:\Stayflexi\.tools\jdk-21"
+    $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
 }
 
 $cypherShell = "C:\Stayflexi\.tools\neo4j-community-5.26.0\bin\cypher-shell.bat"
+
+Write-Host "`n[1/3] Syncing Git Commit & Active Release ($currentCommit)..." -ForegroundColor Yellow
+$commitCypher = @"
+MERGE (p:Platform {name: 'Stayflexi'})
+SET p.version = '6.9.0', p.status = 'PRODUCTION_READY', p.lastSyncedAt = datetime()
+MERGE (rel:Release {version: 'v6.9.0'})
+SET rel.status = 'CERTIFIED_GREEN', rel.updatedAt = datetime()
+MERGE (p)-[:ACTIVE_RELEASE]->(rel)
+MERGE (c:GitCommit {hash: '$currentCommit'})
+SET c.branch = '$currentBranch', c.syncedAt = '$timestamp', c.project = 'Stayflexi'
+MERGE (rel)-[:INCLUDES_COMMIT]->(c)
+RETURN c.hash AS syncedCommit;
+"@
+
 if (Test-Path $cypherShell) {
-    $res = & $cypherShell -u neo4j -p stayflexi-dev-pass $cypherQuery 2>&1
-    Write-Host "  Git Commit synchronized in Neo4j." -ForegroundColor Green
+    $res = & $cypherShell -u neo4j -p stayflexi-dev-pass $commitCypher 2>&1
+    Write-Host "  Platform & Release Git Commit synchronized in Neo4j." -ForegroundColor Green
 }
 
-# 3. Synchronize 12 Microservices Nodes
-Write-Host "`n[2/3] Syncing 12 Microservice Domain Nodes..." -ForegroundColor Yellow
+# 3. Synchronize 12 Microservices Nodes & Dependencies
+Write-Host "`n[2/3] Syncing 12 Microservice Domain Nodes & Dependencies..." -ForegroundColor Yellow
 $servicesCypher = @"
+MATCH (p:Platform {name: 'Stayflexi'})
 UNWIND [
-  {name: 'auth-service', port: 3001, domain: 'Identity & Access'},
+  {name: 'auth-service', port: 3001, domain: 'Identity & Access Management'},
   {name: 'organization-service', port: 3002, domain: 'Tenancy & Membership'},
   {name: 'hotel-service', port: 3003, domain: 'Property Management'},
   {name: 'inventory-service', port: 3004, domain: 'Availability & Locking'},
@@ -71,11 +79,12 @@ UNWIND [
   {name: 'pricing-engine-service', port: 3011, domain: 'Dynamic Surge & Rates'},
   {name: 'revenue-management-service', port: 3012, domain: 'Yield Optimization'}
 ] AS s
-MERGE (service:Service {name: s.name})
+MERGE (service:Microservice {name: s.name})
 SET service.port = s.port,
     service.domain = s.domain,
     service.status = 'ONLINE',
-    service.updatedAt = '$timestamp'
+    service.updatedAt = datetime()
+MERGE (p)-[:CONTAINS_SERVICE]->(service)
 RETURN count(service) AS totalServices;
 "@
 
