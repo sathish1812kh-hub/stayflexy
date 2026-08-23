@@ -8,7 +8,7 @@ import { Shield, Lock, User, Terminal, ArrowRight } from 'lucide-react'
 export default function LoginPage() {
   const router = useRouter()
   const isDemo =
-    process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+    process.env.NODE_ENV !== 'production' || process.env['NEXT_PUBLIC_DEMO_MODE'] === 'true'
   const [email, setEmail] = useState(isDemo ? 'super-admin@stayflexi.dev' : '')
   const [password, setPassword] = useState(isDemo ? 'Stayflexi@2026!' : '')
   const [submitting, setSubmitting] = useState(false)
