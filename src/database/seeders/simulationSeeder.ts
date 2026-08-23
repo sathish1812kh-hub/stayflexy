@@ -5,15 +5,25 @@ const prisma = new PrismaClient({
 })
 
 export async function seedHospitalitySimulation(): Promise<void> {
+  if (process.env.NODE_ENV === 'production') {
+    console.warn(
+      '[simulation-seed] Production environment detected (NODE_ENV=production) — skipping simulation seeding.',
+    )
+    return
+  }
+
   console.warn('[simulation-seed] Starting rich hospitality simulation seeding...')
 
   // 1. Seed Demo Executive Owner User
   const demoOwner = await prisma.user.upsert({
     where: { email: 'executive@stayflexi.com' },
-    update: {},
+    update: {
+      passwordHash: '$2b$10$EQN23Otvt4EsMwY751BOd.fh30uD59abxsSaciLyl2kSDenzetGhO',
+      status: 'ACTIVE',
+    },
     create: {
       email: 'executive@stayflexi.com',
-      passwordHash: '$2a$10$abcdefghijklmnopqrstuvwxyz1234567890',
+      passwordHash: '$2b$10$EQN23Otvt4EsMwY751BOd.fh30uD59abxsSaciLyl2kSDenzetGhO',
       firstName: 'Alexander',
       lastName: 'Sterling',
       phone: '+1-415-555-0100',

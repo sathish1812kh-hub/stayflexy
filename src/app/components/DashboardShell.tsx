@@ -5,13 +5,13 @@ import Link from 'next/link'
 import dataClient, { Hotel } from '../dataClient'
 import FlexiAIChatWidget from './FlexiAIChatWidget'
 
-import { 
-  BarChart3, 
-  Hotel as HotelIcon, 
-  BedDouble, 
-  KeyRound, 
-  Terminal, 
-  User, 
+import {
+  BarChart3,
+  Hotel as HotelIcon,
+  BedDouble,
+  KeyRound,
+  Terminal,
+  User,
   Network,
   Calendar,
   CreditCard,
@@ -26,33 +26,53 @@ import {
   EyeOff,
   ChevronLeft,
   ChevronRight,
-  LayoutGrid
+  LayoutGrid,
 } from 'lucide-react'
 
 function hasTabAccess(role: string | null, tab: string): boolean {
-  if (!role) return false;
-  if (role === 'SUPER_ADMIN') return true;
+  if (!role) return false
+  if (role === 'SUPER_ADMIN') return true
   if (role === 'ORG_ADMIN') {
-    return !['console', 'monitoring'].includes(tab);
+    return !['console', 'monitoring'].includes(tab)
   }
   if (role === 'HOTEL_MANAGER' || role === 'Manager') {
-    return ['dashboard', 'hotels', 'room-types', 'rooms', 'inventory', 'bookings', 'more-apps'].includes(tab);
+    return [
+      'dashboard',
+      'hotels',
+      'room-types',
+      'rooms',
+      'inventory',
+      'bookings',
+      'more-apps',
+    ].includes(tab)
   }
   if (role === 'FRONT_DESK' || role === 'Front Desk') {
-    return ['dashboard', 'rooms', 'bookings', 'more-apps'].includes(tab);
+    return ['dashboard', 'rooms', 'bookings', 'more-apps'].includes(tab)
   }
   if (role === 'HOUSEKEEPING') {
-    return ['dashboard', 'rooms', 'more-apps'].includes(tab);
+    return ['dashboard', 'rooms', 'more-apps'].includes(tab)
   }
   if (role === 'ACCOUNTANT') {
-    return ['dashboard', 'bookings', 'more-apps'].includes(tab);
+    return ['dashboard', 'bookings', 'more-apps'].includes(tab)
   }
-  return false;
+  return false
 }
 
 interface DashboardShellProps {
   children: React.ReactNode
-  activeTab: 'dashboard' | 'hotels' | 'room-types' | 'rooms' | 'inventory' | 'console' | 'bookings' | 'billing' | 'users' | 'workflows' | 'monitoring' | 'more-apps'
+  activeTab:
+    | 'dashboard'
+    | 'hotels'
+    | 'room-types'
+    | 'rooms'
+    | 'inventory'
+    | 'console'
+    | 'bookings'
+    | 'billing'
+    | 'users'
+    | 'workflows'
+    | 'monitoring'
+    | 'more-apps'
   title: string
   subtitle: string
 }
@@ -61,7 +81,7 @@ export default function DashboardShell({
   children,
   activeTab,
   title,
-  subtitle
+  subtitle,
 }: DashboardShellProps) {
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [selectedHotelId, setSelectedHotelId] = useState<string>('')
@@ -69,7 +89,7 @@ export default function DashboardShell({
   const [hideScrollbars, setHideScrollbars] = useState<boolean>(false)
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false)
   const [warningMessage, setWarningMessage] = useState<string>('')
-  
+
   // Dynamic User State
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
   const [userName, setUserName] = useState<string>('')
@@ -77,12 +97,9 @@ export default function DashboardShell({
 
   useEffect(() => {
     const token = localStorage.getItem('sf_jwt_token')
-    const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
-    const isAutomation = typeof window !== 'undefined' && (!!window.navigator.webdriver || typeof (window as any).Playwright !== 'undefined')
-    const isLocalBypass = (hostname === 'localhost' || hostname === '127.0.0.1') && isAutomation
 
     // 1. Authorization check & redirect
-    if (!token && !isLocalBypass) {
+    if (!token) {
       window.location.href = '/login'
       return
     }
@@ -95,25 +112,28 @@ export default function DashboardShell({
     if (firstName || lastName) {
       setUserName(`${firstName || ''} ${lastName || ''}`.trim())
     } else {
-      setUserName(isLocalBypass ? 'Pradeep K.' : '')
+      setUserName('Authorized User')
     }
 
     if (role) {
       const roleMapping: Record<string, string> = {
-        'SUPER_ADMIN': 'Super Admin',
-        'ORG_ADMIN': 'Organization Admin',
+        SUPER_ADMIN: 'Super Admin',
+        ORG_ADMIN: 'Organization Admin',
+        HOTEL_MANAGER: 'Hotel Manager',
+        FRONT_DESK: 'Front Desk',
+        HOUSEKEEPING: 'Housekeeping',
+        ACCOUNTANT: 'Accountant',
         'Front Desk': 'Front Desk',
-        'Manager': 'Manager',
+        Manager: 'Hotel Manager',
       }
       setUserRole(roleMapping[role] || role)
     } else {
-      setUserRole(isLocalBypass ? 'Super Admin' : '')
+      setUserRole('Staff')
     }
 
-    const actualRole = role || (isLocalBypass ? 'SUPER_ADMIN' : null);
-    if (actualRole && !hasTabAccess(actualRole, activeTab)) {
-      window.location.href = '/';
-      return;
+    if (role && !hasTabAccess(role, activeTab)) {
+      window.location.href = '/'
+      return
     }
 
     setIsAuthorized(true)
@@ -137,8 +157,8 @@ export default function DashboardShell({
       try {
         const response = await fetch('/api/v1/auth/session-warning', {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         })
         if (response.status === 401) {
           localStorage.removeItem('sf_jwt_token')
@@ -156,7 +176,7 @@ export default function DashboardShell({
           }
         }
       } catch (err) {
-        console.error("Failed to check session warnings:", err)
+        console.error('Failed to check session warnings:', err)
       }
     }
 
@@ -186,7 +206,7 @@ export default function DashboardShell({
     async function fetchHotels() {
       const h = await dataClient.getHotels()
       setHotels(h)
-      
+
       // Load current tenant selection from localStorage
       const savedHotel = localStorage.getItem('sf_selected_hotel')
       if (savedHotel) {
@@ -211,17 +231,19 @@ export default function DashboardShell({
 
   if (!isAuthorized) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#060913',
-        color: 'rgba(255, 255, 255, 0.4)',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        fontSize: '14px',
-        fontWeight: 500
-      }}>
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#060913',
+          color: 'rgba(255, 255, 255, 0.4)',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          fontSize: '14px',
+          fontWeight: 500,
+        }}
+      >
         <span>Initializing workspace security...</span>
       </div>
     )
@@ -232,8 +254,14 @@ export default function DashboardShell({
       {/* Sidebar Navigation */}
       <aside className="sidebar">
         {/* Toggle Button above Logo */}
-        <div style={{ display: 'flex', justifyContent: isCollapsed ? 'center' : 'flex-end', marginBottom: '16px' }}>
-          <button 
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: isCollapsed ? 'center' : 'flex-end',
+            marginBottom: '16px',
+          }}
+        >
+          <button
             onClick={toggleSidebar}
             style={{
               background: 'rgba(255, 255, 255, 0.03)',
@@ -246,15 +274,22 @@ export default function DashboardShell({
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.2s',
-              outline: 'none'
+              outline: 'none',
             }}
-            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
             {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
           </button>
         </div>
 
-        <div className="logo-container" style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', gap: isCollapsed ? '0' : '12px', marginBottom: '32px' }}>
+        <div
+          className="logo-container"
+          style={{
+            justifyContent: isCollapsed ? 'center' : 'flex-start',
+            gap: isCollapsed ? '0' : '12px',
+            marginBottom: '32px',
+          }}
+        >
           <div className="logo-icon">S</div>
           {!isCollapsed && (
             <div>
@@ -263,162 +298,301 @@ export default function DashboardShell({
             </div>
           )}
         </div>
-        
-        <nav className="nav-links" style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'dashboard') && (
+
+        <nav
+          className="nav-links"
+          style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}
+        >
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'dashboard',
+          ) && (
             <Link href="/">
-              <div className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Dashboard" : undefined}>
+              <div
+                className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'Dashboard' : undefined}
+              >
                 <BarChart3 className="nav-item-icon" />
                 {!isCollapsed && <span>Dashboard</span>}
               </div>
             </Link>
           )}
-          
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'hotels') && (
+
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'hotels',
+          ) && (
             <Link href="/hotels">
-              <div className={`nav-item ${activeTab === 'hotels' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Properties" : undefined}>
+              <div
+                className={`nav-item ${activeTab === 'hotels' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'Properties' : undefined}
+              >
                 <HotelIcon className="nav-item-icon" />
                 {!isCollapsed && <span>Properties</span>}
               </div>
             </Link>
           )}
-          
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'room-types') && (
+
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'room-types',
+          ) && (
             <Link href="/room-types">
-              <div className={`nav-item ${activeTab === 'room-types' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Room Types" : undefined}>
+              <div
+                className={`nav-item ${activeTab === 'room-types' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'Room Types' : undefined}
+              >
                 <BedDouble className="nav-item-icon" />
                 {!isCollapsed && <span>Room Types</span>}
               </div>
             </Link>
           )}
-          
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'rooms') && (
+
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'rooms',
+          ) && (
             <Link href="/rooms">
-              <div className={`nav-item ${activeTab === 'rooms' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Rooms Grid" : undefined}>
+              <div
+                className={`nav-item ${activeTab === 'rooms' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'Rooms Grid' : undefined}
+              >
                 <KeyRound className="nav-item-icon" />
                 {!isCollapsed && <span>Rooms Grid</span>}
               </div>
             </Link>
           )}
 
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'inventory') && (
-            <Link href={"/inventory" as any}>
-              <div className={`nav-item ${activeTab === 'inventory' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Rates & Inventory" : undefined}>
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'inventory',
+          ) && (
+            <Link href={'/inventory' as any}>
+              <div
+                className={`nav-item ${activeTab === 'inventory' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'Rates & Inventory' : undefined}
+              >
                 <Layers className="nav-item-icon" />
                 {!isCollapsed && <span>Rates & Inventory</span>}
               </div>
             </Link>
           )}
 
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'bookings') && (
-            <Link href={"/bookings" as any}>
-              <div className={`nav-item ${activeTab === 'bookings' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Bookings Gantt" : undefined}>
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'bookings',
+          ) && (
+            <Link href={'/bookings' as any}>
+              <div
+                className={`nav-item ${activeTab === 'bookings' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'Bookings Gantt' : undefined}
+              >
                 <Calendar className="nav-item-icon" />
                 {!isCollapsed && <span>Bookings Gantt</span>}
               </div>
             </Link>
           )}
 
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'billing') && (
-            <Link href={"/billing" as any}>
-              <div className={`nav-item ${activeTab === 'billing' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Billing & Upgrade" : undefined}>
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'billing',
+          ) && (
+            <Link href={'/billing' as any}>
+              <div
+                className={`nav-item ${activeTab === 'billing' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'Billing & Upgrade' : undefined}
+              >
                 <CreditCard className="nav-item-icon" />
                 {!isCollapsed && <span>Billing & Upgrade</span>}
               </div>
             </Link>
           )}
 
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'users') && (
-            <Link href={"/settings/users" as any}>
-              <div className={`nav-item ${activeTab === 'users' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Staff RBAC" : undefined}>
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'users',
+          ) && (
+            <Link href={'/settings/users' as any}>
+              <div
+                className={`nav-item ${activeTab === 'users' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'Staff RBAC' : undefined}
+              >
                 <Users className="nav-item-icon" />
                 {!isCollapsed && <span>Staff RBAC</span>}
               </div>
             </Link>
           )}
 
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'workflows') && (
-            <Link href={"/workflows" as any}>
-              <div className={`nav-item ${activeTab === 'workflows' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Workflows Builder" : undefined}>
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'workflows',
+          ) && (
+            <Link href={'/workflows' as any}>
+              <div
+                className={`nav-item ${activeTab === 'workflows' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'Workflows Builder' : undefined}
+              >
                 <GitFork className="nav-item-icon" />
                 {!isCollapsed && <span>Workflows Builder</span>}
               </div>
             </Link>
           )}
 
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'monitoring') && (
-            <Link href={"/monitoring" as any}>
-              <div className={`nav-item ${activeTab === 'monitoring' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Chaos Telemetry" : undefined}>
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'monitoring',
+          ) && (
+            <Link href={'/monitoring' as any}>
+              <div
+                className={`nav-item ${activeTab === 'monitoring' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'Chaos Telemetry' : undefined}
+              >
                 <Activity className="nav-item-icon" />
                 {!isCollapsed && <span>Chaos Telemetry</span>}
               </div>
             </Link>
           )}
-          
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'more-apps') && (
-            <Link href={"/more-apps" as any}>
-              <div className={`nav-item ${activeTab === 'more-apps' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "More Apps" : undefined}>
+
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'more-apps',
+          ) && (
+            <Link href={'/more-apps' as any}>
+              <div
+                className={`nav-item ${activeTab === 'more-apps' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'More Apps' : undefined}
+              >
                 <LayoutGrid className="nav-item-icon" />
                 {!isCollapsed && <span>More Apps</span>}
               </div>
             </Link>
           )}
-          
-          {hasTabAccess(typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null, 'console') && (
-            <Link href={"/console" as any}>
-              <div className={`nav-item ${activeTab === 'console' ? 'active' : ''}`} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px' : '12px 16px' }} title={isCollapsed ? "Architecture Console" : undefined}>
+
+          {hasTabAccess(
+            typeof window !== 'undefined' ? localStorage.getItem('sf_user_role') : null,
+            'console',
+          ) && (
+            <Link href={'/console' as any}>
+              <div
+                className={`nav-item ${activeTab === 'console' ? 'active' : ''}`}
+                style={{
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: isCollapsed ? '12px' : '12px 16px',
+                }}
+                title={isCollapsed ? 'Architecture Console' : undefined}
+              >
                 <Terminal className="nav-item-icon" />
                 {!isCollapsed && <span>Architecture Console</span>}
               </div>
             </Link>
           )}
         </nav>
-        
+
         {/* Profile Footer */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div className="glass-card" style={{ 
-            padding: isCollapsed ? '12px 6px' : '12px 16px', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: isCollapsed ? 'center' : 'flex-start',
-            gap: isCollapsed ? '0' : '12px', 
-            background: 'rgba(0, 0, 0, 0.2)', 
-            border: '1px solid var(--border-card)' 
-          }}
-          title={isCollapsed ? `${userName} (${userRole})` : undefined}
+          <div
+            className="glass-card"
+            style={{
+              padding: isCollapsed ? '12px 6px' : '12px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: isCollapsed ? 'center' : 'flex-start',
+              gap: isCollapsed ? '0' : '12px',
+              background: 'rgba(0, 0, 0, 0.2)',
+              border: '1px solid var(--border-card)',
+            }}
+            title={isCollapsed ? `${userName} (${userRole})` : undefined}
           >
-            <div style={{ background: 'linear-gradient(to right, #00f2fe, #4facfe)', padding: '6px', borderRadius: '50%', color: '#060913', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div
+              style={{
+                background: 'linear-gradient(to right, #00f2fe, #4facfe)',
+                padding: '6px',
+                borderRadius: '50%',
+                color: '#060913',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
               <User style={{ width: '16px', height: '16px' }} />
             </div>
             {!isCollapsed && (
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>{userName}</div>
-                <div style={{ fontSize: '10px', color: '#00f2fe', fontWeight: 500 }}>{userRole}</div>
+                <div style={{ fontSize: '10px', color: '#00f2fe', fontWeight: 500 }}>
+                  {userRole}
+                </div>
               </div>
             )}
           </div>
-          <Link href={"/login" as any} style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: isCollapsed ? '0' : '8px', 
-            padding: '8px 12px', 
-            borderRadius: '6px', 
-            fontSize: '12px', 
-            color: 'var(--text-muted)', 
-            background: 'rgba(255,255,255,0.02)', 
-            border: '1px solid var(--border-card)', 
-            justifyContent: 'center', 
-            transition: 'all 0.2s' 
-          }} 
-          className="logout-btn"
-          title={isCollapsed ? "Sign Out" : undefined}
+          <Link
+            href={'/login' as any}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: isCollapsed ? '0' : '8px',
+              padding: '8px 12px',
+              borderRadius: '6px',
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid var(--border-card)',
+              justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+            className="logout-btn"
+            title={isCollapsed ? 'Sign Out' : undefined}
           >
             <LogOut style={{ width: '14px', height: '14px' }} />
             {!isCollapsed && <span>Sign Out</span>}
           </Link>
         </div>
       </aside>
-      
+
       {/* Main Workspace Area */}
       <main className="main-content">
         <header className="header-container">
@@ -426,20 +600,52 @@ export default function DashboardShell({
             <h1 className="page-title">{title}</h1>
             <p className="page-subtitle">{subtitle}</p>
           </div>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {/* Multi-Tenancy Dropper Switcher */}
-            <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 12px', background: 'rgba(0, 242, 254, 0.03)', border: '1px solid rgba(0, 242, 254, 0.15)' }}>
+            <div
+              className="glass-card"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '6px 12px',
+                background: 'rgba(0, 242, 254, 0.03)',
+                border: '1px solid rgba(0, 242, 254, 0.15)',
+              }}
+            >
               <Building style={{ width: '14px', height: '14px', color: 'var(--primary)' }} />
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '9px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Tenancy</span>
-                <select 
-                  value={selectedHotelId} 
-                  onChange={handleHotelChange}
-                  style={{ background: 'none', border: 'none', color: '#fff', fontSize: '12px', fontWeight: 600, cursor: 'pointer', outline: 'none', paddingRight: '16px' }}
+                <span
+                  style={{
+                    fontSize: '9px',
+                    color: 'var(--text-muted)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
                 >
-                  {hotels.map(h => (
-                    <option key={h.id} value={h.id} style={{ background: '#0e1424', color: '#fff' }}>
+                  Active Tenancy
+                </span>
+                <select
+                  value={selectedHotelId}
+                  onChange={handleHotelChange}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    outline: 'none',
+                    paddingRight: '16px',
+                  }}
+                >
+                  {hotels.map((h) => (
+                    <option
+                      key={h.id}
+                      value={h.id}
+                      style={{ background: '#0e1424', color: '#fff' }}
+                    >
                       {h.name} ({h.city})
                     </option>
                   ))}
@@ -448,19 +654,23 @@ export default function DashboardShell({
             </div>
 
             {/* Scrollbar Visibility Toggle Option */}
-            <div 
+            <div
               onClick={toggleScrollbars}
-              className="glass-card" 
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '8px', 
-                padding: '6px 12px', 
-                background: hideScrollbars ? 'rgba(0, 242, 254, 0.05)' : 'rgba(255, 255, 255, 0.03)', 
-                border: hideScrollbars ? '1px solid rgba(0, 242, 254, 0.3)' : '1px solid var(--border-card)',
+              className="glass-card"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '6px 12px',
+                background: hideScrollbars
+                  ? 'rgba(0, 242, 254, 0.05)'
+                  : 'rgba(255, 255, 255, 0.03)',
+                border: hideScrollbars
+                  ? '1px solid rgba(0, 242, 254, 0.3)'
+                  : '1px solid var(--border-card)',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                userSelect: 'none'
+                userSelect: 'none',
               }}
             >
               {hideScrollbars ? (
@@ -468,16 +678,39 @@ export default function DashboardShell({
               ) : (
                 <Eye style={{ width: '13px', height: '13px', color: 'var(--text-muted)' }} />
               )}
-              <span style={{ fontSize: '10px', fontWeight: 600, color: hideScrollbars ? 'var(--primary)' : '#fff' }}>
+              <span
+                style={{
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  color: hideScrollbars ? 'var(--primary)' : '#fff',
+                }}
+              >
                 {hideScrollbars ? 'Scrollbars Hidden' : 'Hide Scrollbars'}
               </span>
             </div>
 
             <div className="status-badge available" style={{ gap: '8px', padding: '6px 12px' }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
+              <div
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: '#10b981',
+                  boxShadow: '0 0 10px #10b981',
+                }}
+              />
               <span style={{ fontSize: '10px' }}>Supergraph Composed</span>
             </div>
-            <div className="status-badge" style={{ gap: '8px', padding: '6px 12px', background: 'rgba(255, 255, 255, 0.05)', color: '#fff', border: '1px solid var(--border-card)' }}>
+            <div
+              className="status-badge"
+              style={{
+                gap: '8px',
+                padding: '6px 12px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: '#fff',
+                border: '1px solid var(--border-card)',
+              }}
+            >
               <Network style={{ width: '12px', height: '12px' }} />
               <span style={{ fontSize: '10px' }}>1 Subgraph Active</span>
             </div>
@@ -486,19 +719,21 @@ export default function DashboardShell({
 
         {/* Dynamic Concurrency Limit Security Warning Banner */}
         {warningMessage && (
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.15)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            color: '#f87171',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            margin: '0 24px 24px 24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            animation: 'pulse-warning 2s infinite',
-            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)'
-          }}>
+          <div
+            style={{
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              color: '#f87171',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              margin: '0 24px 24px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              animation: 'pulse-warning 2s infinite',
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)',
+            }}
+          >
             <style>{`
               @keyframes pulse-warning {
                 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
@@ -512,8 +747,8 @@ export default function DashboardShell({
                 <strong>Security Alert:</strong> {warningMessage}
               </span>
             </div>
-            <button 
-              onClick={() => setWarningMessage('')} 
+            <button
+              onClick={() => setWarningMessage('')}
               style={{
                 background: 'rgba(255, 255, 255, 0.1)',
                 border: 'none',
@@ -523,16 +758,16 @@ export default function DashboardShell({
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',
-                transition: 'background 0.2s'
+                transition: 'background 0.2s',
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)')}
             >
               Dismiss
             </button>
           </div>
         )}
-        
+
         {children}
         <FlexiAIChatWidget />
       </main>

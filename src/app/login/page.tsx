@@ -7,9 +7,10 @@ import { Shield, Lock, User, Terminal, ArrowRight } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('admin@stayflexi.com')
-  const [password, setPassword] = useState('••••••••')
-  const [role, setRole] = useState('Super Admin')
+  const isDemo =
+    process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+  const [email, setEmail] = useState(isDemo ? 'super-admin@stayflexi.dev' : '')
+  const [password, setPassword] = useState(isDemo ? 'Stayflexi@2026!' : '')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -18,8 +19,20 @@ export default function LoginPage() {
       localStorage.removeItem('sf_jwt_token')
       localStorage.removeItem('sf_user_email')
       localStorage.removeItem('sf_user_role')
+      localStorage.removeItem('sf_user_first_name')
+      localStorage.removeItem('sf_user_last_name')
     }
   }, [])
+
+  const redirectByRole = (role: string) => {
+    if (role === 'HOUSEKEEPING') {
+      router.push('/housekeeping/mobile')
+    } else if (role === 'HOTEL_MANAGER' || role === 'FRONT_DESK') {
+      router.push('/bookings')
+    } else {
+      router.push('/')
+    }
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,19 +40,15 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const response = await dataClient.login(
-        email,
-        password === '••••••••' ? 'dev-pass' : password,
-      )
-      if (response) {
+      const response = await dataClient.login(email, password)
+      if (response && response.user) {
         localStorage.setItem('sf_user_email', response.user.email)
         localStorage.setItem('sf_user_role', response.user.primaryRole)
         localStorage.setItem('sf_user_first_name', response.user.firstName || '')
         localStorage.setItem('sf_user_last_name', response.user.lastName || '')
         localStorage.setItem('sf_jwt_token', response.accessToken)
 
-        // Redirect to main console dashboard
-        router.push('/')
+        redirectByRole(response.user.primaryRole)
       } else {
         setError('Invalid authorization credentials.')
       }
@@ -55,20 +64,15 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const response = await dataClient.login(
-        email,
-        password === '••••••••' ? 'dev-pass' : password,
-        true,
-      )
-      if (response) {
+      const response = await dataClient.login(email, password, true)
+      if (response && response.user) {
         localStorage.setItem('sf_user_email', response.user.email)
         localStorage.setItem('sf_user_role', response.user.primaryRole)
         localStorage.setItem('sf_user_first_name', response.user.firstName || '')
         localStorage.setItem('sf_user_last_name', response.user.lastName || '')
         localStorage.setItem('sf_jwt_token', response.accessToken)
 
-        // Redirect to main console dashboard
-        router.push('/')
+        redirectByRole(response.user.primaryRole)
       } else {
         setError('Invalid authorization credentials.')
       }
@@ -300,60 +304,79 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Role selector field */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label
-              style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                color: 'var(--text-muted)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              Staff Access Role
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Shield
+          {/* Quick Demo Role Fill (Development & Demo Only) */}
+          {isDemo && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label
                 style={{
-                  width: '14px',
-                  height: '14px',
-                  position: 'absolute',
-                  left: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
+                  fontSize: '11px',
+                  fontWeight: 600,
                   color: 'var(--text-muted)',
-                }}
-              />
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                suppressHydrationWarning={true}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px 10px 36px',
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid var(--border-card)',
-                  borderRadius: '6px',
-                  color: '#fff',
-                  fontSize: '13px',
-                  outline: 'none',
-                  cursor: 'pointer',
-                  appearance: 'none',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
                 }}
               >
-                <option value="Super Admin" style={{ background: '#0e1424' }}>
-                  Super Admin (Pradeep K.)
-                </option>
-                <option value="Front Desk" style={{ background: '#0e1424' }}>
-                  Front Desk Representative
-                </option>
-                <option value="Manager" style={{ background: '#0e1424' }}>
-                  Property Manager
-                </option>
-              </select>
+                Demo Staff Account (Quick Fill)
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Shield
+                  style={{
+                    width: '14px',
+                    height: '14px',
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--text-muted)',
+                  }}
+                />
+                <select
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      setEmail(e.target.value)
+                      setPassword('Stayflexi@2026!')
+                    }
+                  }}
+                  suppressHydrationWarning={true}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px 10px 36px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid var(--border-card)',
+                    borderRadius: '6px',
+                    color: '#fff',
+                    fontSize: '13px',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    appearance: 'none',
+                  }}
+                  defaultValue=""
+                >
+                  <option value="" disabled style={{ background: '#0e1424' }}>
+                    -- Select a demo role to populate credentials --
+                  </option>
+                  <option value="super-admin@stayflexi.dev" style={{ background: '#0e1424' }}>
+                    Super Admin (super-admin@stayflexi.dev)
+                  </option>
+                  <option value="org-admin@stayflexi.dev" style={{ background: '#0e1424' }}>
+                    Organization Admin (org-admin@stayflexi.dev)
+                  </option>
+                  <option value="manager@stayflexi.dev" style={{ background: '#0e1424' }}>
+                    Hotel Manager (manager@stayflexi.dev)
+                  </option>
+                  <option value="front-desk@stayflexi.dev" style={{ background: '#0e1424' }}>
+                    Front Desk (front-desk@stayflexi.dev)
+                  </option>
+                  <option value="housekeeping@stayflexi.dev" style={{ background: '#0e1424' }}>
+                    Housekeeping Staff (housekeeping@stayflexi.dev)
+                  </option>
+                  <option value="accountant@stayflexi.dev" style={{ background: '#0e1424' }}>
+                    Accountant / Finance (accountant@stayflexi.dev)
+                  </option>
+                </select>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Submit Button */}
           <button
