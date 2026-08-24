@@ -24,7 +24,8 @@ function getRoutes(services: ServiceConfig): RouteDefinition[] {
     { pathPrefix: '/api/v1/billing', target: services.payment },
     { pathPrefix: '/api/v1/ota', target: services.ota },
     { pathPrefix: '/api/v1/analytics', target: services.analytics },
-    { pathPrefix: '/api/v1/revenue', target: services.analytics },
+    { pathPrefix: '/api/v1/pricing', target: services.pricing },
+    { pathPrefix: '/api/v1/revenue', target: services.revenue },
     { pathPrefix: '/api/v1/notifications', target: services.notification },
     { pathPrefix: '/api/v1/automation', target: services.workflow },
     { pathPrefix: '/api/v1/intelligence', target: services.workflow },
@@ -61,7 +62,7 @@ export function registerRoutes(app: Application, services: ServiceConfig): void 
           warn: () => undefined,
           error: () => undefined,
         },
-      })
+      }),
     )
   }
 }

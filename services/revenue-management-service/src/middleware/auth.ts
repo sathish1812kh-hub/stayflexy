@@ -5,7 +5,9 @@ import type { AuthUser } from '@stayflexi/shared-types'
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
-    interface Request { user?: AuthUser }
+    interface Request {
+      user?: AuthUser
+    }
   }
 }
 
@@ -29,16 +31,21 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
     return
   }
 
-  if (!userId || !organizationId) {
-    const err = new UnauthorizedError('Missing authentication headers')
-    res.status(err.statusCode).json({ success: false, error: { code: err.code, message: err.message, statusCode: err.statusCode } })
+  if (!userId || !organizationId || !userRole) {
+    const err = new UnauthorizedError(
+      'Missing authentication headers: x-user-id, x-organization-id, and x-user-role are required',
+    )
+    res.status(err.statusCode).json({
+      success: false,
+      error: { code: err.code, message: err.message, statusCode: err.statusCode },
+    })
     return
   }
 
   req.user = {
     userId: String(userId),
     organizationId: String(organizationId),
-    primaryRole: String(userRole ?? 'FRONT_DESK'),
+    primaryRole: String(userRole),
     correlationId: String(correlationId ?? ''),
     isServiceCall: false,
   }
@@ -49,12 +56,18 @@ export function requireRole(...roles: string[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       const err = new UnauthorizedError('Authentication required')
-      res.status(err.statusCode).json({ success: false, error: { code: err.code, message: err.message, statusCode: err.statusCode } })
+      res.status(err.statusCode).json({
+        success: false,
+        error: { code: err.code, message: err.message, statusCode: err.statusCode },
+      })
       return
     }
     if (!roles.includes(req.user.primaryRole)) {
       const err = new ForbiddenError(`Insufficient permissions. Required: ${roles.join(' or ')}`)
-      res.status(err.statusCode).json({ success: false, error: { code: err.code, message: err.message, statusCode: err.statusCode } })
+      res.status(err.statusCode).json({
+        success: false,
+        error: { code: err.code, message: err.message, statusCode: err.statusCode },
+      })
       return
     }
     next()

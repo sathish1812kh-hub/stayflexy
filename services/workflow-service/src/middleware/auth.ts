@@ -12,19 +12,15 @@ declare global {
   }
 }
 
-export function authMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
+export function authMiddleware(req: Request, res: Response, next: NextFunction): void {
   const userId = req.headers['x-user-id']
   const organizationId = req.headers['x-organization-id']
   const userRole = req.headers['x-user-role']
   const correlationId = req.headers['x-correlation-id']
 
-  if (!userId || !organizationId) {
+  if (!userId || !organizationId || !userRole) {
     const err = new UnauthorizedError(
-      'Missing authentication headers: x-user-id and x-organization-id are required',
+      'Missing authentication headers: x-user-id, x-organization-id, and x-user-role are required',
     )
     res.status(401).json({
       success: false,
@@ -36,7 +32,7 @@ export function authMiddleware(
   const user: AuthUser = {
     userId: String(userId),
     organizationId: String(organizationId),
-    primaryRole: String(userRole ?? 'FRONT_DESK'),
+    primaryRole: String(userRole),
     correlationId: String(correlationId ?? ''),
     isServiceCall: false,
   }

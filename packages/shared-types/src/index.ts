@@ -24,7 +24,7 @@ export interface AuthUser {
 // Extract from Express request headers (x-user-id, x-organization-id, x-user-role, x-correlation-id, x-service-key)
 export function extractAuthUser(
   headers: Record<string, string | string[] | undefined>,
-  serviceKey: string
+  serviceKey: string,
 ): AuthUser | null {
   const userId = Array.isArray(headers['x-user-id'])
     ? headers['x-user-id'][0]
@@ -53,10 +53,12 @@ export function extractAuthUser(
   const role = Array.isArray(headers['x-user-role'])
     ? headers['x-user-role'][0]
     : headers['x-user-role']
+  if (!role) return null
+
   return {
     userId,
     organizationId: orgId ?? null,
-    primaryRole: role ?? 'FRONT_DESK',
+    primaryRole: role,
     correlationId,
     isServiceCall: false,
   }
@@ -97,11 +99,7 @@ export interface PaginatedResult<T> {
   meta: PaginationMeta
 }
 
-export function buildPaginationMeta(
-  total: number,
-  page: number,
-  limit: number
-): PaginationMeta {
+export function buildPaginationMeta(total: number, page: number, limit: number): PaginationMeta {
   const totalPages = Math.ceil(total / limit)
   return {
     page,
@@ -114,13 +112,10 @@ export function buildPaginationMeta(
 }
 
 export function parsePaginationParams(
-  query: Record<string, string | string[] | undefined>
+  query: Record<string, string | string[] | undefined>,
 ): PaginationParams {
   const page = Math.max(1, parseInt(String(query['page'] ?? '1'), 10))
-  const limit = Math.min(
-    100,
-    Math.max(1, parseInt(String(query['limit'] ?? '20'), 10))
-  )
+  const limit = Math.min(100, Math.max(1, parseInt(String(query['limit'] ?? '20'), 10)))
   return { page, limit }
 }
 
@@ -145,10 +140,7 @@ export interface ApiError {
 
 export type ApiResponse<T> = ApiSuccess<T> | ApiError
 
-export function successResponse<T>(
-  data: T,
-  correlationId?: string
-): ApiSuccess<T> {
+export function successResponse<T>(data: T, correlationId?: string): ApiSuccess<T> {
   return { success: true, data, correlationId }
 }
 
@@ -159,7 +151,7 @@ export type { ServiceClientOptions, ServiceRequestOptions } from './service-clie
 export function paginatedSuccess<T>(
   data: T[],
   meta: PaginationMeta,
-  correlationId?: string
+  correlationId?: string,
 ): ApiSuccess<T[]> & { meta: PaginationMeta } {
   return { success: true, data, meta, correlationId }
 }

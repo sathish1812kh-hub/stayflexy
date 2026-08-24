@@ -15,6 +15,8 @@ interface GatewayConfig {
     analytics: string
     notification: string
     workflow: string
+    pricing: string
+    revenue: string
   }
   cors: { origins: string[] }
 }
@@ -55,6 +57,8 @@ export function loadGatewayConfig(): GatewayConfig {
       analytics: env['SERVICE_ANALYTICS_URL'] ?? 'http://analytics-service:3008',
       notification: env['SERVICE_NOTIFICATION_URL'] ?? 'http://notification-service:3009',
       workflow: env['SERVICE_WORKFLOW_URL'] ?? 'http://workflow-service:3010',
+      pricing: env['SERVICE_PRICING_URL'] ?? 'http://pricing-engine-service:3011',
+      revenue: env['SERVICE_REVENUE_URL'] ?? 'http://revenue-management-service:3012',
     },
     cors: {
       origins: (env['CORS_ORIGINS'] ?? '*').split(',').map((s) => s.trim()),

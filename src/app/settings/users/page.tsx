@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import DashboardShell from '../../components/DashboardShell'
+import { Can } from '../../context/PermissionsContext'
 import {
   Shield,
   UserPlus,
@@ -357,45 +358,49 @@ export default function UserRBACPage() {
             </div>
 
             {activeSubTab === 'users' ? (
-              <button
-                onClick={() => setShowAddUser(!showAddUser)}
-                style={{
-                  padding: '8px 14px',
-                  borderRadius: '6px',
-                  background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
-                  color: '#060913',
-                  border: 'none',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '13px',
-                }}
-              >
-                <UserPlus style={{ width: '15px', height: '15px' }} />
-                <span>Invite Personnel</span>
-              </button>
+              <Can I="assign" a="user_role">
+                <button
+                  onClick={() => setShowAddUser(!showAddUser)}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: '6px',
+                    background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                    color: '#060913',
+                    border: 'none',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '13px',
+                  }}
+                >
+                  <UserPlus style={{ width: '15px', height: '15px' }} />
+                  <span>Invite Personnel</span>
+                </button>
+              </Can>
             ) : (
-              <button
-                onClick={() => setShowAddRole(!showAddRole)}
-                style={{
-                  padding: '8px 14px',
-                  borderRadius: '6px',
-                  background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
-                  color: '#060913',
-                  border: 'none',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '13px',
-                }}
-              >
-                <Plus style={{ width: '15px', height: '15px' }} />
-                <span>Create Custom Role</span>
-              </button>
+              <Can I="create" a="role">
+                <button
+                  onClick={() => setShowAddRole(!showAddRole)}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: '6px',
+                    background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                    color: '#060913',
+                    border: 'none',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '13px',
+                  }}
+                >
+                  <Plus style={{ width: '15px', height: '15px' }} />
+                  <span>Create Custom Role</span>
+                </button>
+              </Can>
             )}
           </div>
         </div>

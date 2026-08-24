@@ -1,4 +1,4 @@
-﻿import type { Request, Response, NextFunction } from 'express'
+import type { Request, Response, NextFunction } from 'express'
 import { UnauthorizedError, ForbiddenError } from '@stayflexi/shared-errors'
 import type { AuthUser } from '@stayflexi/shared-types'
 
@@ -31,9 +31,9 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
     return
   }
 
-  if (!userId || !organizationId) {
+  if (!userId || !organizationId || !userRole) {
     const err = new UnauthorizedError(
-      'Missing authentication headers: x-user-id and x-organization-id are required',
+      'Missing authentication headers: x-user-id, x-organization-id, and x-user-role are required',
     )
     res.status(err.statusCode).json({
       success: false,
@@ -45,7 +45,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
   req.user = {
     userId: String(userId),
     organizationId: String(organizationId),
-    primaryRole: String(userRole ?? 'FRONT_DESK'),
+    primaryRole: String(userRole),
     correlationId: String(correlationId ?? ''),
     isServiceCall: false,
   }
@@ -76,4 +76,3 @@ export function requireRole(...roles: string[]) {
     next()
   }
 }
-

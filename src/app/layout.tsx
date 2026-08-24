@@ -1,18 +1,13 @@
-"use strict"
-
 import React from 'react'
 import './globals.css'
+import { PermissionsProvider } from './context/PermissionsContext'
 
 export const metadata = {
   title: 'Stayflexi v2.0 - Operations Dashboard',
   description: 'Enterprise PMS & Channel Manager GraphQL Console',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -20,7 +15,7 @@ export default function RootLayout({
         <meta name="description" content={metadata.description} />
       </head>
       <body>
-        {children}
+        <PermissionsProvider>{children}</PermissionsProvider>
       </body>
     </html>
   )

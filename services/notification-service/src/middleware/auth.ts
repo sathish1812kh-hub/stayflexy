@@ -18,9 +18,9 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
   const userRole = req.headers['x-user-role']
   const correlationId = req.headers['x-correlation-id']
 
-  if (!userId || !organizationId) {
+  if (!userId || !organizationId || !userRole) {
     const err = new UnauthorizedError(
-      'Missing authentication headers: x-user-id and x-organization-id are required',
+      'Missing authentication headers: x-user-id, x-organization-id, and x-user-role are required',
     )
     res.status(err.statusCode).json({
       success: false,
@@ -32,7 +32,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
   const user: AuthUser = {
     userId: String(userId),
     organizationId: String(organizationId),
-    primaryRole: String(userRole ?? 'FRONT_DESK'),
+    primaryRole: String(userRole),
     correlationId: String(correlationId ?? ''),
     isServiceCall: false,
   }

@@ -60,6 +60,12 @@ export function createAuthMiddleware(jwtSecret: string, serviceKey: string) {
     try {
       const payload = jwt.verify(token, jwtSecret) as JwtPayload
 
+      // Strip any client-supplied identity headers before injecting from verified JWT
+      delete req.headers['x-user-id']
+      delete req.headers['x-user-role']
+      delete req.headers['x-organization-id']
+      delete req.headers['x-service-key']
+
       // Inject user context headers for downstream services
       req.headers['x-user-id'] = payload.sub
       req.headers['x-user-role'] = payload.primaryRole
