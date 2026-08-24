@@ -1,5 +1,6 @@
 import { BaseService } from '@lib/baseService'
 import { prisma } from '@lib/prisma'
+import { UserRoleType } from '@prisma/client'
 import { cacheProvider } from '../../../infrastructure/cache'
 import { NotFoundError, ConflictError, ForbiddenError } from '@errors/HttpError'
 import type {
@@ -42,8 +43,9 @@ const ROLE_PRIORITY: Record<string, number> = {
   ACCOUNTANT: 70,
   FRONT_DESK: 60,
   HOUSEKEEPING: 50,
-  GUEST: 10,
 }
+
+const VALID_SYSTEM_ROLES = new Set<string>(Object.values(UserRoleType))
 
 function normalizeRoleType(roleName: string): string {
   const upper = roleName.toUpperCase().replace(/\s+/g, '_')
@@ -267,6 +269,9 @@ export class RBACService extends BaseService {
         update: {},
         create: { roleId, permissionId },
       })
+
+      // Invalidate RBAC user permissions cache
+      await cacheProvider.delByPattern('rbac:user:*')
     })
   }
 
@@ -347,7 +352,7 @@ export class RBACService extends BaseService {
     })
   }
 
-  async recomputePrimaryRole(userId: string): Promise<string> {
+  async recomputePrimaryRole(userId: string): Promise<UserRoleType> {
     return this.execute('recomputePrimaryRole', async () => {
       const now = new Date()
       const activeRoles = await prisma.userRole.findMany({
@@ -358,30 +363,24 @@ export class RBACService extends BaseService {
         include: { role: true },
       })
 
-      if (activeRoles.length === 0) {
-        await prisma.user.update({
-          where: { id: userId },
-          data: { primaryRole: 'GUEST' as any },
-        })
-        await this.onRolesChanged(userId)
-        return 'GUEST'
-      }
-
+      // If user has zero active roles or only custom roles, fallback safely to FRONT_DESK
       let highestScore = -1
-      let highestRole = 'GUEST'
+      let highestRole: UserRoleType = UserRoleType.FRONT_DESK
 
       for (const ur of activeRoles) {
         const norm = normalizeRoleType(ur.role.name)
-        const score = ROLE_PRIORITY[norm] ?? 20
-        if (score > highestScore) {
-          highestScore = score
-          highestRole = norm
+        if (VALID_SYSTEM_ROLES.has(norm)) {
+          const score = ROLE_PRIORITY[norm] ?? 0
+          if (score > highestScore) {
+            highestScore = score
+            highestRole = norm as UserRoleType
+          }
         }
       }
 
       await prisma.user.update({
         where: { id: userId },
-        data: { primaryRole: highestRole as any },
+        data: { primaryRole: highestRole },
       })
 
       await this.onRolesChanged(userId)

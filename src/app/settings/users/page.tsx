@@ -155,6 +155,23 @@ export default function UserRBACPage() {
           setPermissions(data.data)
         }
       }
+
+      // 3. Fetch Live Users
+      const usersRes = await fetch('/api/v1/users', { headers: getAuthHeaders() })
+      if (usersRes.ok) {
+        const data = await usersRes.json()
+        if (data.success && Array.isArray(data.data)) {
+          const mappedUsers: StaffUser[] = data.data.map((u: any) => ({
+            id: u.id,
+            name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
+            email: u.email,
+            primaryRole: u.userRoles?.[0]?.role?.name || u.primaryRole,
+            status: u.status,
+            lastLogin: u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : 'Never',
+          }))
+          setUsers(mappedUsers)
+        }
+      }
     } catch (err: any) {
       console.warn('API data fetch failed, using offline fallback', err)
     } finally {
@@ -462,22 +479,39 @@ export default function UserRBACPage() {
                   Invite Staff Member
                 </h3>
                 <form
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault()
                     if (!userName || !userEmail) return
-                    const newUser: StaffUser = {
-                      id: `u-${Date.now()}`,
-                      name: userName,
-                      email: userEmail,
-                      primaryRole: selectedRole || 'FRONT_DESK',
-                      status: 'ACTIVE',
-                      lastLogin: 'Never',
+                    setLoading(true)
+                    setError(null)
+                    try {
+                      const [firstName, ...rest] = userName.trim().split(' ')
+                      const lastName = rest.join(' ') || 'Staff'
+                      const res = await fetch('/api/v1/users', {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({
+                          email: userEmail.trim(),
+                          firstName,
+                          lastName,
+                          roleId: selectedRole || undefined,
+                        }),
+                      })
+                      const data = await res.json()
+                      if (res.ok && data.success) {
+                        setSuccessMsg(`Invited ${userEmail} successfully.`)
+                        setUserName('')
+                        setUserEmail('')
+                        setShowAddUser(false)
+                        await fetchInitialData()
+                      } else {
+                        setError(data.error?.message || 'Failed to invite user')
+                      }
+                    } catch (err: any) {
+                      setError(err.message || 'Failed to invite user')
+                    } finally {
+                      setLoading(false)
                     }
-                    setUsers([...users, newUser])
-                    setUserName('')
-                    setUserEmail('')
-                    setShowAddUser(false)
-                    setSuccessMsg(`Invited ${userEmail} successfully.`)
                   }}
                   style={{
                     display: 'grid',
