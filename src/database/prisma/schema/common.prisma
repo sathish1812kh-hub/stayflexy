@@ -84,6 +84,13 @@ enum AuditResource {
   NOTIFICATION
 }
 
+enum GovIdType {
+  PASSPORT
+  NATIONAL_ID
+  DRIVERS_LICENSE
+  OTHER
+}
+
 // ─── AuditLog ──────────────────────────────────────────────────────────────────
 // Immutable append-only record of all state-changing operations.
 // onDelete: Restrict on userId and organizationId intentionally prevents

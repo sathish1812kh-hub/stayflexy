@@ -20,8 +20,10 @@ import { authMiddleware } from '../middleware/auth'
 import { createRateLimiter } from '../middleware/rateLimit'
 import { errorHandler } from '../middleware/errorHandler'
 import { createOrganizationRouter } from './http/routes'
+import { createGuestRouter } from './http/guest.routes'
 import { createHealthRouter } from './http/HealthController'
 import { OrganizationController } from './http/OrganizationController'
+import { GuestController } from './http/GuestController'
 
 // Use cases
 import { CreateOrganization } from '../application/use-cases/CreateOrganization'
@@ -31,6 +33,12 @@ import { AddMember } from '../application/use-cases/AddMember'
 import { RemoveMember } from '../application/use-cases/RemoveMember'
 import { TransferOwnership } from '../application/use-cases/TransferOwnership'
 import { ListOrganizations } from '../application/use-cases/ListOrganizations'
+import { CreateGuest } from '../application/use-cases/CreateGuest'
+import { GetGuest } from '../application/use-cases/GetGuest'
+import { UpdateGuest } from '../application/use-cases/UpdateGuest'
+import { DeleteGuest } from '../application/use-cases/DeleteGuest'
+import { ListGuests } from '../application/use-cases/ListGuests'
+import { FindOrCreateGuestByEmail } from '../application/use-cases/FindOrCreateGuestByEmail'
 
 // Application services
 import { OrganizationCache } from '../application/services/OrganizationCache'
@@ -38,6 +46,7 @@ import { OrganizationCache } from '../application/services/OrganizationCache'
 // Infrastructure
 import { PrismaOrganizationRepository } from '../infrastructure/database/PrismaOrganizationRepository'
 import { PrismaMemberRepository } from '../infrastructure/database/PrismaMemberRepository'
+import { PrismaGuestRepository } from '../infrastructure/database/PrismaGuestRepository'
 
 import type { OrgConfig } from '../config'
 
@@ -52,6 +61,7 @@ export function createApp(
   // Infrastructure
   const orgRepo = new PrismaOrganizationRepository(db)
   const memberRepo = new PrismaMemberRepository(db)
+  const guestRepo = new PrismaGuestRepository(db)
   const orgCache = new OrganizationCache(redis, config.ORGANIZATION_CACHE_TTL)
 
   // Use cases
@@ -69,8 +79,16 @@ export function createApp(
   const transferOwnership = new TransferOwnership(orgRepo, memberRepo, logger)
   const listOrgs = new ListOrganizations(orgRepo)
 
-  // Controller
-  const controller = new OrganizationController(
+  // Guest use cases
+  const createGuest = new CreateGuest(guestRepo, logger)
+  const getGuest = new GetGuest(guestRepo, logger)
+  const updateGuest = new UpdateGuest(guestRepo, logger)
+  const deleteGuest = new DeleteGuest(guestRepo, logger)
+  const listGuests = new ListGuests(guestRepo, logger)
+  const findOrCreateGuestByEmail = new FindOrCreateGuestByEmail(guestRepo, logger)
+
+  // Controllers
+  const orgController = new OrganizationController(
     createOrg,
     getOrg,
     updateOrg,
@@ -79,6 +97,15 @@ export function createApp(
     transferOwnership,
     listOrgs,
     memberRepo,
+  )
+  const guestController = new GuestController(
+    createGuest,
+    getGuest,
+    updateGuest,
+    deleteGuest,
+    listGuests,
+    findOrCreateGuestByEmail,
+    config,
   )
 
   // Express app
@@ -121,7 +148,8 @@ export function createApp(
 
   // Routes
   app.use(createHealthRouter(db, redis))
-  app.use(createOrganizationRouter(controller))
+  app.use(createOrganizationRouter(orgController))
+  app.use(createGuestRouter(guestController))
 
   // Mount Apollo Server Federated GraphQL Middleware
   const apolloServer = new ApolloServer({

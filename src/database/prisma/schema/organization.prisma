@@ -44,11 +44,13 @@ model Organization {
   members OrganizationMember[]
 
   // Domain relations
-  hotels Hotel[]
-  roles  Role[]
+  hotels      Hotel[]
+  roles       Role[]
+  invitations UserInvitation[]
 
   // Audit back-relation
   auditLogs AuditLog[] @relation("OrganizationAuditLogs")
+  guests    Guest[]
 
   @@index([status])
   @@index([plan])
@@ -95,6 +97,7 @@ model Role {
 
   userRoles       UserRole[]
   rolePermissions RolePermission[]
+  invitations     UserInvitation[]
 
   // A role name must be unique within the same organization (null = system scope)
   // Service layer enforces uniqueness for (name, organizationId=null) system roles
@@ -166,4 +169,42 @@ model RolePermission {
   @@index([roleId])
   @@index([permissionId])
   @@map("role_permissions")
+}
+
+// ─── Guest ───────────────────────────────────────────────────────────────────────
+// Centralized guest profile (organization-scoped, optional hotel scope).
+// Links to BookingGuest via guestId for cross-booking history, loyalty, preferences.
+// Not a User - a guest may never have an account/login.
+
+model Guest {
+  id                 String       @id @default(uuid())
+  organizationId     String
+  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  hotelId            String? // optional: narrows to a single hotel within org
+  hotel              Hotel?       @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+  firstName          String       @db.VarChar(100)
+  lastName           String       @db.VarChar(100)
+  email              String?      @db.VarChar(255)
+  phone              String?      @db.VarChar(20)
+  nationality        String?      @db.VarChar(100)
+  dateOfBirth        DateTime?    @db.Date
+  governmentIdType   GovIdType?
+  governmentIdNumber String?      @db.VarChar(100)
+  preferences        Json? // communication prefs, room prefs, dietary, etc.
+  loyaltyTier        String?      @db.VarChar(50) // e.g. SILVER, GOLD, PLATINUM
+  loyaltyPoints      Int          @default(0)
+  metadata           Json? // flexible extension blob
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  deletedAt          DateTime?
+
+  // Cross-booking guest records (link to booking_guests)
+  bookingGuests BookingGuest[]
+
+  @@index([organizationId])
+  @@index([hotelId])
+  @@index([email])
+  @@index([lastName, firstName])
+  @@index([deletedAt])
+  @@map("guests")
 }
