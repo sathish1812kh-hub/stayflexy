@@ -28,6 +28,8 @@ const makeBooking = (): Booking =>
     status: 'CONFIRMED',
     source: 'DIRECT',
     primaryGuestId: 'guest-1',
+    policyId: null,
+    ratePlanId: null,
     amounts: {
       totalAmount: 300,
       taxAmount: 30,

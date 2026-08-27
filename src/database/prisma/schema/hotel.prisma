@@ -52,11 +52,11 @@ model Hotel {
   inventory Inventory[] @relation("HotelInventory")
 
   // Booking module back-relation
-  bookings  Booking[]   @relation("HotelBookings")
+  bookings Booking[] @relation("HotelBookings")
 
   // Payment module back-relations
-  payments  Payment[]   @relation("HotelPayments")
-  invoices  Invoice[]   @relation("HotelInvoices")
+  payments Payment[] @relation("HotelPayments")
+  invoices Invoice[] @relation("HotelInvoices")
 
   // OTA/Channel manager back-relations
   otaMappings     OTAMapping[]     @relation("HotelOTAMappings")
@@ -80,10 +80,12 @@ model Hotel {
   forecastDataPoints ForecastDataPoint[] @relation("HotelForecastData")
 
   // AI/Automation/Intelligence back-relations
-  automationRules    AutomationRule[]    @relation("HotelAutomationRules")
-  recommendations    Recommendation[]    @relation("HotelRecommendations")
+  automationRules     AutomationRule[]     @relation("HotelAutomationRules")
+  recommendations     Recommendation[]     @relation("HotelRecommendations")
   operationalInsights OperationalInsight[] @relation("HotelOperationalInsights")
-  anomalyDetections  AnomalyDetection[]  @relation("HotelAnomalyDetections")
+  anomalyDetections   AnomalyDetection[]   @relation("HotelAnomalyDetections")
+  guests                  Guest[]
+  cancellationPolicies    CancellationPolicy[]
 
   // slug is unique per organization (same slug allowed in different orgs)
   @@unique([organizationId, slug])

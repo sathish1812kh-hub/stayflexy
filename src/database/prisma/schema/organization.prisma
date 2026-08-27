@@ -44,13 +44,14 @@ model Organization {
   members OrganizationMember[]
 
   // Domain relations
-  hotels      Hotel[]
-  roles       Role[]
-  invitations UserInvitation[]
+  hotels                 Hotel[]
+  roles                  Role[]
+  invitations            UserInvitation[]
+  cancellationPolicies   CancellationPolicy[]
 
   // Audit back-relation
-  auditLogs AuditLog[] @relation("OrganizationAuditLogs")
-  guests    Guest[]
+  auditLogs              AuditLog[]         @relation("OrganizationAuditLogs")
+  guests                 Guest[]
 
   @@index([status])
   @@index([plan])

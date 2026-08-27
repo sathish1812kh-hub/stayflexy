@@ -8,6 +8,8 @@ import type { IInventoryRepository } from '../../domain/repositories/IInventoryR
 import type { BookingCache } from '../../infrastructure/cache/BookingCache'
 import type { IEventPublisher } from '@stayflexi/shared-events'
 import type { Logger } from '@stayflexi/shared-logger'
+import type { FindApplicableCancellationPolicy } from '../../application/use-cases/FindApplicableCancellationPolicy'
+import type { CancellationPolicy } from '../../domain/entities/CancellationPolicy'
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -20,7 +22,15 @@ function makeBooking(status: Booking['status'] = 'CONFIRMED', orgId = 'org-1'): 
     status,
     source: 'DIRECT',
     primaryGuestId: 'guest-1',
-    amounts: { totalAmount: 300, taxAmount: 30, discountAmount: 0, finalAmount: 330, currency: 'USD' },
+    policyId: null,
+    ratePlanId: null,
+    amounts: {
+      totalAmount: 300,
+      taxAmount: 30,
+      discountAmount: 0,
+      finalAmount: 330,
+      currency: 'USD',
+    },
     specialRequests: null,
     internalNotes: null,
     bookedById: 'user-1',
@@ -103,6 +113,17 @@ function makeInventoryRepo(): jest.Mocked<IInventoryRepository> {
   }
 }
 
+function makeFindCancellationPolicy(): unknown {
+  return {
+    execute: jest.fn().mockResolvedValue({
+      canCancel: () => ({ allowed: true }),
+      calculateRefund: () => ({ refundAmount: 330, penaltyAmount: 0 }),
+      isApplicableToSource: () => true,
+      isApplicableToRatePlan: () => true,
+    } as unknown as CancellationPolicy),
+  }
+}
+
 function makeCache(): jest.Mocked<BookingCache> {
   return {
     get: jest.fn().mockResolvedValue(null),
@@ -125,6 +146,15 @@ const mockLogger = {
   debug: jest.fn(),
 } as unknown as Logger
 
+const mockFindCancellationPolicy: unknown = {
+  execute: jest.fn().mockResolvedValue({
+    canCancel: () => ({ allowed: true }),
+    calculateRefund: () => ({ refundAmount: 330, penaltyAmount: 0 }),
+    isApplicableToSource: () => true,
+    isApplicableToRatePlan: () => true,
+  } as unknown as CancellationPolicy),
+}
+
 const cancelDto = { cancellationReason: 'GUEST_REQUEST' as const }
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
@@ -140,7 +170,14 @@ describe('CancelBooking', () => {
     bookingRepo = makeBookingRepo()
     inventoryRepo = makeInventoryRepo()
     cache = makeCache()
-    useCase = new CancelBooking(bookingRepo, inventoryRepo, cache, mockPublisher, mockLogger)
+    useCase = new CancelBooking(
+      bookingRepo,
+      inventoryRepo,
+      cache,
+      mockPublisher,
+      mockLogger,
+      mockFindCancellationPolicy as unknown as FindApplicableCancellationPolicy,
+    )
   })
 
   it('cancels a CONFIRMED booking successfully', async () => {
@@ -153,7 +190,7 @@ describe('CancelBooking', () => {
     expect(bookingRepo.updateStatus).toHaveBeenCalledWith(
       'booking-1',
       'CANCELLED',
-      expect.objectContaining({ cancelledById: 'user-1', cancellationReason: 'GUEST_REQUEST' })
+      expect.objectContaining({ cancelledById: 'user-1', cancellationReason: 'GUEST_REQUEST' }),
     )
     expect(bookingRepo.updateRoomStatuses).toHaveBeenCalledWith('booking-1', 'CANCELLED')
     expect(cache.invalidate).toHaveBeenCalledWith('booking-1')
@@ -165,39 +202,43 @@ describe('CancelBooking', () => {
 
     await useCase.execute('booking-1', cancelDto, 'user-1', 'org-1')
 
-    expect(bookingRepo.updateStatus).toHaveBeenCalledWith('booking-1', 'CANCELLED', expect.anything())
+    expect(bookingRepo.updateStatus).toHaveBeenCalledWith(
+      'booking-1',
+      'CANCELLED',
+      expect.anything(),
+    )
   })
 
   it('throws NotFoundError when booking does not exist', async () => {
     bookingRepo.findByIdWithDetails.mockResolvedValue(null)
 
-    await expect(
-      useCase.execute('nonexistent', cancelDto, 'user-1', 'org-1')
-    ).rejects.toThrow(NotFoundError)
+    await expect(useCase.execute('nonexistent', cancelDto, 'user-1', 'org-1')).rejects.toThrow(
+      NotFoundError,
+    )
   })
 
   it('throws ForbiddenError when booking belongs to different org', async () => {
     bookingRepo.findByIdWithDetails.mockResolvedValue(makeFullBooking('CONFIRMED'))
 
     await expect(
-      useCase.execute('booking-1', cancelDto, 'user-1', 'org-different')
+      useCase.execute('booking-1', cancelDto, 'user-1', 'org-different'),
     ).rejects.toThrow(ForbiddenError)
   })
 
   it('throws BadRequestError when cancelling a CHECKED_IN booking', async () => {
     bookingRepo.findByIdWithDetails.mockResolvedValue(makeFullBooking('CHECKED_IN'))
 
-    await expect(
-      useCase.execute('booking-1', cancelDto, 'user-1', 'org-1')
-    ).rejects.toThrow(BadRequestError)
+    await expect(useCase.execute('booking-1', cancelDto, 'user-1', 'org-1')).rejects.toThrow(
+      BadRequestError,
+    )
   })
 
   it('throws BadRequestError when cancelling a CHECKED_OUT booking', async () => {
     bookingRepo.findByIdWithDetails.mockResolvedValue(makeFullBooking('CHECKED_OUT'))
 
-    await expect(
-      useCase.execute('booking-1', cancelDto, 'user-1', 'org-1')
-    ).rejects.toThrow(BadRequestError)
+    await expect(useCase.execute('booking-1', cancelDto, 'user-1', 'org-1')).rejects.toThrow(
+      BadRequestError,
+    )
   })
 
   it('releases inventory for active rooms on cancellation', async () => {
@@ -209,7 +250,7 @@ describe('CancelBooking', () => {
     expect(inventoryRepo.releaseInventory).toHaveBeenCalledWith(
       'rt-1',
       expect.any(Date),
-      expect.any(Date)
+      expect.any(Date),
     )
   })
 
@@ -222,7 +263,7 @@ describe('CancelBooking', () => {
 
     expect(mockPublisher.publish).toHaveBeenCalledWith(
       'booking.events',
-      expect.objectContaining({ eventType: 'booking.cancelled', organizationId: 'org-1' })
+      expect.objectContaining({ eventType: 'booking.cancelled', organizationId: 'org-1' }),
     )
   })
 
@@ -237,7 +278,7 @@ describe('CancelBooking', () => {
       'CANCELLED',
       expect.any(String),
       'user-1',
-      expect.any(Object)
+      expect.any(Object),
     )
   })
 })

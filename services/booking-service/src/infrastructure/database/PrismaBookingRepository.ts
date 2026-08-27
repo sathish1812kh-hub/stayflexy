@@ -36,6 +36,8 @@ function mapToBooking(r: PrismaBooking): Booking {
     status: r.status as BookingStatus,
     source: r.source as BookingSource,
     primaryGuestId: r.primaryGuestId,
+    policyId: (r as unknown as Record<string, string | null>)['policyId'] ?? null,
+    ratePlanId: (r as unknown as Record<string, string | null>)['ratePlanId'] ?? null,
     amounts: {
       totalAmount: r.totalAmount.toNumber(),
       taxAmount: r.taxAmount.toNumber(),

@@ -20,7 +20,15 @@ function makeBooking(status: Booking['status'] = 'CONFIRMED', orgId = 'org-1'): 
     status,
     source: 'DIRECT',
     primaryGuestId: null,
-    amounts: { totalAmount: 300, taxAmount: 30, discountAmount: 0, finalAmount: 330, currency: 'USD' },
+    policyId: null,
+    ratePlanId: null,
+    amounts: {
+      totalAmount: 300,
+      taxAmount: 30,
+      discountAmount: 0,
+      finalAmount: 330,
+      currency: 'USD',
+    },
     specialRequests: null,
     internalNotes: null,
     bookedById: 'user-1',
@@ -136,7 +144,7 @@ describe('CheckIn', () => {
     expect(bookingRepo.updateStatus).toHaveBeenCalledWith(
       'booking-1',
       'CHECKED_IN',
-      expect.objectContaining({ checkedInById: 'user-1' })
+      expect.objectContaining({ checkedInById: 'user-1' }),
     )
     expect(bookingRepo.updateRoomStatuses).toHaveBeenCalledWith('booking-1', 'OCCUPIED')
     expect(cache.invalidate).toHaveBeenCalledWith('booking-1')
@@ -148,39 +156,37 @@ describe('CheckIn', () => {
 
     await useCase.execute('booking-1', 'user-1', 'org-1')
 
-    expect(bookingRepo.updateStatus).toHaveBeenCalledWith('booking-1', 'CHECKED_IN', expect.anything())
+    expect(bookingRepo.updateStatus).toHaveBeenCalledWith(
+      'booking-1',
+      'CHECKED_IN',
+      expect.anything(),
+    )
   })
 
   it('throws NotFoundError when booking does not exist', async () => {
     bookingRepo.findByIdWithDetails.mockResolvedValue(null)
 
-    await expect(
-      useCase.execute('nonexistent', 'user-1', 'org-1')
-    ).rejects.toThrow(NotFoundError)
+    await expect(useCase.execute('nonexistent', 'user-1', 'org-1')).rejects.toThrow(NotFoundError)
   })
 
   it('throws ForbiddenError for cross-org access', async () => {
     bookingRepo.findByIdWithDetails.mockResolvedValue(makeFullBooking('CONFIRMED'))
 
-    await expect(
-      useCase.execute('booking-1', 'user-1', 'org-other')
-    ).rejects.toThrow(ForbiddenError)
+    await expect(useCase.execute('booking-1', 'user-1', 'org-other')).rejects.toThrow(
+      ForbiddenError,
+    )
   })
 
   it('throws BadRequestError when checking in a CANCELLED booking', async () => {
     bookingRepo.findByIdWithDetails.mockResolvedValue(makeFullBooking('CANCELLED'))
 
-    await expect(
-      useCase.execute('booking-1', 'user-1', 'org-1')
-    ).rejects.toThrow(BadRequestError)
+    await expect(useCase.execute('booking-1', 'user-1', 'org-1')).rejects.toThrow(BadRequestError)
   })
 
   it('throws BadRequestError when checking in an already CHECKED_IN booking', async () => {
     bookingRepo.findByIdWithDetails.mockResolvedValue(makeFullBooking('CHECKED_IN'))
 
-    await expect(
-      useCase.execute('booking-1', 'user-1', 'org-1')
-    ).rejects.toThrow(BadRequestError)
+    await expect(useCase.execute('booking-1', 'user-1', 'org-1')).rejects.toThrow(BadRequestError)
   })
 
   it('publishes booking.checked_in event', async () => {
@@ -191,7 +197,7 @@ describe('CheckIn', () => {
 
     expect(mockPublisher.publish).toHaveBeenCalledWith(
       'booking.events',
-      expect.objectContaining({ eventType: 'booking.checked_in' })
+      expect.objectContaining({ eventType: 'booking.checked_in' }),
     )
   })
 })
@@ -221,7 +227,7 @@ describe('CheckOut', () => {
     expect(bookingRepo.updateStatus).toHaveBeenCalledWith(
       'booking-1',
       'CHECKED_OUT',
-      expect.objectContaining({ checkedOutById: 'user-1' })
+      expect.objectContaining({ checkedOutById: 'user-1' }),
     )
     expect(bookingRepo.updateRoomStatuses).toHaveBeenCalledWith('booking-1', 'VACATED')
     expect(cache.invalidate).toHaveBeenCalledWith('booking-1')
@@ -231,25 +237,21 @@ describe('CheckOut', () => {
   it('throws BadRequestError when checking out a CONFIRMED booking (not yet checked in)', async () => {
     bookingRepo.findByIdWithDetails.mockResolvedValue(makeFullBooking('CONFIRMED'))
 
-    await expect(
-      useCase.execute('booking-1', 'user-1', 'org-1')
-    ).rejects.toThrow(BadRequestError)
+    await expect(useCase.execute('booking-1', 'user-1', 'org-1')).rejects.toThrow(BadRequestError)
   })
 
   it('throws BadRequestError when checking out a CANCELLED booking', async () => {
     bookingRepo.findByIdWithDetails.mockResolvedValue(makeFullBooking('CANCELLED'))
 
-    await expect(
-      useCase.execute('booking-1', 'user-1', 'org-1')
-    ).rejects.toThrow(BadRequestError)
+    await expect(useCase.execute('booking-1', 'user-1', 'org-1')).rejects.toThrow(BadRequestError)
   })
 
   it('throws ForbiddenError for cross-org access', async () => {
     bookingRepo.findByIdWithDetails.mockResolvedValue(makeFullBooking('CHECKED_IN'))
 
-    await expect(
-      useCase.execute('booking-1', 'user-1', 'org-other')
-    ).rejects.toThrow(ForbiddenError)
+    await expect(useCase.execute('booking-1', 'user-1', 'org-other')).rejects.toThrow(
+      ForbiddenError,
+    )
   })
 
   it('publishes booking.checked_out event', async () => {
@@ -260,7 +262,7 @@ describe('CheckOut', () => {
 
     expect(mockPublisher.publish).toHaveBeenCalledWith(
       'booking.events',
-      expect.objectContaining({ eventType: 'booking.checked_out' })
+      expect.objectContaining({ eventType: 'booking.checked_out' }),
     )
   })
 })

@@ -23,7 +23,9 @@ import { authMiddleware } from '../middleware/auth'
 import { errorHandler } from '../middleware/errorHandler'
 import { createHealthRouter } from './http/HealthController'
 import { createBookingRouter } from './http/routes'
+import { createCancellationPolicyRouter } from './http/cancellationPolicy.routes'
 import { BookingController } from './http/BookingController'
+import { CancellationPolicyController } from './http/CancellationPolicyController'
 
 // Use cases
 import { CreateBooking } from '../application/use-cases/CreateBooking'
@@ -33,10 +35,17 @@ import { CheckIn } from '../application/use-cases/CheckIn'
 import { CheckOut } from '../application/use-cases/CheckOut'
 import { SearchBookings } from '../application/use-cases/SearchBookings'
 import { PatchBooking } from '../application/use-cases/PatchBooking'
+import { CreateCancellationPolicy } from '../application/use-cases/CreateCancellationPolicy'
+import { GetCancellationPolicy } from '../application/use-cases/GetCancellationPolicy'
+import { UpdateCancellationPolicy } from '../application/use-cases/UpdateCancellationPolicy'
+import { DeleteCancellationPolicy } from '../application/use-cases/DeleteCancellationPolicy'
+import { ListCancellationPolicies } from '../application/use-cases/ListCancellationPolicies'
+import { FindApplicableCancellationPolicy } from '../application/use-cases/FindApplicableCancellationPolicy'
 
 // Infrastructure
 import { PrismaBookingRepository } from '../infrastructure/database/PrismaBookingRepository'
 import { PrismaInventoryRepository } from '../infrastructure/database/PrismaInventoryRepository'
+import { PrismaCancellationPolicyRepository } from '../infrastructure/database/PrismaCancellationPolicyRepository'
 import { BookingCache } from '../infrastructure/cache/BookingCache'
 import { IdempotencyStore } from '../infrastructure/idempotency/IdempotencyStore'
 import { RedisDistributedLock } from '../infrastructure/locking/RedisDistributedLock'
@@ -52,6 +61,7 @@ export function createApp(
   // Infrastructure
   const bookingRepo = new PrismaBookingRepository(db)
   const inventoryRepo = new PrismaInventoryRepository(db)
+  const policyRepo = new PrismaCancellationPolicyRepository(db)
   const cache = new BookingCache(redis, config.BOOKING_CACHE_TTL_SECONDS)
   const idempotencyStore = new IdempotencyStore(redis, config.IDEMPOTENCY_TTL_SECONDS)
   const lock = new RedisDistributedLock(
@@ -61,16 +71,31 @@ export function createApp(
     config.BOOKING_LOCK_RETRY_DELAY_MS,
   )
 
+  // Cancellation Policy use cases
+  const createPolicy = new CreateCancellationPolicy(policyRepo, logger)
+  const getPolicy = new GetCancellationPolicy(policyRepo, logger)
+  const updatePolicy = new UpdateCancellationPolicy(policyRepo, logger)
+  const deletePolicy = new DeleteCancellationPolicy(policyRepo, logger)
+  const listPolicies = new ListCancellationPolicies(policyRepo, logger)
+  const findApplicablePolicy = new FindApplicableCancellationPolicy(policyRepo, logger)
+
   // Use cases
   const createBooking = new CreateBooking(bookingRepo, inventoryRepo, lock, eventPublisher, logger)
   const getBooking = new GetBooking(bookingRepo, cache)
-  const cancelBooking = new CancelBooking(bookingRepo, inventoryRepo, cache, eventPublisher, logger)
+  const cancelBooking = new CancelBooking(
+    bookingRepo,
+    inventoryRepo,
+    cache,
+    eventPublisher,
+    logger,
+    findApplicablePolicy,
+  )
   const checkIn = new CheckIn(bookingRepo, cache, eventPublisher, logger)
   const checkOut = new CheckOut(bookingRepo, cache, eventPublisher, logger)
   const searchBookings = new SearchBookings(bookingRepo)
   const patchBooking = new PatchBooking(bookingRepo, cache, logger)
 
-  // Controller
+  // Controllers
   const controller = new BookingController(
     createBooking,
     getBooking,
@@ -79,6 +104,15 @@ export function createApp(
     checkOut,
     searchBookings,
     patchBooking,
+    config,
+  )
+  const policyController = new CancellationPolicyController(
+    createPolicy,
+    getPolicy,
+    updatePolicy,
+    deletePolicy,
+    listPolicies,
+    findApplicablePolicy,
     config,
   )
 
@@ -116,6 +150,7 @@ export function createApp(
 
   app.use(createHealthRouter(db, redis))
   app.use(createBookingRouter(controller, idempotencyStore))
+  app.use(createCancellationPolicyRouter(policyController))
 
   // Mount Apollo Server Federated GraphQL Middleware
   const apolloServer = new ApolloServer({
