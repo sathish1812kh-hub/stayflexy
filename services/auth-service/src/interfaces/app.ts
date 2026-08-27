@@ -13,12 +13,14 @@ import {
   createMetricsHandler,
 } from '@stayflexi/shared-observability'
 import { getPrismaClient } from '@stayflexi/shared-database'
+import { extractAuthUser } from '@stayflexi/shared-types'
 import type Redis from 'ioredis'
 
 import { correlationMiddleware } from '../middleware/correlation'
 import { createRateLimiter } from '../middleware/rateLimit'
 import { errorHandler } from '../middleware/errorHandler'
 import { createAuthRouter } from './http/routes'
+import { createInternalRBACRouter, InternalRBACController } from './http/InternalRBACController'
 import { createHealthRouter } from './http/HealthController'
 import { AuthController } from './http/AuthController'
 
@@ -28,6 +30,8 @@ import { LoginUser } from '../application/use-cases/LoginUser'
 import { LogoutUser } from '../application/use-cases/LogoutUser'
 import { RefreshTokens } from '../application/use-cases/RefreshTokens'
 import { GetCurrentUser } from '../application/use-cases/GetCurrentUser'
+import { ManageRoles } from '../application/use-cases/ManageRoles'
+import { ManageInvitations } from '../application/use-cases/ManageInvitations'
 
 // Application services
 import { TokenService } from '../application/services/TokenService'
@@ -37,6 +41,8 @@ import { SessionCache } from '../application/services/SessionCache'
 // Infrastructure
 import { PrismaUserRepository } from '../infrastructure/database/PrismaUserRepository'
 import { PrismaRefreshTokenRepository } from '../infrastructure/database/PrismaRefreshTokenRepository'
+import { PrismaRBACRepository } from '../infrastructure/database/PrismaRBACRepository'
+import { PrismaInvitationRepository } from '../infrastructure/database/PrismaInvitationRepository'
 
 import type { AuthConfig } from '../config'
 
@@ -51,6 +57,8 @@ export function createApp(
   // Infrastructure
   const userRepo = new PrismaUserRepository(db)
   const tokenRepo = new PrismaRefreshTokenRepository(db)
+  const rbacRepo = new PrismaRBACRepository(db)
+  const invitationRepo = new PrismaInvitationRepository(db)
   const sessionCache = new SessionCache(redis)
   const bruteForce = new BruteForceProtector(
     redis,
@@ -80,6 +88,16 @@ export function createApp(
   const logoutUser = new LogoutUser(tokenRepo, sessionCache, logger)
   const refreshTokens = new RefreshTokens(tokenRepo, userRepo, tokenService, logger)
   const getCurrentUser = new GetCurrentUser(userRepo, sessionCache)
+  const manageRoles = new ManageRoles(rbacRepo, userRepo, logger, redis)
+  const manageInvitations = new ManageInvitations(
+    invitationRepo,
+    rbacRepo,
+    userRepo,
+    tokenService,
+    db,
+    eventPublisher,
+    logger,
+  )
 
   // Controller
   const controller = new AuthController(
@@ -103,7 +121,13 @@ export function createApp(
     cors({
       credentials: true,
       methods: ['GET', 'POST', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-Id'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Correlation-Id',
+        'X-Service-Token',
+        'X-Service-Key',
+      ],
     }),
   )
   app.use(express.json({ limit: '1mb' }))
@@ -117,6 +141,7 @@ export function createApp(
   // Routes
   app.use(createHealthRouter(db, redis))
   app.use(createAuthRouter(controller))
+  app.use(createInternalRBACRouter(new InternalRBACController(manageRoles, config.SERVICE_KEY)))
 
   // Mount Apollo Server Federated GraphQL Middleware
   const apolloServer = new ApolloServer({
@@ -127,34 +152,36 @@ export function createApp(
       '/graphql',
       expressMiddleware(apolloServer, {
         context: async ({ req }) => {
-          const userId = req.headers['x-user-id'] as string | undefined
-          const orgId = req.headers['x-organization-id'] as string | undefined
-          const correlationId = req.headers['x-correlation-id'] as string | undefined
+          const authUser = extractAuthUser(
+            req.headers as Record<string, string | string[] | undefined>,
+            config.SERVICE_KEY,
+            'stayflexi/auth-service',
+          )
+
+          const ipAddress =
+            (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1'
+          const userAgent = (req.headers['user-agent'] as string) || 'GraphQL-Client'
+          const correlationId = (req.headers['x-correlation-id'] as string) || ''
 
           return {
-            userId: userId ?? null,
-            organizationId: orgId ?? null,
+            userId: authUser?.userId ?? null,
+            organizationId: authUser?.organizationId ?? null,
+            primaryRole: authUser?.primaryRole ?? null,
+            isServiceCall: authUser?.isServiceCall ?? false,
             correlationId,
+            ipAddress,
+            userAgent,
             registerUser,
             loginUser,
             logoutUser,
             refreshTokens,
             getCurrentUser,
+            manageRoles,
+            manageInvitations,
           }
         },
       }),
     )
-  })
-
-  // 404 handler
-  app.use((req, res, next) => {
-    if (req.path === '/graphql') {
-      return next()
-    }
-    res.status(404).json({
-      success: false,
-      error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 },
-    })
   })
 
   app.use(errorHandler)

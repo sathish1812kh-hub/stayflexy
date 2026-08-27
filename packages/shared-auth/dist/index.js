@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.requirePermission = exports.parsePermissionsHeader = exports.hasPermission = exports.buildPermissionsHeader = exports.PERMISSIONS_HEADER = void 0;
 exports.generateAccessToken = generateAccessToken;
 exports.verifyAccessToken = verifyAccessToken;
 exports.generateRefreshToken = generateRefreshToken;
@@ -15,6 +16,12 @@ exports.validatePasswordStrength = validatePasswordStrength;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const crypto_1 = require("crypto");
+var rbac_1 = require("./rbac");
+Object.defineProperty(exports, "PERMISSIONS_HEADER", { enumerable: true, get: function () { return rbac_1.PERMISSIONS_HEADER; } });
+Object.defineProperty(exports, "buildPermissionsHeader", { enumerable: true, get: function () { return rbac_1.buildPermissionsHeader; } });
+Object.defineProperty(exports, "hasPermission", { enumerable: true, get: function () { return rbac_1.hasPermission; } });
+Object.defineProperty(exports, "parsePermissionsHeader", { enumerable: true, get: function () { return rbac_1.parsePermissionsHeader; } });
+Object.defineProperty(exports, "requirePermission", { enumerable: true, get: function () { return rbac_1.requirePermission; } });
 function generateAccessToken(payload, secret, expiresIn = '15m') {
     return jsonwebtoken_1.default.sign({ ...payload, jti: (0, crypto_1.randomUUID)() }, secret, {
         expiresIn,

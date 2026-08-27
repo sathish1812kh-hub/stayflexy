@@ -1,3 +1,5 @@
+export { PERMISSIONS_HEADER, buildPermissionsHeader, hasPermission, parsePermissionsHeader, requirePermission, } from './rbac';
+export type { RequirePermissionOptions } from './rbac';
 export interface JwtPayload {
     sub: string;
     organizationId?: string;
