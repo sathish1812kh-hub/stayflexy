@@ -13,7 +13,9 @@ import type { AdapterFactory } from '../../adapters/AdapterFactory'
 import type { Logger } from '@stayflexi/shared-logger'
 import type { SyncInventoryDto } from '../../application/dtos/ota.dto'
 
-const makeProvider = (overrides?: Partial<{ status: 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE' }>): OtaProvider =>
+const makeProvider = (
+  overrides?: Partial<{ status: 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE' }>,
+): OtaProvider =>
   new OtaProvider({
     id: 'provider-1',
     providerCode: 'BOOKING_COM',
@@ -26,7 +28,9 @@ const makeProvider = (overrides?: Partial<{ status: 'ACTIVE' | 'INACTIVE' | 'MAI
     updatedAt: new Date(),
   })
 
-const makeMapping = (overrides?: Partial<{ isActive: boolean; organizationId: string }>): OtaMapping =>
+const makeMapping = (
+  overrides?: Partial<{ isActive: boolean; organizationId: string }>,
+): OtaMapping =>
   new OtaMapping({
     id: 'mapping-1',
     organizationId: overrides?.organizationId ?? 'org-1',
@@ -70,6 +74,7 @@ const mockProviderRepo: jest.Mocked<IOtaProviderRepository> = {
   create: jest.fn(),
   update: jest.fn(),
   updateStatus: jest.fn(),
+  softDelete: jest.fn(),
 }
 
 const mockMappingRepo: jest.Mocked<IOtaMappingRepository> = {
@@ -123,7 +128,9 @@ const mockEventPublisher = {
 
 const mockAdapter = {
   providerCode: 'BOOKING_COM',
-  pushInventory: jest.fn().mockResolvedValue({ success: true, recordsProcessed: 5, recordsFailed: 0, errors: [] }),
+  pushInventory: jest
+    .fn()
+    .mockResolvedValue({ success: true, recordsProcessed: 5, recordsFailed: 0, errors: [] }),
   pushRates: jest.fn(),
   pullReservations: jest.fn(),
   validateCredentials: jest.fn(),
@@ -235,7 +242,9 @@ describe('SyncInventory', () => {
   })
 
   it('throws ConflictError when mapping belongs to different organization', async () => {
-    mockMappingRepo.findByHotelAndProvider.mockResolvedValue([makeMapping({ organizationId: 'other-org' })])
+    mockMappingRepo.findByHotelAndProvider.mockResolvedValue([
+      makeMapping({ organizationId: 'other-org' }),
+    ])
     await expect(useCase.execute(validDto, 'org-1', 'user-1')).rejects.toThrow(ConflictError)
   })
 

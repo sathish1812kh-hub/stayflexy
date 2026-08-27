@@ -11,6 +11,8 @@ import {
   reconciliationQuerySchema,
   createProviderDtoSchema,
   updateProviderStatusDtoSchema,
+  updateProviderDtoSchema,
+  updateConnectionDtoSchema,
 } from '../../application/dtos/ota.dto'
 import type { ConnectOtaDto } from '../../application/dtos/ota.dto'
 import type { ConnectOtaProvider } from '../../application/use-cases/ConnectOtaProvider'
@@ -53,8 +55,15 @@ export class OtaController {
       const { correlationId } = this.getAuth(req)
       const status = req.query['status'] as string | undefined
       const providers = await this.providerRepo.findAll(status)
-      res.json(successResponse(providers.map(p => p.toJSON()), correlationId))
-    } catch (err) { next(err) }
+      res.json(
+        successResponse(
+          providers.map((p) => p.toJSON()),
+          correlationId,
+        ),
+      )
+    } catch (err) {
+      next(err)
+    }
   }
 
   createProvider = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -63,7 +72,9 @@ export class OtaController {
       const dto = validate(createProviderDtoSchema, req.body)
       const provider = await this.providerRepo.create(dto)
       res.status(201).json(successResponse(provider.toJSON(), correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getProvider = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -73,11 +84,18 @@ export class OtaController {
       if (!id) throw new Error('Missing provider id')
       const provider = await this.providerRepo.findById(id)
       if (!provider) {
-        res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Provider not found', statusCode: 404 } })
+        res
+          .status(404)
+          .json({
+            success: false,
+            error: { code: 'NOT_FOUND', message: 'Provider not found', statusCode: 404 },
+          })
         return
       }
       res.json(successResponse(provider.toJSON(), correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   updateProviderStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -88,7 +106,54 @@ export class OtaController {
       const dto = validate(updateProviderStatusDtoSchema, req.body)
       const provider = await this.providerRepo.updateStatus(id, dto.status)
       res.json(successResponse(provider.toJSON(), correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  updateProvider = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { correlationId } = this.getAuth(req)
+      const id = req.params['id']
+      if (!id) throw new Error('Missing provider id')
+      const existing = await this.providerRepo.findById(id)
+      if (!existing) {
+        res
+          .status(404)
+          .json({
+            success: false,
+            error: { code: 'NOT_FOUND', message: 'Provider not found', statusCode: 404 },
+          })
+        return
+      }
+      const dto = validate(updateProviderDtoSchema, req.body)
+      const provider = await this.providerRepo.update(id, dto)
+      res.json(successResponse(provider.toJSON(), correlationId))
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  deleteProvider = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { correlationId } = this.getAuth(req)
+      const id = req.params['id']
+      if (!id) throw new Error('Missing provider id')
+      const existing = await this.providerRepo.findById(id)
+      if (!existing) {
+        res
+          .status(404)
+          .json({
+            success: false,
+            error: { code: 'NOT_FOUND', message: 'Provider not found', statusCode: 404 },
+          })
+        return
+      }
+      const provider = await this.providerRepo.softDelete(id)
+      res.json(successResponse(provider.toJSON(), correlationId))
+    } catch (err) {
+      next(err)
+    }
   }
 
   // ── OTA Connections (Mappings) ────────────────────────────────────────────
@@ -106,7 +171,9 @@ export class OtaController {
       }
       const mapping = await this.connectOtaProviderUC.execute(dto, orgId, userId, correlationId)
       res.status(201).json(successResponse(mapping.toJSON(), correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   listConnections = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -114,8 +181,59 @@ export class OtaController {
       const { orgId, correlationId } = this.getAuth(req)
       const hotelId = req.query['hotelId'] as string | undefined
       const mappings = await this.mappingRepo.findByOrganization(orgId, hotelId)
-      res.json(successResponse(mappings.map(m => m.toJSON()), correlationId))
-    } catch (err) { next(err) }
+      res.json(
+        successResponse(
+          mappings.map((m) => m.toJSON()),
+          correlationId,
+        ),
+      )
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  getConnection = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { correlationId } = this.getAuth(req)
+      const id = req.params['id']
+      if (!id) throw new Error('Missing mapping id')
+      const mapping = await this.mappingRepo.findById(id)
+      if (!mapping) {
+        res
+          .status(404)
+          .json({
+            success: false,
+            error: { code: 'NOT_FOUND', message: 'Connection not found', statusCode: 404 },
+          })
+        return
+      }
+      res.json(successResponse(mapping.toJSON(), correlationId))
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  updateConnection = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { correlationId } = this.getAuth(req)
+      const id = req.params['id']
+      if (!id) throw new Error('Missing mapping id')
+      const existing = await this.mappingRepo.findById(id)
+      if (!existing) {
+        res
+          .status(404)
+          .json({
+            success: false,
+            error: { code: 'NOT_FOUND', message: 'Connection not found', statusCode: 404 },
+          })
+        return
+      }
+      const dto = validate(updateConnectionDtoSchema, req.body)
+      const mapping = await this.mappingRepo.update(id, dto)
+      res.json(successResponse(mapping.toJSON(), correlationId))
+    } catch (err) {
+      next(err)
+    }
   }
 
   deactivateConnection = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -125,7 +243,9 @@ export class OtaController {
       if (!id) throw new Error('Missing mapping id')
       const mapping = await this.mappingRepo.deactivate(id)
       res.json(successResponse(mapping.toJSON(), correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   // ── Sync Operations ───────────────────────────────────────────────────────
@@ -136,7 +256,9 @@ export class OtaController {
       const dto = validate(syncInventoryDtoSchema, req.body)
       const job = await this.syncInventoryUC.execute(dto, orgId, userId, correlationId)
       res.status(202).json(successResponse(job.toJSON(), correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   syncRates = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -145,7 +267,9 @@ export class OtaController {
       const dto = validate(syncRatesDtoSchema, req.body)
       const job = await this.syncRatesUC.execute(dto, orgId, userId, correlationId)
       res.status(202).json(successResponse(job.toJSON(), correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   syncReservations = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -154,7 +278,9 @@ export class OtaController {
       const dto = validate(syncReservationsDtoSchema, req.body)
       const job = await this.syncReservationsUC.execute(dto, orgId, userId, correlationId)
       res.status(202).json(successResponse(job.toJSON(), correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   getSyncStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -165,13 +291,22 @@ export class OtaController {
       const limit = parseInt(String(req.query['limit'] ?? '20'), 10)
 
       if (!hotelId) {
-        res.status(400).json({ success: false, error: { code: 'BAD_REQUEST', message: 'hotelId is required', statusCode: 400 } })
+        res
+          .status(400)
+          .json({
+            success: false,
+            error: { code: 'BAD_REQUEST', message: 'hotelId is required', statusCode: 400 },
+          })
         return
       }
 
       const result = await this.getSyncStatusUC.execute(hotelId, syncType, limit)
-      res.json(successResponse({ ...result, jobs: result.jobs.map(j => j.toJSON()) }, correlationId))
-    } catch (err) { next(err) }
+      res.json(
+        successResponse({ ...result, jobs: result.jobs.map((j) => j.toJSON()) }, correlationId),
+      )
+    } catch (err) {
+      next(err)
+    }
   }
 
   // ── Reservations ──────────────────────────────────────────────────────────
@@ -182,7 +317,12 @@ export class OtaController {
       const hotelId = req.query['hotelId'] as string | undefined
 
       if (!hotelId) {
-        res.status(400).json({ success: false, error: { code: 'BAD_REQUEST', message: 'hotelId is required', statusCode: 400 } })
+        res
+          .status(400)
+          .json({
+            success: false,
+            error: { code: 'BAD_REQUEST', message: 'hotelId is required', statusCode: 400 },
+          })
         return
       }
 
@@ -201,11 +341,13 @@ export class OtaController {
       const meta = buildPaginationMeta(result.total, page, limit)
       res.json({
         success: true,
-        data: result.data.map(r => r.toJSON()),
+        data: result.data.map((r) => r.toJSON()),
         meta,
         correlationId,
       })
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   importReservation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -220,7 +362,9 @@ export class OtaController {
         correlationId,
       })
       res.json(successResponse(reservation.toJSON(), correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   // ── Reconciliation ────────────────────────────────────────────────────────
@@ -236,6 +380,8 @@ export class OtaController {
         query.dateTo,
       )
       res.json(successResponse(report, correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 }

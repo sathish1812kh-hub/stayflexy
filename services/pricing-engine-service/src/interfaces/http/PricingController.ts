@@ -1,11 +1,16 @@
 import type { Request, Response, NextFunction } from 'express'
+import { validate } from '@stayflexi/shared-validation'
 import { successResponse, paginatedSuccess } from '@stayflexi/shared-types'
+import { NotFoundError } from '@stayflexi/shared-errors'
+import { updatePricingRuleDtoSchema } from '../../application/dtos/pricing.dto'
 import type { CreatePricingRule } from '../../application/use-cases/CreatePricingRule'
 import type { ComputeDynamicRate } from '../../application/use-cases/ComputeDynamicRate'
 import type { GetCurrentRate } from '../../application/use-cases/GetCurrentRate'
 import type { ApplySurgePricing } from '../../application/use-cases/ApplySurgePricing'
 import type { ListPricingRules } from '../../application/use-cases/ListPricingRules'
 import type { SyncOtaRates } from '../../application/use-cases/SyncOtaRates'
+import type { UpdatePricingRule } from '../../application/use-cases/UpdatePricingRule'
+import type { DeletePricingRule } from '../../application/use-cases/DeletePricingRule'
 
 export class PricingController {
   constructor(
@@ -15,6 +20,8 @@ export class PricingController {
     private readonly applySurgePricingUC: ApplySurgePricing,
     private readonly listPricingRulesUC: ListPricingRules,
     private readonly syncOtaRatesUC: SyncOtaRates,
+    private readonly updatePricingRuleUC: UpdatePricingRule,
+    private readonly deletePricingRuleUC: DeletePricingRule,
   ) {}
 
   // POST /api/v1/pricing/rules
@@ -27,7 +34,9 @@ export class PricingController {
         createdById: user.userId,
       })
       res.status(201).json(successResponse(rule.toJSON(), user.correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   // GET /api/v1/pricing/rules
@@ -41,8 +50,56 @@ export class PricingController {
         page: req.query['page'] ? Number(req.query['page']) : undefined,
         limit: req.query['limit'] ? Number(req.query['limit']) : undefined,
       })
-      res.json(paginatedSuccess(result.data.map(r => r.toJSON()), result.meta, user.correlationId))
-    } catch (err) { next(err) }
+      res.json(
+        paginatedSuccess(
+          result.data.map((r) => r.toJSON()),
+          result.meta,
+          user.correlationId,
+        ),
+      )
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  // GET /api/v1/pricing/rules/:id
+  getRule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const user = req.user!
+      const id = req.params['id']
+      if (!id) throw new NotFoundError('Pricing rule id is required')
+      const result = await this.listPricingRulesUC.findById(id, user.organizationId!)
+      res.json(successResponse(result.toJSON(), user.correlationId))
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  // PATCH /api/v1/pricing/rules/:id
+  patchRule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const user = req.user!
+      const id = req.params['id']
+      if (!id) throw new NotFoundError('Pricing rule id is required')
+      const dto = validate(updatePricingRuleDtoSchema, req.body)
+      const result = await this.updatePricingRuleUC.execute(id, dto as any, user.organizationId!)
+      res.json(successResponse(result.toJSON(), user.correlationId))
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  // DELETE /api/v1/pricing/rules/:id
+  deleteRule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const user = req.user!
+      const id = req.params['id']
+      if (!id) throw new NotFoundError('Pricing rule id is required')
+      await this.deletePricingRuleUC.execute(id, user.organizationId!)
+      res.status(204).send()
+    } catch (err) {
+      next(err)
+    }
   }
 
   // POST /api/v1/pricing/compute
@@ -60,7 +117,9 @@ export class PricingController {
         demandFactor: demandFactor ? Number(demandFactor) : undefined,
       })
       res.json(successResponse(rate.toJSON(), user.correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   // GET /api/v1/pricing/rates/:roomTypeId
@@ -71,7 +130,9 @@ export class PricingController {
       const date = req.query['date'] ? new Date(req.query['date'] as string) : new Date()
       const rate = await this.getCurrentRateUC.execute(roomTypeId!, date, user.organizationId!)
       res.json(successResponse(rate.toJSON(), user.correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   // GET /api/v1/pricing/rates
@@ -85,8 +146,15 @@ export class PricingController {
         new Date(to!),
         user.organizationId!,
       )
-      res.json(successResponse(rates.map(r => r.toJSON()), user.correlationId))
-    } catch (err) { next(err) }
+      res.json(
+        successResponse(
+          rates.map((r) => r.toJSON()),
+          user.correlationId,
+        ),
+      )
+    } catch (err) {
+      next(err)
+    }
   }
 
   // POST /api/v1/pricing/surge
@@ -100,7 +168,9 @@ export class PricingController {
         appliedByRole: user.primaryRole,
       })
       res.status(201).json(successResponse(surge, user.correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   // DELETE /api/v1/pricing/surge
@@ -116,7 +186,9 @@ export class PricingController {
         user.primaryRole,
       )
       res.status(204).send()
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 
   // POST /api/v1/pricing/ota-sync
@@ -132,6 +204,8 @@ export class PricingController {
         toDate: new Date(toDate),
       })
       res.json(successResponse(result, user.correlationId))
-    } catch (err) { next(err) }
+    } catch (err) {
+      next(err)
+    }
   }
 }

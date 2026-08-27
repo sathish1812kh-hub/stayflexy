@@ -70,14 +70,38 @@ export const updateProviderStatusDtoSchema = z.object({
   status: z.enum(['ACTIVE', 'INACTIVE', 'MAINTENANCE']),
 })
 
+export const updateProviderDtoSchema = z
+  .object({
+    providerName: z.string().min(1).max(100).optional(),
+    description: z.string().optional(),
+    webhookUrl: z.string().url().optional(),
+    metadata: z.record(z.unknown()).optional(),
+  })
+  .strict()
+
+export const updateConnectionDtoSchema = z
+  .object({
+    externalHotelId: z.string().min(1).max(200).optional(),
+    externalRoomTypeId: z.string().max(200).optional(),
+    isActive: z.boolean().optional(),
+    metadata: z.record(z.unknown()).optional(),
+  })
+  .strict()
+
 export const importReservationDtoSchema = z.object({
   bookingId: z.string().uuid().optional(),
 })
 
 export const reconciliationQuerySchema = z.object({
   hotelId: z.string().uuid(),
-  dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  dateFrom: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  dateTo: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
 })
 
 export type ConnectOtaDto = z.infer<typeof connectOtaDtoSchema>
@@ -85,6 +109,8 @@ export type SyncInventoryDto = z.infer<typeof syncInventoryDtoSchema>
 export type SyncRatesDto = z.infer<typeof syncRatesDtoSchema>
 export type SyncReservationsDto = z.infer<typeof syncReservationsDtoSchema>
 export type CreateProviderDto = z.infer<typeof createProviderDtoSchema>
+export type UpdateProviderDto = z.infer<typeof updateProviderDtoSchema>
 export type UpdateProviderStatusDto = z.infer<typeof updateProviderStatusDtoSchema>
+export type UpdateConnectionDto = z.infer<typeof updateConnectionDtoSchema>
 export type ImportReservationDto = z.infer<typeof importReservationDtoSchema>
 export type ReconciliationQuery = z.infer<typeof reconciliationQuerySchema>

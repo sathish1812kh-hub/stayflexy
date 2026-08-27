@@ -82,7 +82,8 @@ export class PrismaOtaProviderRepository implements IOtaProviderRepository {
           providerCode: data.providerCode,
           description: data.description ?? null,
           webhookUrl: data.webhookUrl ?? null,
-          metadata: data.metadata !== undefined ? (data.metadata as Prisma.InputJsonValue) : undefined,
+          metadata:
+            data.metadata !== undefined ? (data.metadata as Prisma.InputJsonValue) : undefined,
         },
       })
       return mapToEntity(r)
@@ -126,5 +127,9 @@ export class PrismaOtaProviderRepository implements IOtaProviderRepository {
       if (e) throw e
       throw err
     }
+  }
+
+  async softDelete(id: string): Promise<OtaProvider> {
+    return this.updateStatus(id, 'INACTIVE')
   }
 }
