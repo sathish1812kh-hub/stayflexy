@@ -3,7 +3,11 @@ import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import { createRequestLogger } from '@stayflexi/shared-logger'
-import { MetricsRegistry, createHttpMetricsMiddleware, createMetricsHandler } from '@stayflexi/shared-observability'
+import {
+  MetricsRegistry,
+  createHttpMetricsMiddleware,
+  createMetricsHandler,
+} from '@stayflexi/shared-observability'
 import { getPrismaClient } from '@stayflexi/shared-database'
 import type { Logger } from '@stayflexi/shared-logger'
 import type { IEventPublisher } from '@stayflexi/shared-events'
@@ -21,6 +25,10 @@ import { createHealthRouter } from './http/HealthController'
 import { createPaymentRouter } from './http/routes'
 import { PaymentController } from './http/PaymentController'
 import { WebhookController } from './http/WebhookController'
+import { createTaxConfigRouter } from './http/taxConfig.routes'
+import { createFeeConfigRouter } from './http/feeConfig.routes'
+import { TaxConfigController } from './http/TaxConfigController'
+import { FeeConfigController } from './http/FeeConfigController'
 
 // Use cases
 import { InitiatePayment } from '../application/use-cases/InitiatePayment'
@@ -28,11 +36,23 @@ import { ConfirmPayment } from '../application/use-cases/ConfirmPayment'
 import { ProcessRefund } from '../application/use-cases/ProcessRefund'
 import { GenerateInvoice } from '../application/use-cases/GenerateInvoice'
 import { CancelPayment } from '../application/use-cases/CancelPayment'
+import { CreateTaxConfig } from '../application/use-cases/CreateTaxConfig'
+import { GetTaxConfig } from '../application/use-cases/GetTaxConfig'
+import { UpdateTaxConfig } from '../application/use-cases/UpdateTaxConfig'
+import { DeleteTaxConfig } from '../application/use-cases/DeleteTaxConfig'
+import { ListTaxConfigs } from '../application/use-cases/ListTaxConfigs'
+import { CreateFeeConfig } from '../application/use-cases/CreateFeeConfig'
+import { GetFeeConfig } from '../application/use-cases/GetFeeConfig'
+import { UpdateFeeConfig } from '../application/use-cases/UpdateFeeConfig'
+import { DeleteFeeConfig } from '../application/use-cases/DeleteFeeConfig'
+import { ListFeeConfigs } from '../application/use-cases/ListFeeConfigs'
 
 // Infrastructure
 import { PrismaPaymentRepository } from '../infrastructure/database/PrismaPaymentRepository'
 import { PrismaInvoiceRepository } from '../infrastructure/database/PrismaInvoiceRepository'
 import { PrismaLedgerRepository } from '../infrastructure/database/PrismaLedgerRepository'
+import { PrismaTaxConfigRepository } from '../infrastructure/database/PrismaTaxConfigRepository'
+import { PrismaFeeConfigRepository } from '../infrastructure/database/PrismaFeeConfigRepository'
 import { PaymentCache } from '../infrastructure/cache/PaymentCache'
 import { PaymentIdempotencyStore } from '../infrastructure/idempotency/PaymentIdempotencyStore'
 import { RedisDistributedLock } from '../infrastructure/locking/RedisDistributedLock'
@@ -40,6 +60,7 @@ import { RedisDistributedLock } from '../infrastructure/locking/RedisDistributed
 // Domain services
 import { LedgerService } from '../ledger/LedgerService'
 import { ReconciliationService } from '../reconciliation/ReconciliationService'
+import { TaxCalculationService } from '../domain/services/TaxCalculationService'
 
 // Worker
 import { ReconciliationWorker } from '../workers/ReconciliationWorker'
@@ -49,14 +70,23 @@ export interface AppResult {
   reconciliationWorker: ReconciliationWorker
 }
 
-export function createApp(config: PaymentConfig, redis: Redis, eventPublisher: IEventPublisher, logger: Logger): AppResult {
+export function createApp(
+  config: PaymentConfig,
+  redis: Redis,
+  eventPublisher: IEventPublisher,
+  logger: Logger,
+): AppResult {
   const db = getPrismaClient(config.DATABASE_URL)
 
   // Infrastructure
   const paymentRepo = new PrismaPaymentRepository(db)
   const invoiceRepo = new PrismaInvoiceRepository(db)
   const ledgerRepo = new PrismaLedgerRepository(db)
-  const cache = new PaymentCache(redis, config.PAYMENT_CACHE_TTL_SECONDS, config.INVOICE_CACHE_TTL_SECONDS)
+  const cache = new PaymentCache(
+    redis,
+    config.PAYMENT_CACHE_TTL_SECONDS,
+    config.INVOICE_CACHE_TTL_SECONDS,
+  )
   const idempotencyStore = new PaymentIdempotencyStore(redis, config.IDEMPOTENCY_TTL_SECONDS)
   const lock = new RedisDistributedLock(redis, logger)
   const ledger = new LedgerService(db, logger, ledgerRepo)
@@ -64,38 +94,95 @@ export function createApp(config: PaymentConfig, redis: Redis, eventPublisher: I
 
   // Use cases — all receive distributed lock for concurrency safety
   const initiatePayment = new InitiatePayment(paymentRepo, eventPublisher, logger, lock)
-  const confirmPayment = new ConfirmPayment(paymentRepo, cache, ledger, eventPublisher, logger, lock)
+  const confirmPayment = new ConfirmPayment(
+    paymentRepo,
+    cache,
+    ledger,
+    eventPublisher,
+    logger,
+    lock,
+  )
   const processRefund = new ProcessRefund(paymentRepo, cache, ledger, eventPublisher, logger, lock)
   const generateInvoice = new GenerateInvoice(invoiceRepo, eventPublisher, logger)
   const cancelPayment = new CancelPayment(paymentRepo, cache, eventPublisher, logger, lock)
 
+  // Tax & Fee — domain services & repositories (ADR-0001: logic lives in services/)
+  const taxRepo = new PrismaTaxConfigRepository(db)
+  const feeRepo = new PrismaFeeConfigRepository(db)
+  const taxCalcService = new TaxCalculationService()
+
+  const createTaxConfig = new CreateTaxConfig(taxRepo, logger)
+  const getTaxConfig = new GetTaxConfig(taxRepo)
+  const updateTaxConfig = new UpdateTaxConfig(taxRepo)
+  const deleteTaxConfig = new DeleteTaxConfig(taxRepo)
+  const listTaxConfigs = new ListTaxConfigs(taxRepo)
+
+  const createFeeConfig = new CreateFeeConfig(feeRepo, logger)
+  const getFeeConfig = new GetFeeConfig(feeRepo)
+  const updateFeeConfig = new UpdateFeeConfig(feeRepo)
+  const deleteFeeConfig = new DeleteFeeConfig(feeRepo)
+  const listFeeConfigs = new ListFeeConfigs(feeRepo)
+
   // Controllers
   const controller = new PaymentController(
-    initiatePayment, confirmPayment, processRefund, generateInvoice,
-    paymentRepo, invoiceRepo, reconciliation, cache, cancelPayment
+    initiatePayment,
+    confirmPayment,
+    processRefund,
+    generateInvoice,
+    paymentRepo,
+    invoiceRepo,
+    reconciliation,
+    cache,
+    cancelPayment,
   )
   const webhookController = new WebhookController(
-    paymentRepo, idempotencyStore, cache, eventPublisher, logger, config.WEBHOOK_SECRET
+    paymentRepo,
+    idempotencyStore,
+    cache,
+    eventPublisher,
+    logger,
+    config.WEBHOOK_SECRET,
+  )
+  const taxConfigController = new TaxConfigController(
+    createTaxConfig,
+    getTaxConfig,
+    updateTaxConfig,
+    deleteTaxConfig,
+    listTaxConfigs,
+    taxRepo,
+    taxCalcService,
+  )
+  const feeConfigController = new FeeConfigController(
+    createFeeConfig,
+    getFeeConfig,
+    updateFeeConfig,
+    deleteFeeConfig,
+    listFeeConfigs,
   )
 
   // Background worker
   const reconciliationWorker = new ReconciliationWorker(reconciliation, redis, logger)
 
-  // Auth middleware factory bound to this config's SERVICE_KEY
-  const auth = authMiddleware(config.SERVICE_KEY)
-
   const app = express()
   app.disable('x-powered-by')
   app.set('trust proxy', 1)
   app.use(helmet())
-  app.use(cors({
-    credentials: true,
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type', 'Authorization', 'X-Correlation-Id',
-      'Idempotency-Key', 'X-Organization-Id', 'X-User-Id', 'X-User-Role', 'X-Service-Key',
-    ],
-  }))
+  app.use(
+    cors({
+      credentials: true,
+      methods: ['GET', 'POST', 'OPTIONS'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Correlation-Id',
+        'Idempotency-Key',
+        'X-Organization-Id',
+        'X-User-Id',
+        'X-User-Role',
+        'X-Service-Key',
+      ],
+    }),
+  )
   // JSON body parsing — webhook route uses express.raw (set per-route in router)
   app.use((req, res, next) => {
     if (req.path === '/api/v1/payments/webhooks') {
@@ -109,13 +196,15 @@ export function createApp(config: PaymentConfig, redis: Redis, eventPublisher: I
   app.use(createRequestLogger(logger))
   app.use(createHttpMetricsMiddleware(registry) as unknown as express.RequestHandler)
   app.get('/metrics', createMetricsHandler(registry) as unknown as express.RequestHandler)
-  app.use(rateLimit({
-    windowMs: config.RATE_LIMIT_WINDOW_MS,
-    max: config.RATE_LIMIT_MAX_REQUESTS,
-    standardHeaders: true,
-    legacyHeaders: false,
-    skip: (req) => req.path.startsWith('/health') || req.path === '/metrics',
-  }))
+  app.use(
+    rateLimit({
+      windowMs: config.RATE_LIMIT_WINDOW_MS,
+      max: config.RATE_LIMIT_MAX_REQUESTS,
+      standardHeaders: true,
+      legacyHeaders: false,
+      skip: (req) => req.path.startsWith('/health') || req.path === '/metrics',
+    }),
+  )
 
   // Health checks — no auth required
   app.use(createHealthRouter(db, redis))
@@ -131,14 +220,18 @@ export function createApp(config: PaymentConfig, redis: Redis, eventPublisher: I
     const isProtected =
       (path.startsWith('/api/v1/payments') && path !== '/api/v1/payments/webhooks') ||
       path.startsWith('/api/v1/invoices') ||
-      path.startsWith('/api/v1/reconciliation')
+      path.startsWith('/api/v1/reconciliation') ||
+      path.startsWith('/api/v1/tax-configs') ||
+      path.startsWith('/api/v1/fee-configs')
     if (isProtected) {
-      return auth(req, res, next)
+      return authMiddleware(req, res, next)
     }
     return next()
   })
 
   app.use(createPaymentRouter(controller, webhookController))
+  app.use(createTaxConfigRouter(taxConfigController))
+  app.use(createFeeConfigRouter(feeConfigController))
 
   // Mount Apollo Server Federated GraphQL Middleware
   const apolloServer = new ApolloServer({
@@ -167,7 +260,7 @@ export function createApp(config: PaymentConfig, redis: Redis, eventPublisher: I
             invoiceRepo,
           }
         },
-      })
+      }),
     )
   })
 
