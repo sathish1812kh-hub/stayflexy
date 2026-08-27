@@ -19,6 +19,7 @@ import { AdapterFactory } from './adapters/AdapterFactory'
 // Processors and Workers
 import { SyncProcessor } from './processors/SyncProcessor'
 import { RetryWorker } from './workers/RetryWorker'
+import { OtaServiceEventConsumer } from './workers/OtaServiceEventConsumer'
 
 async function main(): Promise<void> {
   const config = loadOtaConfig()
@@ -68,6 +69,12 @@ async function main(): Promise<void> {
   const retryWorker = new RetryWorker(syncProcessor, logger, config.OTA_SYNC_INTERVAL_MS)
   retryWorker.start()
 
+  // ── Domain Event Consumer (Phase 4.16) ────────────────────────────────────
+  const otaDomainConsumer = new OtaServiceEventConsumer(config, logger, eventPublisher)
+  otaDomainConsumer.start().catch((err: unknown) => {
+    logger.error({ err }, 'OtaServiceEventConsumer failed to start')
+  })
+
   // ── HTTP Server ────────────────────────────────────────────────────────────
   const server = app.listen(config.PORT, () => {
     logger.info({ port: config.PORT, env: config.NODE_ENV }, 'ota-service listening')
@@ -77,6 +84,9 @@ async function main(): Promise<void> {
   const shutdown = async (signal: string): Promise<void> => {
     logger.info({ signal }, 'Graceful shutdown initiated')
     retryWorker.stop()
+    try {
+      await otaDomainConsumer.stop().catch(() => undefined)
+    } catch {}
 
     server.close(async () => {
       try {
@@ -96,8 +106,12 @@ async function main(): Promise<void> {
     }, 15000)
   }
 
-  process.on('SIGTERM', () => { void shutdown('SIGTERM') })
-  process.on('SIGINT', () => { void shutdown('SIGINT') })
+  process.on('SIGTERM', () => {
+    void shutdown('SIGTERM')
+  })
+  process.on('SIGINT', () => {
+    void shutdown('SIGINT')
+  })
   process.on('uncaughtException', (err) => {
     logger.error({ err }, 'Uncaught exception')
     void shutdown('uncaughtException')

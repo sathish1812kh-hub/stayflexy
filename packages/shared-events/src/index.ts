@@ -14,12 +14,59 @@ export interface EventEnvelope<T = unknown> {
   payload: T
 }
 
+/**
+ * Canonical Kafka topics for Stayflexi platform (10 primary topics).
+ * Each topic has corresponding DLQ and retry topics:
+ *   DLQ  => stayflexi.<topic>.dlq  (e.g. stayflexi.booking.events.dlq)
+ *   RETRY=> stayflexi.<topic>.retry
+ * Helpers: createDlqTopic(topic), createRetryTopic(topic)
+ */
+export const KAFKA_TOPICS = {
+  AUTH_EVENTS: 'auth.events',
+  ORGANIZATION_EVENTS: 'organization.events',
+  HOTEL_EVENTS: 'hotel.events',
+  BOOKING_EVENTS: 'booking.events',
+  PAYMENT_EVENTS: 'payment.events',
+  INVENTORY_EVENTS: 'inventory.events',
+  OTA_EVENTS: 'ota.events',
+  NOTIFICATION_EVENTS: 'notification.events',
+  WORKFLOW_EVENTS: 'workflow.events',
+  PRICING_EVENTS: 'pricing.events',
+} as const
+
+export type KafkaTopic = (typeof KAFKA_TOPICS)[keyof typeof KAFKA_TOPICS]
+
+export const KAFKA_TOPIC_LIST: KafkaTopic[] = Object.values(KAFKA_TOPICS)
+
+export function createDlqTopic(topic: string): string {
+  if (topic.startsWith('stayflexi.')) return `${topic}.dlq`
+  return `stayflexi.${topic}.dlq`
+}
+
+export function createRetryTopic(topic: string): string {
+  if (topic.startsWith('stayflexi.')) return `${topic}.retry`
+  return `stayflexi.${topic}.retry`
+}
+
 export interface IEventPublisher {
   publish<T>(
     topic: string,
     event: Omit<EventEnvelope<T>, 'eventId' | 'timestamp' | 'version'> & {
       version?: number
-    }
+    },
+  ): Promise<void>
+  /**
+   * Transactional outbox variant: write to OutboxEvent table and publish.
+   * If db is provided, the event is persisted first; on publish failure the
+   * outbox relay will retry with exponential backoff and eventually DLQ.
+   * Falls back to direct publish when db is not available (e.g., tests).
+   */
+  publishWithOutbox?<T>(
+    topic: string,
+    event: Omit<EventEnvelope<T>, 'eventId' | 'timestamp' | 'version'> & {
+      version?: number
+    },
+    db?: unknown,
   ): Promise<void>
   connect(): Promise<void>
   disconnect(): Promise<void>
@@ -33,7 +80,7 @@ export class KafkaEventPublisher implements IEventPublisher {
 
   constructor(
     private readonly kafka: Kafka,
-    private readonly defaultRetries = 3
+    private readonly defaultRetries = 3,
   ) {
     this.producer = kafka.producer({
       idempotent: true,
@@ -69,7 +116,7 @@ export class KafkaEventPublisher implements IEventPublisher {
     topic: string,
     event: Omit<EventEnvelope<T>, 'eventId' | 'timestamp' | 'version'> & {
       version?: number
-    }
+    },
   ): Promise<void> {
     const envelope: EventEnvelope<T> = {
       ...event,
@@ -93,6 +140,24 @@ export class KafkaEventPublisher implements IEventPublisher {
       ],
     })
   }
+
+  async publishWithOutbox<T>(
+    topic: string,
+    event: Omit<EventEnvelope<T>, 'eventId' | 'timestamp' | 'version'> & {
+      version?: number
+    },
+    db?: unknown,
+  ): Promise<void> {
+    if (db && typeof (db as Record<string, unknown>)['outboxEvent'] !== 'undefined') {
+      // Dynamically import to avoid circular dependency at load time
+      const { OutboxService } = await import('./outbox')
+      const service = new OutboxService(db as unknown as import('./outbox').OutboxDb, this)
+      await service.publishWithOutbox(topic, event)
+      return
+    }
+    // Fallback: direct publish when no outbox db is available
+    await this.publish(topic, event)
+  }
 }
 
 // No-op publisher for fallback/testing
@@ -113,9 +178,18 @@ export class NoOpEventPublisher implements IEventPublisher {
 
   async publish<T>(
     _topic: string,
-    _event: Omit<EventEnvelope<T>, 'eventId' | 'timestamp' | 'version'>
+    _event: Omit<EventEnvelope<T>, 'eventId' | 'timestamp' | 'version'>,
   ): Promise<void> {
     // No-op: log would go here in real impl
+  }
+
+  async publishWithOutbox<T>(
+    topic: string,
+    event: Omit<EventEnvelope<T>, 'eventId' | 'timestamp' | 'version'> & { version?: number },
+    _db?: unknown,
+  ): Promise<void> {
+    // No-op outbox: just delegate to publish (no persistence in test mode)
+    await this.publish(topic, event)
   }
 }
 
@@ -141,10 +215,7 @@ export async function createEventPublisher(config: {
     return publisher
   } catch (err) {
     // Kafka not available — use no-op fallback (service still boots)
-    console.warn(
-      '[shared-events] Kafka unavailable, using NoOp publisher:',
-      String(err)
-    )
+    console.warn('[shared-events] Kafka unavailable, using NoOp publisher:', String(err))
     return new NoOpEventPublisher()
   }
 }
@@ -201,6 +272,30 @@ export type HotelEventType = (typeof HOTEL_EVENTS)[keyof typeof HOTEL_EVENTS]
 export type BookingEventType = (typeof BOOKING_EVENTS)[keyof typeof BOOKING_EVENTS]
 export type InventoryEventType = (typeof INVENTORY_EVENTS)[keyof typeof INVENTORY_EVENTS]
 
-// Dead-letter queue support
-export { publishToDLQ, KafkaDLQConsumer } from './dlq'
-export type { DLQMessage } from './dlq'
+// Dead-letter queue + retry support
+export {
+  publishToDLQ,
+  publishToRetry,
+  KafkaDLQConsumer,
+  createDlqTopic as createDlqTopicFromDlq,
+  createRetryTopic as createRetryTopicFromDlq,
+  getRetryDelayMs,
+  getRetryCountFromHeaders,
+  MAX_RETRIES,
+  BASE_RETRY_DELAY_MS,
+  DLQ_TOPIC_SUFFIX,
+  RETRY_TOPIC_SUFFIX,
+  STAYFLEXI_TOPIC_PREFIX,
+} from './dlq'
+export type { DLQMessage, RetryMessageMeta } from './dlq'
+
+// Outbox pattern
+export { OutboxService, OutboxRepository, OUTBOX_STATUS, withRetry } from './outbox'
+export type {
+  OutboxEventRecord,
+  OutboxCreateInput,
+  OutboxStatus,
+  OutboxDb,
+  RetryOptions,
+  RetryBackoff,
+} from './outbox'

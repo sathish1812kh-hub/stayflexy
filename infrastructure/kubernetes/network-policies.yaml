@@ -346,3 +346,73 @@ spec:
       ports:
         - port: 3007
           protocol: TCP
+
+---
+# pricing-engine-service: accepts from api-gateway, booking-service and revenue-management-service
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pricing-engine-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: pricing-engine-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+        - podSelector:
+            matchLabels:
+              app: booking-service
+        - podSelector:
+            matchLabels:
+              app: revenue-management-service
+      ports:
+        - port: 3011
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3011
+          protocol: TCP
+
+---
+# revenue-management-service: accepts from api-gateway and pricing-engine-service
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: revenue-management-service-ingress
+  namespace: stayflexi
+spec:
+  podSelector:
+    matchLabels:
+      app: revenue-management-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+        - podSelector:
+            matchLabels:
+              app: pricing-engine-service
+        - podSelector:
+            matchLabels:
+              app: analytics-service
+      ports:
+        - port: 3012
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 3012
+          protocol: TCP

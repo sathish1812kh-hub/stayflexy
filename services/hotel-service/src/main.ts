@@ -5,6 +5,7 @@ import { createLogger } from '@stayflexi/shared-logger'
 import { createEventPublisher } from '@stayflexi/shared-events'
 import { createApp } from './interfaces/app'
 import { getPrismaClient } from '@stayflexi/shared-database'
+import { HotelServiceEventConsumer } from './workers/HotelServiceEventConsumer'
 
 async function main(): Promise<void> {
   const config = loadHotelConfig()
@@ -35,12 +36,20 @@ async function main(): Promise<void> {
 
   const app = createApp(config, redis, eventPublisher, logger)
 
+  const hotelConsumer = new HotelServiceEventConsumer(config, logger, eventPublisher)
+  hotelConsumer.start().catch((err: unknown) => {
+    logger.error({ err }, 'HotelServiceEventConsumer failed to start')
+  })
+
   const server = app.listen(config.PORT, () => {
     logger.info({ port: config.PORT }, 'hotel-service listening')
   })
 
   async function shutdown(signal: string): Promise<void> {
     logger.info({ signal }, 'Shutdown signal received')
+    try {
+      await hotelConsumer.stop().catch(() => undefined)
+    } catch {}
     server.close(async () => {
       try {
         await eventPublisher.disconnect()
@@ -55,8 +64,12 @@ async function main(): Promise<void> {
     })
   }
 
-  process.on('SIGTERM', () => { void shutdown('SIGTERM') })
-  process.on('SIGINT', () => { void shutdown('SIGINT') })
+  process.on('SIGTERM', () => {
+    void shutdown('SIGTERM')
+  })
+  process.on('SIGINT', () => {
+    void shutdown('SIGINT')
+  })
 
   process.on('uncaughtException', (err) => {
     logger.error({ err }, 'Uncaught exception — process will exit')

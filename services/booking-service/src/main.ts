@@ -6,6 +6,7 @@ import { createLogger } from '@stayflexi/shared-logger'
 import { createEventPublisher } from '@stayflexi/shared-events'
 import { getPrismaClient } from '@stayflexi/shared-database'
 import { InventoryEventConsumer } from './workers/InventoryEventConsumer'
+import { BookingServiceEventConsumer } from './workers/BookingServiceEventConsumer'
 
 async function main(): Promise<void> {
   const config = loadBookingConfig()
@@ -34,10 +35,14 @@ async function main(): Promise<void> {
 
   const app = createApp(config, redis, eventPublisher, logger)
 
-  // Start Kafka consumer for inventory events (non-blocking)
+  // Start Kafka consumers (non-blocking)
   const consumer = new InventoryEventConsumer(config, logger)
   consumer.start().catch((err: unknown) => {
     logger.error({ err }, 'Inventory event consumer failed to start')
+  })
+  const bookingServiceConsumer = new BookingServiceEventConsumer(config, logger, eventPublisher)
+  bookingServiceConsumer.start().catch((err: unknown) => {
+    logger.error({ err }, 'BookingServiceEventConsumer failed to start')
   })
 
   const server = app.listen(config.PORT, () => {
@@ -46,6 +51,9 @@ async function main(): Promise<void> {
 
   async function shutdown(signal: string): Promise<void> {
     logger.info({ signal }, 'Shutdown signal received')
+    try {
+      await bookingServiceConsumer.stop().catch(() => undefined)
+    } catch {}
     server.close(async () => {
       try {
         await eventPublisher.disconnect()
@@ -58,11 +66,18 @@ async function main(): Promise<void> {
         process.exit(1)
       }
     })
-    setTimeout(() => { logger.error('Forced shutdown after timeout'); process.exit(1) }, 15000)
+    setTimeout(() => {
+      logger.error('Forced shutdown after timeout')
+      process.exit(1)
+    }, 15000)
   }
 
-  process.on('SIGTERM', () => { void shutdown('SIGTERM') })
-  process.on('SIGINT', () => { void shutdown('SIGINT') })
+  process.on('SIGTERM', () => {
+    void shutdown('SIGTERM')
+  })
+  process.on('SIGINT', () => {
+    void shutdown('SIGINT')
+  })
   process.on('uncaughtException', (err) => {
     logger.error({ err }, 'Uncaught exception — process will exit')
     process.exit(1)

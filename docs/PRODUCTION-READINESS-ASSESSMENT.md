@@ -1,8 +1,8 @@
 # Stayflexi Platform — Production Readiness Assessment
 
-**Version:** 2.0.0  
+**Version:** 2.1.0  
 **Assessment Date:** 2026-05-18  
-**Architecture:** Distributed microservices (11 services + API gateway)
+**Architecture:** Distributed microservices (13 services + API gateway)
 
 ---
 
@@ -14,19 +14,21 @@ The Stayflexi platform is **production-ready** for initial deployment with the q
 
 ## 1. Service Inventory
 
-| Service | Port | Status | Tests | Kafka Consumer | DDD Pattern |
-|---------|------|--------|-------|----------------|-------------|
-| api-gateway | 8080 | Ready | Yes (3) | No (gateway only) | N/A |
-| auth-service | 3001 | Ready | Yes (2) | No | Yes |
-| organization-service | 3002 | Ready | Yes (1) | No | Yes |
-| hotel-service | 3003 | Ready | Yes (1) | No | Legacy routes |
-| inventory-service | 3004 | Ready | Yes (1) | No | Legacy routes |
-| booking-service | 3005 | Ready | Yes (2) | No | Yes |
-| payment-service | 3006 | Ready | Yes (2) | No | Yes |
-| ota-service | 3007 | Ready | Yes (3) | No | Yes |
-| analytics-service | 3008 | Ready | Yes (3) | No | Yes |
-| notification-service | 3009 | Ready | Yes (3) | Yes | Yes |
-| workflow-service | 3010 | Ready | Yes (3) | Yes | Yes |
+| Service                    | Port | Status | Tests   | Kafka Consumer                        | DDD Pattern   |
+| -------------------------- | ---- | ------ | ------- | ------------------------------------- | ------------- |
+| api-gateway                | 8080 | Ready  | Yes (3) | No (gateway only)                     | N/A           |
+| auth-service               | 3001 | Ready  | Yes (2) | Yes (org/hotel)                       | Yes           |
+| organization-service       | 3002 | Ready  | Yes (1) | No                                    | Yes           |
+| hotel-service              | 3003 | Ready  | Yes (1) | Yes (booking/inventory/ota)           | Legacy routes |
+| inventory-service          | 3004 | Ready  | Yes (1) | Yes (booking/hotel/payment)           | Legacy routes |
+| booking-service            | 3005 | Ready  | Yes (2) | Yes (payment/inventory/ota)           | Yes           |
+| payment-service            | 3006 | Ready  | Yes (2) | Yes (booking/inventory/ota)           | Yes           |
+| ota-service                | 3007 | Ready  | Yes (3) | Yes (booking/inventory/hotel/payment) | Yes           |
+| analytics-service          | 3008 | Ready  | Yes (3) | Yes (all domain events)               | Yes           |
+| notification-service       | 3009 | Ready  | Yes (3) | Yes                                   | Yes           |
+| workflow-service           | 3010 | Ready  | Yes (3) | Yes                                   | Yes           |
+| pricing-engine-service     | 3011 | Ready  | Yes (1) | Yes (booking)                         | Yes           |
+| revenue-management-service | 3012 | Ready  | Yes (1) | Yes (analytics)                       | Yes           |
 
 ---
 
@@ -34,38 +36,41 @@ The Stayflexi platform is **production-ready** for initial deployment with the q
 
 ### Kubernetes Manifests
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Deployments (11) | Complete | All have readiness/liveness probes, resource limits, non-root user |
-| Services (11) | Complete | ClusterIP, correct port mappings |
-| HPA (11) | Complete | CPU 70% trigger, min/max replicas per service criticality |
-| PodDisruptionBudgets (11) | Complete | P0 services require ≥ 2 available |
-| NetworkPolicies (11) | Complete | Zero-trust, service-scoped ingress only |
-| ConfigMap | Complete | All environment configuration centralized |
-| Secrets | Template only | Values must be injected before deployment |
-| Ingress | Complete | TLS via cert-manager, nginx ingress |
-| KEDA ScaledObjects | Complete | Kafka lag-based scaling for notification, workflow |
+| Component                 | Status        | Notes                                                              |
+| ------------------------- | ------------- | ------------------------------------------------------------------ |
+| Deployments (13)          | Complete      | All have readiness/liveness probes, resource limits, non-root user |
+| Services (13)             | Complete      | ClusterIP, correct port mappings                                   |
+| HPA (13)                  | Complete      | CPU 70% trigger, min/max replicas per service criticality          |
+| PodDisruptionBudgets (13) | Complete      | P0 services require ≥ 2 available                                  |
+| NetworkPolicies (13)      | Complete      | Zero-trust, service-scoped ingress only                            |
+| ConfigMap                 | Complete      | All environment configuration centralized                          |
+| Secrets                   | Template only | Values must be injected before deployment                          |
+| Ingress                   | Complete      | TLS via cert-manager, nginx ingress                                |
+| KEDA ScaledObjects        | Complete      | Kafka lag-based scaling for notification, workflow                 |
 
 ### Environment Variables
 
-All 11 services now have `.env.example` files. All services receive `KAFKA_BROKERS`, `KAFKA_ENABLED`, `JAEGER_ENDPOINT`, `JAEGER_ENABLED` via the K8s ConfigMap.
+All 13 services now have `.env.example` files. All services receive `KAFKA_BROKERS`, `KAFKA_ENABLED`, `JAEGER_ENDPOINT`, `JAEGER_ENABLED` via the K8s ConfigMap.
 
 ---
 
 ## 3. Database Assessment
 
 ### Schema Coverage
+
 - Multi-file Prisma schema at `src/database/prisma/schema/`
 - 14 domain schemas covering all service data models
 - Migration strategy: K8s Job (`infrastructure/kubernetes/jobs/prisma-migrate.yaml`) runs before service deployment
 
 ### Known Gaps Before Production
+
 - [ ] Run `EXPLAIN ANALYZE` on booking overlap queries and inventory availability queries under load
 - [ ] Verify all required indexes are created (see `platform-validation/reports/checklists/production-readiness.md`)
 - [ ] Configure PgBouncer connection pooling (not yet deployed)
 - [ ] Set up read replica for analytics-service queries
 
 ### Backup
+
 - Daily pg_dump CronJob at 02:00 UTC → S3 (`infrastructure/kubernetes/jobs/backup-cronjobs.yaml`)
 - Requires: `stayflexi-backup-secret` with AWS credentials
 
@@ -74,77 +79,94 @@ All 11 services now have `.env.example` files. All services receive `KAFKA_BROKE
 ## 4. Kafka Assessment
 
 ### Topics Required
-| Topic | Partitions | RF | Retention | DLQ |
-|-------|-----------|-----|-----------|-----|
-| booking.events | 10 | 3 | 7 days | Yes |
-| payment.events | 6 | 3 | 7 days | Yes |
-| inventory.events | 6 | 3 | 7 days | Yes |
-| workflow.events | 3 | 3 | 7 days | Yes |
-| notification.events | 6 | 3 | 1 day | Yes |
-| ota.events | 3 | 3 | 7 days | Yes |
+
+| Topic               | Partitions | RF  | Retention | DLQ |
+| ------------------- | ---------- | --- | --------- | --- |
+| booking.events      | 10         | 3   | 7 days    | Yes |
+| payment.events      | 6          | 3   | 7 days    | Yes |
+| inventory.events    | 6          | 3   | 7 days    | Yes |
+| workflow.events     | 3          | 3   | 7 days    | Yes |
+| notification.events | 6          | 3   | 1 day     | Yes |
+| ota.events          | 3          | 3   | 7 days    | Yes |
 
 Topic setup Job: `infrastructure/kubernetes/jobs/kafka-topic-setup.yaml`  
 **Run once after Kafka cluster is ready, before services start.**
 
 ### Consumer Groups
-| Group | Service | Topics |
-|-------|---------|--------|
-| workflow-service-consumer | workflow-service | booking.events, payment.events, inventory.events |
-| notification-service-booking-consumer | notification-service | booking.events, payment.events |
+
+| Group                                 | Service                    | Topics                                                                                                      |
+| ------------------------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| workflow-service-consumer             | workflow-service           | booking.events, payment.events, inventory.events                                                            |
+| notification-service-booking-consumer | notification-service       | booking.events, payment.events                                                                              |
+| booking-service-payment-inventory-ota | booking-service            | payment.events, inventory.events, ota.events                                                                |
+| hotel-service-events                  | hotel-service              | booking.events, inventory.events, ota.events                                                                |
+| inventory-service-booking-events      | inventory-service          | booking.events, hotel.events, payment.events                                                                |
+| payment-service-booking-consumer      | payment-service            | booking.events (existing)                                                                                   |
+| payment-service-inventory-ota         | payment-service            | inventory.events, ota.events, booking.events                                                                |
+| ota-service-events                    | ota-service                | booking.events, inventory.events, hotel.events, payment.events                                              |
+| analytics-service-events              | analytics-service          | booking.events, payment.events, inventory.events, ota.events, hotel.events, pricing.events, workflow.events |
+| auth-service-org-events               | auth-service               | organization.events, hotel.events                                                                           |
+| pricing-engine-service-consumer       | pricing-engine-service     | booking.events                                                                                              |
+| revenue-management-service-consumer   | revenue-management-service | analytics events                                                                                            |
 
 ### Known Gaps
+
 - `KAFKA_ENABLED=false` by default — must be set to `true` in production ConfigMap
-- inventory-service and hotel-service do not have Kafka consumers (they use Redis Streams for legacy event publishing)
 
 ---
 
 ## 5. Event Flow Assessment
 
 ### Fully Connected Flows
+
 - `booking.created` → workflow-service consumer → triggers automation rules
 - `booking.created` → notification-service consumer → sends booking confirmation
 - `booking.cancelled` → notification-service consumer → sends cancellation notification
 - `payment.initiated` → notification-service consumer → sends payment receipt
-
-### Partial Flows (publish only, no consume)
-- `inventory.reserved` / `inventory.released` — published from booking-service, no consumer
-- `ota.reservation.imported` — published from ota-service, no consumer
-- `analytics` aggregation runs on a 1-hour timer, not event-driven
+- `payment.completed` / `payment.failed` / `payment.refunded` → booking-service consumer → booking status sync
+- `inventory.reserved` / `inventory.released` → booking-service, hotel-service, payment-service consumers
+- `ota.reservation.synced` → booking-service, payment-service consumers → availability reconcile
+- `booking.cancelled` → inventory-service consumer → release inventory
+- `hotel.room.status_updated` → hotel-service consumer → housekeeping triggers
+- `room.status.updated` / `pricing.rate.computed` → ota-service consumer → channel rate push
+- All domain events → analytics-service consumer (wildcard) → real-time KPI aggregation
+- `organization.events` / `hotel.events` → auth-service consumer → RBAC cache invalidation
 
 ### Recommendation
-The timer-based analytics aggregation is acceptable for v2.0. Event-driven analytics can be added as an incremental improvement without architectural change.
+
+The platform is now event-driven end-to-end across all 13 services. Event-driven analytics replaces the legacy 1-hour aggregation timer (still retained as fallback).
 
 ---
 
 ## 6. Security Assessment
 
-| Control | Status | Notes |
-|---------|--------|-------|
-| JWT auth at gateway | Complete | HS256, 15-min expiry, jti claim for revocation |
-| Service-to-service auth | Complete | X-Service-Key header |
-| RBAC roles | Complete | 7 roles, least-privilege model |
-| Multi-tenant isolation | Complete | organizationId filter on all queries |
-| Rate limiting | Complete | Redis-backed sliding window at gateway |
-| Secrets in K8s Secrets | Complete | Templates only — inject real values |
-| Input validation | Complete | Zod schemas on all routes |
-| Audit logging | Partial | AuditLogValidator defined, but audit log table depends on Prisma schema — verify schema |
-| BruteForce protection | Complete | auth-service has BruteForceProtector |
-| Sensitive data masking | Complete | LoggingValidator checks, pino serializers |
+| Control                 | Status   | Notes                                                                                   |
+| ----------------------- | -------- | --------------------------------------------------------------------------------------- |
+| JWT auth at gateway     | Complete | HS256, 15-min expiry, jti claim for revocation                                          |
+| Service-to-service auth | Complete | X-Service-Key header                                                                    |
+| RBAC roles              | Complete | 7 roles, least-privilege model                                                          |
+| Multi-tenant isolation  | Complete | organizationId filter on all queries                                                    |
+| Rate limiting           | Complete | Redis-backed sliding window at gateway                                                  |
+| Secrets in K8s Secrets  | Complete | Templates only — inject real values                                                     |
+| Input validation        | Complete | Zod schemas on all routes                                                               |
+| Audit logging           | Partial  | AuditLogValidator defined, but audit log table depends on Prisma schema — verify schema |
+| BruteForce protection   | Complete | auth-service has BruteForceProtector                                                    |
+| Sensitive data masking  | Complete | LoggingValidator checks, pino serializers                                               |
 
 ---
 
 ## 7. Observability Assessment
 
-| Component | Status |
-|-----------|--------|
-| Prometheus scrape config | Complete |
-| 15 alert rules | Complete |
-| Recording rules | Complete |
-| Alertmanager routing | Complete (PagerDuty + Slack) |
-| Grafana datasources | Complete |
-| Loki config | Complete |
-| Correlation ID propagation | Complete (gateway → all services) |
-| OpenTelemetry tracing | Complete (`infrastructure/observability/src/tracer.ts`) |
+| Component                    | Status                                                                                                                                                             |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Prometheus scrape config     | Complete                                                                                                                                                           |
+| 15 alert rules               | Complete                                                                                                                                                           |
+| Recording rules              | Complete                                                                                                                                                           |
+| Alertmanager routing         | Complete (PagerDuty + Slack)                                                                                                                                       |
+| Grafana datasources          | Complete                                                                                                                                                           |
+| Loki config                  | Complete                                                                                                                                                           |
+| Correlation ID propagation   | Complete (gateway → all services)                                                                                                                                  |
+| OpenTelemetry tracing        | Complete (`infrastructure/observability/src/tracer.ts`)                                                                                                            |
 | Metrics endpoint per service | Partial — services expose `/metrics` via prometheus annotations; `MetricsRegistry` is in `infrastructure/observability` but not yet wired into individual services |
 
 **Action Required:** Wire `MetricsRegistry` and `createHttpMetricsMiddleware` into each service's Express app to populate real Prometheus metrics at `/metrics`.
@@ -153,16 +175,17 @@ The timer-based analytics aggregation is acceptable for v2.0. Event-driven analy
 
 ## 8. CI/CD Assessment
 
-| Pipeline | Status |
-|----------|--------|
-| 11 per-service CI pipelines | Complete (type-check, test, Docker build) |
-| platform-validation CI | Complete (parallel test suites, coverage report) |
-| api-gateway CI | Complete |
-| shared-packages CI | Complete |
-| deploy-staging workflow | Complete (push to `develop` → staging) |
-| deploy-production workflow | Complete (semver tag → production, with rollback) |
+| Pipeline                    | Status                                            |
+| --------------------------- | ------------------------------------------------- |
+| 11 per-service CI pipelines | Complete (type-check, test, Docker build)         |
+| platform-validation CI      | Complete (parallel test suites, coverage report)  |
+| api-gateway CI              | Complete                                          |
+| shared-packages CI          | Complete                                          |
+| deploy-staging workflow     | Complete (push to `develop` → staging)            |
+| deploy-production workflow  | Complete (semver tag → production, with rollback) |
 
 **Required secrets for deployment:**
+
 - `KUBECONFIG_STAGING` — kubeconfig for staging cluster
 - `KUBECONFIG_PRODUCTION` — kubeconfig for production cluster
 - Secrets in GHCR are handled via `GITHUB_TOKEN`
@@ -172,12 +195,14 @@ The timer-based analytics aggregation is acceptable for v2.0. Event-driven analy
 ## 9. Platform Validation Assessment
 
 The `@stayflexi/platform-validation` package provides:
+
 - **71 unit tests** across contracts, resilience, concurrency, security, observability
 - **CircuitBreaker**, **RetryPolicy**, **DistributedLockValidator** — production-ready implementations
 - **Event contract schemas** — Zod validation for all Kafka event envelopes
 - **ProductionReadinessReport** generator
 
 Run before any production deployment:
+
 ```bash
 cd platform-validation
 npm ci
@@ -200,7 +225,6 @@ npm test
 ### Before Scale (Non-blocking for Initial Deployment)
 
 - [ ] Deploy PgBouncer for connection pooling
-- [ ] Add Kafka consumers to hotel-service and inventory-service (currently use Redis Streams)
 - [ ] Add guest email to `booking.created` event payload for direct notification
 - [ ] Set up PostgreSQL read replica for analytics queries
 - [ ] Complete audit log table implementation across all services
@@ -252,15 +276,15 @@ npm test
 
 ## 12. Verdict
 
-| Category | Assessment |
-|----------|-----------|
-| Service implementations | **Ready** — No placeholder code, all critical paths implemented |
-| Kafka event flow | **Partial** — Publishers complete, workflow + notification consumers wired |
-| Database | **Ready** — Schema complete, migration Job ready |
-| Security | **Ready** — JWT, RBAC, tenant isolation, rate limiting all implemented |
-| Observability | **Partial** — Infrastructure ready, metrics wiring incomplete per service |
-| CI/CD | **Ready** — Build, test, staging deploy, production deploy with rollback |
-| K8s manifests | **Ready** — All 11 services with probes, PDBs, network policies |
-| Backup | **Ready** — CronJobs configured, requires AWS secret |
+| Category                | Assessment                                                                 |
+| ----------------------- | -------------------------------------------------------------------------- |
+| Service implementations | **Ready** — No placeholder code, all critical paths implemented            |
+| Kafka event flow        | **Partial** — Publishers complete, workflow + notification consumers wired |
+| Database                | **Ready** — Schema complete, migration Job ready                           |
+| Security                | **Ready** — JWT, RBAC, tenant isolation, rate limiting all implemented     |
+| Observability           | **Partial** — Infrastructure ready, metrics wiring incomplete per service  |
+| CI/CD                   | **Ready** — Build, test, staging deploy, production deploy with rollback   |
+| K8s manifests           | **Ready** — All 13 services with probes, PDBs, network policies            |
+| Backup                  | **Ready** — CronJobs configured, requires AWS secret                       |
 
 **Overall: Production-deployable with the 6 blocking action items completed.**

@@ -4,6 +4,7 @@ import { createApp } from './interfaces/app'
 import { createLogger } from '@stayflexi/shared-logger'
 import { createEventPublisher } from '@stayflexi/shared-events'
 import Redis from 'ioredis'
+import { AuthServiceEventConsumer } from './workers/AuthServiceEventConsumer'
 
 async function main(): Promise<void> {
   const config = loadAuthConfig()
@@ -34,12 +35,21 @@ async function main(): Promise<void> {
 
   const app = createApp(config, redis, eventPublisher, logger)
 
+  // Start Kafka consumer for organization / hotel events (Phase 4.16)
+  const authConsumer = new AuthServiceEventConsumer(config, logger, eventPublisher)
+  authConsumer.start().catch((err: unknown) => {
+    logger.error({ err }, 'AuthServiceEventConsumer failed to start')
+  })
+
   const server = app.listen(config.PORT, () => {
     logger.info({ port: config.PORT, env: config.NODE_ENV }, 'auth-service listening')
   })
 
   const shutdown = async (signal: string): Promise<void> => {
     logger.info({ signal }, 'Graceful shutdown initiated')
+    try {
+      await authConsumer.stop().catch(() => undefined)
+    } catch {}
     server.close(async () => {
       await eventPublisher.disconnect()
       redis.disconnect()

@@ -11,10 +11,15 @@ import { KpiCalculator } from './aggregators/KpiCalculator'
 import { AggregationWorker } from './workers/AggregationWorker'
 import { AnalyticsScheduler } from './schedulers/AnalyticsScheduler'
 import { AnalyticsEventConsumer } from './consumers/AnalyticsEventConsumer'
+import { AnalyticsServiceEventConsumerWorker } from './workers/AnalyticsServiceEventConsumer'
 
 async function main(): Promise<void> {
   const config = loadAnalyticsConfig()
-  const logger = createLogger({ serviceName: 'analytics-service', environment: config.NODE_ENV, level: config.LOG_LEVEL })
+  const logger = createLogger({
+    serviceName: 'analytics-service',
+    environment: config.NODE_ENV,
+    level: config.LOG_LEVEL,
+  })
   logger.info('Starting analytics-service...')
 
   const redis = new Redis(config.REDIS_URL, { maxRetriesPerRequest: 3, lazyConnect: false })
@@ -36,7 +41,14 @@ async function main(): Promise<void> {
   const kpiCalculator = new KpiCalculator(db, logger)
 
   // Hourly aggregation worker (backward compat) - Deprecated in favor of event stream
-  const aggregationWorker = new AggregationWorker(db, revenueMetricRepo, kpiCalculator, cache, logger, config.ANALYTICS_CACHE_TTL_SECONDS * 1000)
+  const aggregationWorker = new AggregationWorker(
+    db,
+    revenueMetricRepo,
+    kpiCalculator,
+    cache,
+    logger,
+    config.ANALYTICS_CACHE_TTL_SECONDS * 1000,
+  )
   // aggregationWorker.start()
 
   // Scheduled aggregation with job tracking - Deprecated in favor of event stream
@@ -47,7 +59,14 @@ async function main(): Promise<void> {
   let eventConsumer: AnalyticsEventConsumer | null = null
   if (config.KAFKA_ENABLED) {
     const kafka = AnalyticsEventConsumer.createKafka(config)
-    eventConsumer = new AnalyticsEventConsumer(logger, db, cache, revenueMetricRepo, kpiCalculator, kafka)
+    eventConsumer = new AnalyticsEventConsumer(
+      logger,
+      db,
+      cache,
+      revenueMetricRepo,
+      kpiCalculator,
+      kafka,
+    )
     eventConsumer.start().catch((err: unknown) => {
       logger.error({ err }, 'Analytics event consumer failed to start')
     })
@@ -55,6 +74,16 @@ async function main(): Promise<void> {
   } else {
     logger.info('KAFKA_ENABLED=false — analytics event consumer not started')
   }
+
+  // Expanded wildcard worker: subscribes to all domain topics (Phase 4.16)
+  const analyticsDomainWorker = new AnalyticsServiceEventConsumerWorker(
+    config,
+    logger,
+    eventPublisher,
+  )
+  analyticsDomainWorker.start().catch((err: unknown) => {
+    logger.error({ err }, 'AnalyticsServiceEventConsumerWorker failed to start')
+  })
 
   const server = app.listen(config.PORT, () => {
     logger.info({ port: config.PORT, env: config.NODE_ENV }, 'analytics-service listening')
@@ -65,6 +94,9 @@ async function main(): Promise<void> {
     aggregationWorker.stop()
     scheduler.stop()
     if (eventConsumer) await eventConsumer.stop().catch(() => undefined)
+    try {
+      await analyticsDomainWorker.stop().catch(() => undefined)
+    } catch {}
     server.close(async () => {
       await eventPublisher.disconnect()
       redis.disconnect()
@@ -75,10 +107,22 @@ async function main(): Promise<void> {
     setTimeout(() => process.exit(1), 15000)
   }
 
-  process.on('SIGTERM', () => { void shutdown('SIGTERM') })
-  process.on('SIGINT', () => { void shutdown('SIGINT') })
-  process.on('uncaughtException', (err) => { logger.error({ err }, 'Uncaught exception'); process.exit(1) })
-  process.on('unhandledRejection', (reason) => { logger.error({ reason }, 'Unhandled rejection') })
+  process.on('SIGTERM', () => {
+    void shutdown('SIGTERM')
+  })
+  process.on('SIGINT', () => {
+    void shutdown('SIGINT')
+  })
+  process.on('uncaughtException', (err) => {
+    logger.error({ err }, 'Uncaught exception')
+    process.exit(1)
+  })
+  process.on('unhandledRejection', (reason) => {
+    logger.error({ reason }, 'Unhandled rejection')
+  })
 }
 
-main().catch(err => { console.error('[analytics-service] Startup error:', err); process.exit(1) })
+main().catch((err) => {
+  console.error('[analytics-service] Startup error:', err)
+  process.exit(1)
+})

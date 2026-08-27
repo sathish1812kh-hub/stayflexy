@@ -6,6 +6,7 @@ import { createEventPublisher } from '@stayflexi/shared-events'
 import { getPrismaClient } from '@stayflexi/shared-database'
 import Redis from 'ioredis'
 import { BookingEventConsumer } from './consumers/BookingEventConsumer'
+import { PaymentServiceEventConsumer } from './workers/PaymentServiceEventConsumer'
 import { PrismaPaymentRepository } from './infrastructure/database/PrismaPaymentRepository'
 
 async function main(): Promise<void> {
@@ -18,7 +19,11 @@ async function main(): Promise<void> {
 
   logger.info('Starting payment-service...')
 
-  const redis = new Redis(config.REDIS_URL, { maxRetriesPerRequest: 3, lazyConnect: false, enableReadyCheck: true })
+  const redis = new Redis(config.REDIS_URL, {
+    maxRetriesPerRequest: 3,
+    lazyConnect: false,
+    enableReadyCheck: true,
+  })
   await redis.ping()
   logger.info('Redis connected')
 
@@ -48,6 +53,16 @@ async function main(): Promise<void> {
     logger.info('KAFKA_ENABLED=false — booking event consumer not started')
   }
 
+  // Expanded consumer: inventory / OTA / booking events for refund triggers (Phase 4.16)
+  const paymentServiceEventConsumer = new PaymentServiceEventConsumer(
+    config,
+    logger,
+    eventPublisher,
+  )
+  paymentServiceEventConsumer.start().catch((err: unknown) => {
+    logger.error({ err }, 'PaymentServiceEventConsumer failed to start')
+  })
+
   const server = app.listen(config.PORT, () => {
     logger.info({ port: config.PORT, env: config.NODE_ENV }, 'payment-service listening')
   })
@@ -56,6 +71,9 @@ async function main(): Promise<void> {
     logger.info({ signal }, 'Graceful shutdown initiated')
     reconciliationWorker.stop()
     if (bookingConsumer) await bookingConsumer.stop().catch(() => undefined)
+    try {
+      await paymentServiceEventConsumer.stop().catch(() => undefined)
+    } catch {}
     server.close(async () => {
       try {
         await eventPublisher.disconnect()
@@ -68,13 +86,25 @@ async function main(): Promise<void> {
         process.exit(1)
       }
     })
-    setTimeout(() => { logger.error('Forced shutdown after timeout'); process.exit(1) }, 15000)
+    setTimeout(() => {
+      logger.error('Forced shutdown after timeout')
+      process.exit(1)
+    }, 15000)
   }
 
-  process.on('SIGTERM', () => { void shutdown('SIGTERM') })
-  process.on('SIGINT', () => { void shutdown('SIGINT') })
-  process.on('uncaughtException', (err) => { logger.error({ err }, 'Uncaught exception'); process.exit(1) })
-  process.on('unhandledRejection', (reason) => { logger.error({ reason }, 'Unhandled promise rejection') })
+  process.on('SIGTERM', () => {
+    void shutdown('SIGTERM')
+  })
+  process.on('SIGINT', () => {
+    void shutdown('SIGINT')
+  })
+  process.on('uncaughtException', (err) => {
+    logger.error({ err }, 'Uncaught exception')
+    process.exit(1)
+  })
+  process.on('unhandledRejection', (reason) => {
+    logger.error({ reason }, 'Unhandled promise rejection')
+  })
 }
 
 main().catch((err) => {

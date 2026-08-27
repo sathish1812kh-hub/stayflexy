@@ -133,3 +133,27 @@ spec:
   selector:
     matchLabels:
       app: workflow-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pricing-engine-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: pricing-engine-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: revenue-management-service-pdb
+  namespace: stayflexi
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: revenue-management-service

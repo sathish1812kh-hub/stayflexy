@@ -41,7 +41,7 @@ model EventQueueItem {
   scheduledAt    DateTime?
   processedAt    DateTime?
   failedReason   String?          @db.VarChar(2000)
-  organizationId String?          // for tenant isolation
+  organizationId String? // for tenant isolation
   source         String?          @db.VarChar(100) // originating module
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -52,6 +52,41 @@ model EventQueueItem {
   @@index([scheduledAt])
   @@index([createdAt])
   @@map("event_queue_items")
+}
+
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}
+
+// ─── OutboxEvent ────────────────────────────────────────────────────────────
+// Transactional outbox pattern for reliable Kafka publishing.
+// Business transactions write to this table atomically (via $transaction);
+// a background relay (OutboxService) publishes PENDING rows to Kafka with
+// exponential backoff and moves exhausted records to DLQ after 3 retries.
+
+model OutboxEvent {
+  id             String       @id @default(uuid())
+  aggregateId    String       @db.VarChar(255)
+  aggregateType  String       @db.VarChar(100)
+  eventType      String       @db.VarChar(150)
+  topic          String       @db.VarChar(150)
+  payload        Json
+  status         OutboxStatus @default(PENDING)
+  retryCount     Int          @default(0)
+  nextRetryAt    DateTime?    @default(now())
+  organizationId String?      @db.VarChar(255)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([status])
+  @@index([eventType])
+  @@index([topic])
+  @@index([aggregateId])
+  @@index([nextRetryAt])
+  @@index([createdAt])
+  @@map("outbox_events")
 }
 
 // ─── WorkerExecution ──────────────────────────────────────────────────────────

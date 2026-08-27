@@ -6,6 +6,7 @@ import { createEventPublisher } from '@stayflexi/shared-events'
 import { createApp } from './interfaces/app'
 import { getPrismaClient } from '@stayflexi/shared-database'
 import { HotelEventConsumer } from './workers/HotelEventConsumer'
+import { InventoryServiceEventConsumer } from './workers/InventoryServiceEventConsumer'
 import { PrismaInventoryRepository } from './infrastructure/database/PrismaInventoryRepository'
 
 async function main(): Promise<void> {
@@ -37,12 +38,16 @@ async function main(): Promise<void> {
 
   const app = createApp(config, redis, eventPublisher, logger)
 
-  // Start Kafka consumer for hotel events (non-blocking — failures logged not thrown)
+  // Start Kafka consumers (non-blocking — failures logged not thrown)
   const db = getPrismaClient(config.DATABASE_URL)
   const inventoryRepo = new PrismaInventoryRepository(db)
   const consumer = new HotelEventConsumer(inventoryRepo, config, logger)
   consumer.start().catch((err: unknown) => {
     logger.error({ err }, 'Hotel event consumer failed to start')
+  })
+  const inventoryServiceConsumer = new InventoryServiceEventConsumer(config, logger, eventPublisher)
+  inventoryServiceConsumer.start().catch((err: unknown) => {
+    logger.error({ err }, 'InventoryServiceEventConsumer failed to start')
   })
 
   const server = app.listen(config.PORT, () => {
@@ -51,6 +56,9 @@ async function main(): Promise<void> {
 
   async function shutdown(signal: string): Promise<void> {
     logger.info({ signal }, 'Shutdown signal received')
+    try {
+      await inventoryServiceConsumer.stop().catch(() => undefined)
+    } catch {}
     server.close(async () => {
       try {
         await eventPublisher.disconnect()
@@ -65,8 +73,12 @@ async function main(): Promise<void> {
     })
   }
 
-  process.on('SIGTERM', () => { void shutdown('SIGTERM') })
-  process.on('SIGINT', () => { void shutdown('SIGINT') })
+  process.on('SIGTERM', () => {
+    void shutdown('SIGTERM')
+  })
+  process.on('SIGINT', () => {
+    void shutdown('SIGINT')
+  })
 
   process.on('uncaughtException', (err) => {
     logger.error({ err }, 'Uncaught exception — process will exit')
