@@ -1,0 +1,40 @@
+{
+  "mcpServers": {
+    "playwright-mcp": {
+      "command": "node",
+      "args": ["C:/Users/Sathish/Desktop/playwright-automation-suite/mcp-server.js"],
+      "env": {
+        "MCP_ROOT": "C:/Users/Sathish/Desktop/playwright-automation-suite"
+      }
+    },
+    "postgres-mcp": {
+      "command": "node",
+      "args": [
+        "C:/Users/Sathish/AppData/Roaming/npm/node_modules/@modelcontextprotocol/server-postgres/dist/index.js",
+        "postgresql://postgres:postgres@127.0.0.1:5432/stayflexi"
+      ]
+    },
+    "neo4j-cypher": {
+      "command": "uvx",
+      "args": ["mcp-neo4j-cypher"],
+      "env": {
+        "NEO4J_URI": "bolt://127.0.0.1:7687",
+        "NEO4J_USER": "neo4j",
+        "NEO4J_PASSWORD": "stayflexi-dev-pass"
+      }
+    },
+    "redis-mcp": {
+      "command": "node",
+      "args": [
+        "C:/Users/Sathish/AppData/Roaming/npm/node_modules/@modelcontextprotocol/server-redis/dist/index.js",
+        "redis://127.0.0.1:6379"
+      ]
+    },
+    "puppeteer-browser": {
+      "command": "node",
+      "args": [
+        "C:/Users/Sathish/AppData/Roaming/npm/node_modules/@modelcontextprotocol/server-puppeteer/dist/index.js"
+      ]
+    }
+  }
+}

@@ -99,5 +99,9 @@ export function createOtaApiRouter(controller: OtaController): Router {
     controller.getReconciliation,
   )
 
+  // ── Google Hotel Ads / Free Booking Links ARI Feed ────────────────────────
+  router.get('/api/v1/ota/google-hotel-prices/:hotelId', controller.getGoogleHotelPricesFeed)
+  router.post('/api/v1/ota/google-hotel-prices/:hotelId', controller.getGoogleHotelPricesFeed)
+
   return router
 }

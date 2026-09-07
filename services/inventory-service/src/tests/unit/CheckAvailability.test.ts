@@ -9,7 +9,7 @@ function makeInventory(
   date: string,
   totalRooms: number,
   reservedCount: number,
-  blockedCount: number
+  blockedCount: number,
 ): Inventory {
   return new Inventory({
     id: `inv-${date}`,
@@ -37,6 +37,9 @@ function makeInventoryRepo(): jest.Mocked<IInventoryRepository> {
     incrementBlocked: jest.fn(),
     decrementBlocked: jest.fn(),
     updateTotalRooms: jest.fn(),
+    findById: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
   }
 }
 
@@ -150,7 +153,7 @@ describe('CheckAvailability', () => {
         checkInDate: '2025-06-05',
         checkOutDate: '2025-06-01',
         quantity: 1,
-      })
+      }),
     ).rejects.toThrow(BadRequestError)
   })
 

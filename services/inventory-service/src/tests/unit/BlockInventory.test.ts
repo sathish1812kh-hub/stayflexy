@@ -15,7 +15,7 @@ function makeInventory(
   date: string,
   totalRooms = 10,
   reservedCount = 0,
-  blockedCount = 0
+  blockedCount = 0,
 ): Inventory {
   return new Inventory({
     id: `inv-${date}`,
@@ -43,6 +43,9 @@ function makeInventoryRepo(): jest.Mocked<IInventoryRepository> {
     incrementBlocked: jest.fn(),
     decrementBlocked: jest.fn(),
     updateTotalRooms: jest.fn(),
+    findById: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
   }
 }
 
@@ -59,9 +62,9 @@ function makeLockService(): jest.Mocked<DistributedLockService> {
     acquire: jest.fn(),
     release: jest.fn(),
     withLock: jest.fn(),
-    withMultipleLocks: jest.fn().mockImplementation(
-      async (_names: string[], fn: () => Promise<unknown>) => fn()
-    ),
+    withMultipleLocks: jest
+      .fn()
+      .mockImplementation(async (_names: string[], fn: () => Promise<unknown>) => fn()),
   } as unknown as jest.Mocked<DistributedLockService>
 }
 
@@ -109,7 +112,7 @@ describe('BlockInventory', () => {
       lockService,
       cache,
       mockPublisher,
-      mockLogger
+      mockLogger,
     )
   })
 
@@ -119,7 +122,7 @@ describe('BlockInventory', () => {
       .mockResolvedValueOnce(makeInventory('2025-07-02'))
       .mockResolvedValueOnce(makeInventory('2025-07-03'))
     inventoryRepo.incrementBlocked.mockImplementation(async (id) =>
-      makeInventory('2025-07-01', 10, 0, 1)
+      makeInventory('2025-07-01', 10, 0, 1),
     )
 
     const result = await useCase.execute(
@@ -133,7 +136,7 @@ describe('BlockInventory', () => {
       },
       'org-1',
       'user-1',
-      'corr-1'
+      'corr-1',
     )
 
     expect(result.blockedDates).toHaveLength(3)
@@ -155,14 +158,14 @@ describe('BlockInventory', () => {
           reason: 'MAINTENANCE',
         },
         'org-1',
-        'user-1'
-      )
+        'user-1',
+      ),
     ).rejects.toThrow(BadRequestError)
   })
 
   it('throws ConflictError when no rooms are available to block', async () => {
     inventoryRepo.findOrCreate.mockResolvedValue(
-      makeInventory('2025-07-01', 5, 3, 2) // 0 available
+      makeInventory('2025-07-01', 5, 3, 2), // 0 available
     )
 
     await expect(
@@ -176,8 +179,8 @@ describe('BlockInventory', () => {
           reason: 'MAINTENANCE',
         },
         'org-1',
-        'user-1'
-      )
+        'user-1',
+      ),
     ).rejects.toThrow(ConflictError)
 
     expect(inventoryRepo.incrementBlocked).not.toHaveBeenCalled()
@@ -198,13 +201,13 @@ describe('BlockInventory', () => {
       },
       'org-1',
       'user-1',
-      'corr-pub'
+      'corr-pub',
     )
     await Promise.resolve()
 
     expect(mockPublisher.publish).toHaveBeenCalledWith(
       'inventory.events',
-      expect.objectContaining({ eventType: 'inventory.blocked' })
+      expect.objectContaining({ eventType: 'inventory.blocked' }),
     )
   })
 
@@ -222,7 +225,7 @@ describe('BlockInventory', () => {
         reason: 'MAINTENANCE',
       },
       'org-1',
-      'user-1'
+      'user-1',
     )
 
     expect(cache.invalidate).toHaveBeenCalledWith('rt-1', expect.any(Date))

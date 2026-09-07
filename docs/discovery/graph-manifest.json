@@ -1,0 +1,9 @@
+{
+  "version": "72.0.0",
+  "generatedAt": "2026-09-07T11:30:00.000Z",
+  "expectedNodes": 84,
+  "expectedRelationships": 195,
+  "targetServiceCount": 12,
+  "monorepoWorkspaces": 28,
+  "sha256": "9f83a4b6c8d2e1f4a5b7c9e0d3f2a1b4c6e8d0f2a4b6c8d0e2f4a6b8c0d2e4f6"
+}

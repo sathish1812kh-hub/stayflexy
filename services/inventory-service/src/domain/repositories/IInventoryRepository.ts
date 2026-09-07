@@ -30,16 +30,18 @@ export interface IInventoryRepository {
   findByRoomTypeAndDateRange(
     roomTypeId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<Inventory[]>
-  findByHotelAndDateRange(
-    hotelId: string,
-    startDate: Date,
-    endDate: Date
-  ): Promise<Inventory[]>
+  findByHotelAndDateRange(hotelId: string, startDate: Date, endDate: Date): Promise<Inventory[]>
   /** Atomically reserve across all dates — throws on overbooking */
   reserveDateRange(data: ReserveDateRangeData): Promise<string[]>
   incrementBlocked(id: string, quantity: number): Promise<Inventory>
   decrementBlocked(id: string, quantity: number): Promise<Inventory>
   updateTotalRooms(hotelId: string, roomTypeId: string, totalRooms: number): Promise<void>
+  findById(id: string): Promise<Inventory | null>
+  update(
+    id: string,
+    data: Partial<{ totalInventory: number; blockedInventory: number }>,
+  ): Promise<Inventory>
+  delete(id: string): Promise<void>
 }

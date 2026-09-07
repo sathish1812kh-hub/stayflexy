@@ -50,4 +50,5 @@ export interface IRoomRepository {
     changedBy: string
     reason?: string
   }): Promise<void>
+  softDelete(id: string): Promise<void>
 }

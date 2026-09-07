@@ -72,6 +72,7 @@ function makeRoomTypeRepo(): jest.Mocked<IRoomTypeRepository> {
     create: jest.fn(),
     update: jest.fn(),
     findMany: jest.fn(),
+    softDelete: jest.fn(),
   }
 }
 

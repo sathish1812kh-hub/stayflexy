@@ -221,4 +221,51 @@ export class PrismaInventoryRepository implements IInventoryRepository {
       throw err
     }
   }
+
+  async findById(id: string): Promise<Inventory | null> {
+    try {
+      const raw = await this.db.inventory.findUnique({
+        where: { id },
+      })
+      return raw ? mapToInventory(raw) : null
+    } catch (err) {
+      const mapped = fromPrismaError(err)
+      if (mapped) throw mapped
+      throw err
+    }
+  }
+
+  async update(
+    id: string,
+    data: Partial<{ totalInventory: number; blockedInventory: number }>,
+  ): Promise<Inventory> {
+    try {
+      const raw = await this.db.inventory.update({
+        where: { id },
+        data: {
+          ...(data.totalInventory !== undefined ? { totalInventory: data.totalInventory } : {}),
+          ...(data.blockedInventory !== undefined
+            ? { blockedInventory: data.blockedInventory }
+            : {}),
+        },
+      })
+      return mapToInventory(raw)
+    } catch (err) {
+      const mapped = fromPrismaError(err)
+      if (mapped) throw mapped
+      throw err
+    }
+  }
+
+  async delete(id: string): Promise<void> {
+    try {
+      await this.db.inventory.delete({
+        where: { id },
+      })
+    } catch (err) {
+      const mapped = fromPrismaError(err)
+      if (mapped) throw mapped
+      throw err
+    }
+  }
 }

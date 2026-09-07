@@ -6,6 +6,7 @@ import { AirbnbAdapter } from './AirbnbAdapter'
 import { ExpediaAdapter } from './ExpediaAdapter'
 import { AgodaAdapter } from './AgodaAdapter'
 import { MakeMyTripAdapter } from './MakeMyTripAdapter'
+import { GoogleHotelAdsAdapter } from './GoogleHotelAdsAdapter'
 
 export class AdapterFactory {
   private readonly adapters: Map<string, IOtaAdapter>
@@ -17,6 +18,7 @@ export class AdapterFactory {
       ['EXPEDIA', new ExpediaAdapter(logger)],
       ['AGODA', new AgodaAdapter(logger)],
       ['MAKE_MY_TRIP', new MakeMyTripAdapter(logger)],
+      ['GOOGLE_HOTEL_ADS', new GoogleHotelAdsAdapter(logger)],
     ])
   }
 

@@ -161,4 +161,17 @@ export class PrismaRoomRepository implements IRoomRepository {
   }): Promise<void> {
     // Audit handled in operation logs
   }
+
+  async softDelete(id: string): Promise<void> {
+    try {
+      await this.db.room.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      })
+    } catch (err) {
+      const mapped = fromPrismaError(err)
+      if (mapped) throw mapped
+      throw err
+    }
+  }
 }

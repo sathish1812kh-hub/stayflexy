@@ -1,8 +1,9 @@
 import { builder } from '../builder'
 import { UnauthorizedError } from '@stayflexi/shared-errors'
+import { RoleRef } from './role'
 
 // User shape representing the authenticated personnel
-const UserRef = builder.objectRef<{
+export const UserRef = builder.objectRef<{
   userId: string
   email: string
   firstName: string
@@ -34,6 +35,19 @@ UserRef.implement({
     lastLoginAt: t.exposeString('lastLoginAt', { nullable: true }),
     emailVerifiedAt: t.exposeString('emailVerifiedAt', { nullable: true }),
     createdAt: t.exposeString('createdAt'),
+    permissions: t.stringList({
+      resolve: async (user, _args, context) => {
+        if (!context.manageRoles) return []
+        return await context.manageRoles.getUserPermissions(user.userId, user.organizationId)
+      },
+    }),
+    roles: t.field({
+      type: [RoleRef],
+      resolve: async (user, _args, context) => {
+        if (!context.manageRoles) return []
+        return await context.manageRoles.getUserRoles(user.userId, user.organizationId)
+      },
+    }),
   }),
 })
 
@@ -47,7 +61,7 @@ builder.asEntity(UserRef, {
 })
 
 // Auth Response payload for login mutation
-const AuthResponseRef = builder.objectRef<{
+export const AuthResponseRef = builder.objectRef<{
   accessToken: string
   refreshToken: string
   user: any
@@ -91,7 +105,7 @@ builder.mutationFields((t) => ({
         { email: args.email, password: args.password },
         '127.0.0.1', // mock ip in gateway context or pull from correlation
         'Supergraph-Gate', // mock user agent
-        context.correlationId
+        context.correlationId,
       )
 
       // Normalize shape to match AuthUserResponse keys in UserRef

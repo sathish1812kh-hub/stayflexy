@@ -1,6 +1,6 @@
 {
   "name": "stayflexi",
-  "version": "6.9.0",
+  "version": "72.0.0",
   "private": true,
   "packageManager": "npm@11.10.1",
   "workspaces": [

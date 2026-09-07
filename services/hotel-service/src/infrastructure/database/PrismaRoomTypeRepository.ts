@@ -146,4 +146,17 @@ export class PrismaRoomTypeRepository implements IRoomTypeRepository {
       meta: buildPaginationMeta(total, filter.page, filter.limit),
     }
   }
+
+  async softDelete(id: string): Promise<void> {
+    try {
+      await this.db.roomType.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      })
+    } catch (err) {
+      const mapped = fromPrismaError(err)
+      if (mapped) throw mapped
+      throw err
+    }
+  }
 }

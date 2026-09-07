@@ -42,6 +42,9 @@ enum PaymentMethod {
   BANK_TRANSFER
   UPI
   WALLET
+  APPLE_PAY
+  GOOGLE_PAY
+  KLARNA
   OTA_COLLECT
   OTHER
 }

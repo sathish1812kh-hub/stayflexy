@@ -5,7 +5,11 @@ import rateLimit from 'express-rate-limit'
 import { getPrismaClient } from '@stayflexi/shared-database'
 import { createRequestLogger } from '@stayflexi/shared-logger'
 import type { Logger } from '@stayflexi/shared-logger'
-import { MetricsRegistry, createHttpMetricsMiddleware, createMetricsHandler } from '@stayflexi/shared-observability'
+import {
+  MetricsRegistry,
+  createHttpMetricsMiddleware,
+  createMetricsHandler,
+} from '@stayflexi/shared-observability'
 import type { IEventPublisher } from '@stayflexi/shared-events'
 import type Redis from 'ioredis'
 import { ApolloServer } from '@apollo/server'
@@ -37,12 +41,13 @@ import { SyncReservations } from './application/use-cases/SyncReservations'
 import { ImportReservation } from './application/use-cases/ImportReservation'
 import { GetSyncStatus } from './application/use-cases/GetSyncStatus'
 import { GetReconciliation } from './application/use-cases/GetReconciliation'
+import { GenerateGoogleHotelPricesFeed } from './application/use-cases/GenerateGoogleHotelPricesFeed'
 
 export function createApp(
   config: OtaConfig,
   redis: Redis,
   eventPublisher: IEventPublisher,
-  logger: Logger
+  logger: Logger,
 ): express.Application {
   const db = getPrismaClient(config.DATABASE_URL)
 
@@ -51,7 +56,7 @@ export function createApp(
   const mappingRepo = new PrismaOtaMappingRepository(db)
   const reservationRepo = new PrismaOtaReservationRepository(db)
   const syncJobRepo = new PrismaSyncJobRepository(db)
-  
+
   const cache = new OtaSyncCache(redis)
   const lock = new OtaDistributedLock(redis, logger)
   const otaEventPublisher = new OtaEventPublisher(eventPublisher, logger)
@@ -61,17 +66,46 @@ export function createApp(
     reservationRepo,
     mappingRepo,
     cache,
-    logger
+    logger,
   )
 
   // Use Cases Instantiations
   const connectOta = new ConnectOtaProvider(providerRepo, mappingRepo, otaEventPublisher, logger)
-  const syncInventory = new SyncInventory(providerRepo, mappingRepo, syncJobRepo, cache, lock, otaEventPublisher, adapterFactory, logger)
-  const syncRates = new SyncRates(providerRepo, mappingRepo, syncJobRepo, cache, lock, otaEventPublisher, adapterFactory, logger)
-  const syncReservations = new SyncReservations(providerRepo, mappingRepo, syncJobRepo, reservationRepo, cache, lock, otaEventPublisher, adapterFactory, logger)
+  const syncInventory = new SyncInventory(
+    providerRepo,
+    mappingRepo,
+    syncJobRepo,
+    cache,
+    lock,
+    otaEventPublisher,
+    adapterFactory,
+    logger,
+  )
+  const syncRates = new SyncRates(
+    providerRepo,
+    mappingRepo,
+    syncJobRepo,
+    cache,
+    lock,
+    otaEventPublisher,
+    adapterFactory,
+    logger,
+  )
+  const syncReservations = new SyncReservations(
+    providerRepo,
+    mappingRepo,
+    syncJobRepo,
+    reservationRepo,
+    cache,
+    lock,
+    otaEventPublisher,
+    adapterFactory,
+    logger,
+  )
   const importReservation = new ImportReservation(reservationRepo, otaEventPublisher, logger)
   const getSyncStatus = new GetSyncStatus(syncJobRepo, cache, logger)
   const getReconciliation = new GetReconciliation(reconciliationEngine, logger)
+  const generateGoogleFeed = new GenerateGoogleHotelPricesFeed(providerRepo, mappingRepo, logger)
 
   // Controller Instantiation
   const controller = new OtaController(
@@ -84,34 +118,47 @@ export function createApp(
     getReconciliation,
     providerRepo,
     mappingRepo,
-    reservationRepo
+    reservationRepo,
+    generateGoogleFeed,
   )
 
   // Express Setup
   const registry = new MetricsRegistry()
   const app = express()
-  
+
   app.disable('x-powered-by')
   app.set('trust proxy', 1)
   app.use(helmet())
-  app.use(cors({
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-Id', 'X-User-Id', 'X-Organization-Id', 'X-User-Role', 'X-Service-Key'],
-  }))
+  app.use(
+    cors({
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Correlation-Id',
+        'X-User-Id',
+        'X-Organization-Id',
+        'X-User-Role',
+        'X-Service-Key',
+      ],
+    }),
+  )
   app.use(express.json({ limit: '1mb' }))
   app.use(correlationMiddleware)
   app.use(createRequestLogger(logger))
   app.use(createHttpMetricsMiddleware(registry) as unknown as express.RequestHandler)
   app.get('/metrics', createMetricsHandler(registry) as unknown as express.RequestHandler)
-  
-  app.use(rateLimit({
-    windowMs: config.RATE_LIMIT_WINDOW_MS,
-    max: config.RATE_LIMIT_MAX_REQUESTS,
-    standardHeaders: true,
-    legacyHeaders: false,
-    skip: (req) => req.path.startsWith('/health') || req.path === '/metrics',
-  }))
+
+  app.use(
+    rateLimit({
+      windowMs: config.RATE_LIMIT_WINDOW_MS,
+      max: config.RATE_LIMIT_MAX_REQUESTS,
+      standardHeaders: true,
+      legacyHeaders: false,
+      skip: (req) => req.path.startsWith('/health') || req.path === '/metrics',
+    }),
+  )
 
   app.use((req, res, next) => {
     if (req.path.startsWith('/api/v1/')) return authMiddleware(req, res, next)
@@ -121,7 +168,12 @@ export function createApp(
   // Inline Health Router
   const startTime = Date.now()
   app.get('/health/live', (_req, res) => {
-    res.json({ status: 'alive', service: 'ota-service', uptime: Date.now() - startTime, timestamp: new Date().toISOString() })
+    res.json({
+      status: 'alive',
+      service: 'ota-service',
+      uptime: Date.now() - startTime,
+      timestamp: new Date().toISOString(),
+    })
   })
   app.get('/health/ready', async (_req, res) => {
     const checks: Record<string, string> = {}
@@ -166,12 +218,15 @@ export function createApp(
             getReconciliation,
           }
         },
-      })
+      }),
     )
   })
 
   app.use((_req, res) => {
-    res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 } })
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Route not found', statusCode: 404 },
+    })
   })
   app.use(createErrorHandler(logger))
 

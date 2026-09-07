@@ -22,6 +22,7 @@ import type { SyncReservations } from '../../application/use-cases/SyncReservati
 import type { ImportReservation } from '../../application/use-cases/ImportReservation'
 import type { GetSyncStatus } from '../../application/use-cases/GetSyncStatus'
 import type { GetReconciliation } from '../../application/use-cases/GetReconciliation'
+import type { GenerateGoogleHotelPricesFeed } from '../../application/use-cases/GenerateGoogleHotelPricesFeed'
 import type { IOtaProviderRepository } from '../../domain/repositories/IOtaProviderRepository'
 import type { IOtaMappingRepository } from '../../domain/repositories/IOtaMappingRepository'
 import type { IOtaReservationRepository } from '../../domain/repositories/IOtaReservationRepository'
@@ -38,6 +39,7 @@ export class OtaController {
     private readonly providerRepo: IOtaProviderRepository,
     private readonly mappingRepo: IOtaMappingRepository,
     private readonly reservationRepo: IOtaReservationRepository,
+    private readonly generateGoogleFeedUC?: GenerateGoogleHotelPricesFeed,
   ) {}
 
   private getAuth(req: Request): { userId: string; orgId: string; correlationId: string } {
@@ -84,12 +86,10 @@ export class OtaController {
       if (!id) throw new Error('Missing provider id')
       const provider = await this.providerRepo.findById(id)
       if (!provider) {
-        res
-          .status(404)
-          .json({
-            success: false,
-            error: { code: 'NOT_FOUND', message: 'Provider not found', statusCode: 404 },
-          })
+        res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Provider not found', statusCode: 404 },
+        })
         return
       }
       res.json(successResponse(provider.toJSON(), correlationId))
@@ -118,12 +118,10 @@ export class OtaController {
       if (!id) throw new Error('Missing provider id')
       const existing = await this.providerRepo.findById(id)
       if (!existing) {
-        res
-          .status(404)
-          .json({
-            success: false,
-            error: { code: 'NOT_FOUND', message: 'Provider not found', statusCode: 404 },
-          })
+        res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Provider not found', statusCode: 404 },
+        })
         return
       }
       const dto = validate(updateProviderDtoSchema, req.body)
@@ -141,12 +139,10 @@ export class OtaController {
       if (!id) throw new Error('Missing provider id')
       const existing = await this.providerRepo.findById(id)
       if (!existing) {
-        res
-          .status(404)
-          .json({
-            success: false,
-            error: { code: 'NOT_FOUND', message: 'Provider not found', statusCode: 404 },
-          })
+        res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Provider not found', statusCode: 404 },
+        })
         return
       }
       const provider = await this.providerRepo.softDelete(id)
@@ -199,12 +195,10 @@ export class OtaController {
       if (!id) throw new Error('Missing mapping id')
       const mapping = await this.mappingRepo.findById(id)
       if (!mapping) {
-        res
-          .status(404)
-          .json({
-            success: false,
-            error: { code: 'NOT_FOUND', message: 'Connection not found', statusCode: 404 },
-          })
+        res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Connection not found', statusCode: 404 },
+        })
         return
       }
       res.json(successResponse(mapping.toJSON(), correlationId))
@@ -220,12 +214,10 @@ export class OtaController {
       if (!id) throw new Error('Missing mapping id')
       const existing = await this.mappingRepo.findById(id)
       if (!existing) {
-        res
-          .status(404)
-          .json({
-            success: false,
-            error: { code: 'NOT_FOUND', message: 'Connection not found', statusCode: 404 },
-          })
+        res.status(404).json({
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Connection not found', statusCode: 404 },
+        })
         return
       }
       const dto = validate(updateConnectionDtoSchema, req.body)
@@ -291,12 +283,10 @@ export class OtaController {
       const limit = parseInt(String(req.query['limit'] ?? '20'), 10)
 
       if (!hotelId) {
-        res
-          .status(400)
-          .json({
-            success: false,
-            error: { code: 'BAD_REQUEST', message: 'hotelId is required', statusCode: 400 },
-          })
+        res.status(400).json({
+          success: false,
+          error: { code: 'BAD_REQUEST', message: 'hotelId is required', statusCode: 400 },
+        })
         return
       }
 
@@ -317,12 +307,10 @@ export class OtaController {
       const hotelId = req.query['hotelId'] as string | undefined
 
       if (!hotelId) {
-        res
-          .status(400)
-          .json({
-            success: false,
-            error: { code: 'BAD_REQUEST', message: 'hotelId is required', statusCode: 400 },
-          })
+        res.status(400).json({
+          success: false,
+          error: { code: 'BAD_REQUEST', message: 'hotelId is required', statusCode: 400 },
+        })
         return
       }
 
@@ -380,6 +368,61 @@ export class OtaController {
         query.dateTo,
       )
       res.json(successResponse(report, correlationId))
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  // ── Google Hotel Ads / Free Booking Links ARI Feed ────────────────────────
+
+  getGoogleHotelPricesFeed = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const hotelId = req.params['hotelId']
+      if (!hotelId) throw new Error('Missing hotelId parameter')
+
+      const dateFrom = (req.query['dateFrom'] as string) || new Date().toISOString().split('T')[0]!
+      const dateTo =
+        (req.query['dateTo'] as string) ||
+        new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0]!
+      const format = (req.query['format'] as string) || 'xml'
+
+      // Use case generation or default mock rates
+      const rates = req.body?.rates ?? [
+        {
+          roomTypeId: 'standard-room',
+          ratePlanId: 'best-available-rate',
+          date: dateFrom,
+          baseRate: 150.0,
+          taxAmount: 15.0,
+          feesAmount: 0.0,
+          currency: 'USD',
+          occupancy: 2,
+        },
+      ]
+
+      if (this.generateGoogleFeedUC) {
+        const feed = await this.generateGoogleFeedUC.execute({
+          hotelId,
+          dateFrom,
+          dateTo,
+          rates,
+          baseUrl: req.protocol + '://' + req.get('host'),
+        })
+
+        if (format === 'xml') {
+          res.setHeader('Content-Type', 'application/xml')
+          res.send(feed.xmlFeed)
+          return
+        }
+        res.json(successResponse(feed))
+        return
+      }
+
+      res.status(501).json({ success: false, error: 'Google ARI feed generator uninitialized' })
     } catch (err) {
       next(err)
     }

@@ -20,6 +20,7 @@ const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'POST', path: /^\/api\/v1\/auth\/register$/ },
   { method: 'POST', path: /^\/api\/v1\/auth\/login$/ },
   { method: 'POST', path: /^\/api\/v1\/auth\/refresh$/ },
+  { method: 'POST', path: /^\/api\/v1\/auth\/accept-invite/ },
   { method: 'GET', path: /^\/health/ },
   { method: 'GET', path: /^\/metrics$/ },
 ]

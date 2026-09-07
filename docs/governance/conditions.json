@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-08-26T13:54:54.860Z",
+  "openConditions": [
+    {
+      "id": "C1",
+      "title": "Gateway Public Route & GraphQL Allowlist for Invitation Acceptance",
+      "status": "RESOLVED",
+      "resolution": "Added accept-invite to PUBLIC_ROUTES and acceptInvite to PUBLIC_GRAPHQL_FIELDS in gateway auth.ts (Verified by Auditor)"
+    },
+    {
+      "id": "C2",
+      "title": "RBAC Distributed Cache Invalidation on Role Mutations",
+      "status": "RESOLVED",
+      "resolution": "Injected non-blocking cursor SCAN invalidation across assignRole, revokeRole, updateRole, and deleteRole in ManageRoles"
+    },
+    {
+      "id": "C3",
+      "title": "Invitation Authorization Permission-Key Parity (user:create)",
+      "status": "RESOLVED",
+      "resolution": "Enforced live user:create permission check in ManageInvitations.inviteUser (Verified by Auditor)"
+    },
+    {
+      "id": "C4",
+      "title": "Supergraph Federation Composition Schema Definition & CI Validation",
+      "status": "RESOLVED",
+      "resolution": "Created supergraph.yaml mapping active federated subgraphs and scripts/validate-supergraph.mjs CI composition validation"
+    },
+    {
+      "id": "C5",
+      "title": "Automated Playwright E2E Suite CI Execution",
+      "status": "RESOLVED",
+      "resolution": "Configured headless chromium Playwright runner producing verified test-results/playwright-results.json report"
+    }
+  ],
+  "metrics": {
+    "totalConditions": 5,
+    "resolvedConditions": 5,
+    "openAnomalies": 0
+  }
+}

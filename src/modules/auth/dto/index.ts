@@ -46,6 +46,14 @@ export const ResetPasswordDto = z.object({
   newPassword: passwordSchema,
 })
 
+export const AcceptInviteDto = z.object({
+  token: z.string().min(1, 'Token is required'),
+  password: passwordSchema,
+  firstName: z.string().min(1).max(100).trim().optional(),
+  lastName: z.string().min(1).max(100).trim().optional(),
+  phone: z.string().max(20).trim().optional(),
+})
+
 // ─── RBAC DTOs ─────────────────────────────────────────────────────────────────
 
 export const CreateRoleDto = z.object({
@@ -110,6 +118,7 @@ export type RefreshTokenDtoType = z.infer<typeof RefreshTokenDto>
 export type ChangePasswordDtoType = z.infer<typeof ChangePasswordDto>
 export type RequestPasswordResetDtoType = z.infer<typeof RequestPasswordResetDto>
 export type ResetPasswordDtoType = z.infer<typeof ResetPasswordDto>
+export type AcceptInviteDtoType = z.infer<typeof AcceptInviteDto>
 export type CreateRoleDtoType = z.infer<typeof CreateRoleDto>
 export type UpdateRoleDtoType = z.infer<typeof UpdateRoleDto>
 export type AssignRoleDtoType = z.infer<typeof AssignRoleDto>

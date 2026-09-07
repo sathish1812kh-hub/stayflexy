@@ -46,4 +46,5 @@ export interface IRoomTypeRepository {
   create(data: CreateRoomTypeData): Promise<RoomType>
   update(id: string, data: UpdateRoomTypeData): Promise<RoomType>
   findMany(filter: RoomTypeFilter): Promise<PaginatedResult<RoomType>>
+  softDelete(id: string): Promise<void>
 }

@@ -10,7 +10,7 @@ import type { Logger } from '@stayflexi/shared-logger'
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
 function makeInventory(
-  overrides: Partial<{ totalRooms: number; reservedCount: number; blockedCount: number }> = {}
+  overrides: Partial<{ totalRooms: number; reservedCount: number; blockedCount: number }> = {},
 ): Inventory {
   return new Inventory({
     id: 'inv-1',
@@ -38,6 +38,9 @@ function makeInventoryRepo(): jest.Mocked<IInventoryRepository> {
     incrementBlocked: jest.fn(),
     decrementBlocked: jest.fn(),
     updateTotalRooms: jest.fn(),
+    findById: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
   }
 }
 
@@ -46,9 +49,9 @@ function makeLockService(): jest.Mocked<DistributedLockService> {
     acquire: jest.fn(),
     release: jest.fn(),
     withLock: jest.fn(),
-    withMultipleLocks: jest.fn().mockImplementation(
-      async (_names: string[], fn: () => Promise<unknown>) => fn()
-    ),
+    withMultipleLocks: jest
+      .fn()
+      .mockImplementation(async (_names: string[], fn: () => Promise<unknown>) => fn()),
   } as unknown as jest.Mocked<DistributedLockService>
 }
 
@@ -105,7 +108,7 @@ describe('ReserveInventory', () => {
         quantity: 1,
       },
       'org-1',
-      'corr-1'
+      'corr-1',
     )
 
     expect(result.nights).toBe(3)
@@ -116,7 +119,7 @@ describe('ReserveInventory', () => {
         bookingRef: 'BK-001',
         roomTypeId: 'rt-1',
         quantity: 1,
-      })
+      }),
     )
   })
 
@@ -131,8 +134,8 @@ describe('ReserveInventory', () => {
           checkOutDate: '2025-06-01',
           quantity: 1,
         },
-        'org-1'
-      )
+        'org-1',
+      ),
     ).rejects.toThrow(BadRequestError)
 
     expect(inventoryRepo.findOrCreate).not.toHaveBeenCalled()
@@ -149,14 +152,14 @@ describe('ReserveInventory', () => {
           checkOutDate: '2025-06-01',
           quantity: 1,
         },
-        'org-1'
-      )
+        'org-1',
+      ),
     ).rejects.toThrow(BadRequestError)
   })
 
   it('throws ConflictError (overbooking) when available < quantity', async () => {
     inventoryRepo.findOrCreate.mockResolvedValue(
-      makeInventory({ totalRooms: 2, reservedCount: 2, blockedCount: 0 })
+      makeInventory({ totalRooms: 2, reservedCount: 2, blockedCount: 0 }),
     )
 
     await expect(
@@ -169,8 +172,8 @@ describe('ReserveInventory', () => {
           checkOutDate: '2025-06-02',
           quantity: 1,
         },
-        'org-1'
-      )
+        'org-1',
+      ),
     ).rejects.toThrow(ConflictError)
 
     expect(inventoryRepo.reserveDateRange).not.toHaveBeenCalled()
@@ -178,7 +181,7 @@ describe('ReserveInventory', () => {
 
   it('throws ConflictError when blocked inventory makes room unavailable', async () => {
     inventoryRepo.findOrCreate.mockResolvedValue(
-      makeInventory({ totalRooms: 2, reservedCount: 0, blockedCount: 2 })
+      makeInventory({ totalRooms: 2, reservedCount: 0, blockedCount: 2 }),
     )
 
     await expect(
@@ -191,8 +194,8 @@ describe('ReserveInventory', () => {
           checkOutDate: '2025-06-02',
           quantity: 1,
         },
-        'org-1'
-      )
+        'org-1',
+      ),
     ).rejects.toThrow(ConflictError)
   })
 
@@ -211,8 +214,8 @@ describe('ReserveInventory', () => {
           checkOutDate: '2025-06-02',
           quantity: 1,
         },
-        'org-1'
-      )
+        'org-1',
+      ),
     ).rejects.toThrow(ServiceUnavailableError)
   })
 
@@ -229,7 +232,7 @@ describe('ReserveInventory', () => {
         checkOutDate: '2025-06-03',
         quantity: 1,
       },
-      'org-1'
+      'org-1',
     )
 
     expect(cache.invalidate).toHaveBeenCalledTimes(2)
@@ -249,7 +252,7 @@ describe('ReserveInventory', () => {
         quantity: 1,
       },
       'org-1',
-      'corr-pub'
+      'corr-pub',
     )
     await Promise.resolve()
 
@@ -258,7 +261,7 @@ describe('ReserveInventory', () => {
       expect.objectContaining({
         eventType: 'inventory.reserved',
         organizationId: 'org-1',
-      })
+      }),
     )
   })
 
@@ -275,7 +278,7 @@ describe('ReserveInventory', () => {
         checkOutDate: '2025-06-05',
         quantity: 1,
       },
-      'org-1'
+      'org-1',
     )
 
     const lockNames = lockService.withMultipleLocks.mock.calls[0]?.[0] as string[]

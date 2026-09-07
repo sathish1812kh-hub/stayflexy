@@ -155,7 +155,6 @@ export function createApp(
           const authUser = extractAuthUser(
             req.headers as Record<string, string | string[] | undefined>,
             config.SERVICE_KEY,
-            'stayflexi/auth-service',
           )
 
           const ipAddress =

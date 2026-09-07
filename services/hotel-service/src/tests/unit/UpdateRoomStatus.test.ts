@@ -76,6 +76,7 @@ function makeRoomRepo(): jest.Mocked<IRoomRepository> {
     updateStatus: jest.fn(),
     findMany: jest.fn(),
     createStatusAudit: jest.fn().mockResolvedValue(undefined),
+    softDelete: jest.fn(),
   }
 }
 

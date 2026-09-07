@@ -1,0 +1,22 @@
+federation_version: =2.0.0
+subgraphs:
+  auth:
+    routing_url: http://localhost:4001/graphql
+    schema:
+      subgraph_url: http://localhost:4001/graphql
+  organization:
+    routing_url: http://localhost:4002/graphql
+    schema:
+      subgraph_url: http://localhost:4002/graphql
+  hotel:
+    routing_url: http://localhost:4003/graphql
+    schema:
+      subgraph_url: http://localhost:4003/graphql
+  booking:
+    routing_url: http://localhost:4004/graphql
+    schema:
+      subgraph_url: http://localhost:4004/graphql
+  inventory:
+    routing_url: http://localhost:4005/graphql
+    schema:
+      subgraph_url: http://localhost:4005/graphql

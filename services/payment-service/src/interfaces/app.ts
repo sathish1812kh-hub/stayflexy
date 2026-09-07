@@ -215,6 +215,7 @@ export function createApp(
 
   // Auth middleware: protect all payment and invoice API routes except webhooks.
   // The webhook path authenticates via HMAC signature in the controller itself.
+  const auth = authMiddleware(config.SERVICE_KEY ?? '')
   app.use((req, res, next) => {
     const path = req.path
     const isProtected =
@@ -224,7 +225,7 @@ export function createApp(
       path.startsWith('/api/v1/tax-configs') ||
       path.startsWith('/api/v1/fee-configs')
     if (isProtected) {
-      return authMiddleware(req, res, next)
+      return auth(req, res, next)
     }
     return next()
   })

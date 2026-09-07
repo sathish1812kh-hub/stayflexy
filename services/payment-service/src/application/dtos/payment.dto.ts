@@ -1,8 +1,29 @@
 import { z } from 'zod'
 
 const uuidSchema = z.string().uuid()
-const PaymentMethodEnum = z.enum(['CASH', 'CREDIT_CARD', 'DEBIT_CARD', 'BANK_TRANSFER', 'UPI', 'WALLET', 'OTA_COLLECT', 'OTHER'])
-const InvoiceItemTypeEnum = z.enum(['ROOM_CHARGE', 'TAX', 'DISCOUNT', 'SERVICE_CHARGE', 'FOOD_BEVERAGE', 'LAUNDRY', 'TRANSPORT', 'OTHER'])
+const PaymentMethodEnum = z.enum([
+  'CASH',
+  'CREDIT_CARD',
+  'DEBIT_CARD',
+  'BANK_TRANSFER',
+  'UPI',
+  'WALLET',
+  'APPLE_PAY',
+  'GOOGLE_PAY',
+  'KLARNA',
+  'OTA_COLLECT',
+  'OTHER',
+])
+const InvoiceItemTypeEnum = z.enum([
+  'ROOM_CHARGE',
+  'TAX',
+  'DISCOUNT',
+  'SERVICE_CHARGE',
+  'FOOD_BEVERAGE',
+  'LAUNDRY',
+  'TRANSPORT',
+  'OTHER',
+])
 
 export const initiatePaymentSchema = z.object({
   bookingId: uuidSchema,
@@ -38,10 +59,19 @@ export type CancelPaymentDto = z.infer<typeof cancelPaymentSchema>
 export const paymentSearchSchema = z.object({
   hotelId: uuidSchema.optional(),
   bookingId: uuidSchema.optional(),
-  paymentStatus: z.enum([
-    'PENDING', 'PROCESSING', 'AUTHORIZED', 'CAPTURED',
-    'SUCCESS', 'FAILED', 'REFUNDED', 'PARTIALLY_REFUNDED', 'CANCELLED',
-  ]).optional(),
+  paymentStatus: z
+    .enum([
+      'PENDING',
+      'PROCESSING',
+      'AUTHORIZED',
+      'CAPTURED',
+      'SUCCESS',
+      'FAILED',
+      'REFUNDED',
+      'PARTIALLY_REFUNDED',
+      'CANCELLED',
+    ])
+    .optional(),
   paymentMethod: PaymentMethodEnum.optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
@@ -64,7 +94,10 @@ export const createInvoiceSchema = z.object({
   hotelId: uuidSchema,
   currency: z.string().length(3).default('USD'),
   notes: z.string().max(2000).optional(),
-  dueDate: z.string().optional().transform(v => v ? new Date(v) : undefined),
+  dueDate: z
+    .string()
+    .optional()
+    .transform((v) => (v ? new Date(v) : undefined)),
   items: z.array(invoiceItemSchema).min(1).max(50),
 })
 export type CreateInvoiceDto = z.infer<typeof createInvoiceSchema>
